@@ -18,5 +18,5 @@ It is especially useful for companies that require managerial approval and budge
 ## Tech Stack
 - Backend: C# 
 - Frontend: React
-- Database: EF core
+- Database: PostgreSQL, EF core
 
