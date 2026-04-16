@@ -13,7 +13,7 @@ It is especially useful for companies that require managerial approval and budge
 - Nick Sinazhenski — TL/Frontend dev
 - Aron Shapialevich - Designer/Frontend dev
 - Aliaksei Banshchyk - Data architect/Backend dev
-- Mihail Odintsov - Dev ops/Backend dev 
+- Mihail Odintsov - Dev ops/Backend dev
 
 ## Tech Stack
 - Backend: C# 
