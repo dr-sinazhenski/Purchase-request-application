@@ -1,8 +1,11 @@
 using Application;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
+using Application.BusinessLogic.ProductLogic.CreateProduct;
+using Application.BusinessLogic.ProductLogic.DeleteProduct;
+using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.ProductLogic.GetProductById;
+using Application.BusinessLogic.ProductLogic.UpdateProduct;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 
 namespace WebApi.Controllers
 {
@@ -11,18 +14,18 @@ namespace WebApi.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ILogger<ProductController> _logger;
-        private readonly PlaceholderHandler _placeholderHandler;
+        private readonly IMediator _mediator;
 
-        public ProductController(ILogger<ProductController> logger, PlaceholderHandler placeholderHandler)
+        public ProductController(ILogger<ProductController> logger, IMediator mediator)
         {
             _logger = logger;
-            _placeholderHandler = placeholderHandler;
+            _mediator = mediator;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var product = _placeholderHandler.GetProductById(id);
+            var product = await _mediator.Send(new GetProductByIdRequest(id));
 
             if (product == null)
             {
@@ -33,9 +36,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name, string desc)
-        {
-            var product =  _placeholderHandler.CreateProduct(name, desc);
+        public async Task<IActionResult> Create([FromBody] CreateProductReqDto dto)
+        { 
+            var product = await _mediator.Send(new CreateProductRequest(dto));
 
             if (product == null)
             {
@@ -46,17 +49,27 @@ namespace WebApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(Guid id, string name, string desc)
+        public async Task<IActionResult> Update([FromBody] CreateProductReqDto dto)
         {
-            _placeholderHandler.UpdateProduct(id, name, desc);
+            var product = await _mediator.Send(new UpdateProductRequest(dto));
 
-            return Ok();
+            if (product == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(product);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            _placeholderHandler.DeleteProduct(id);
+            var result = await _mediator.Send(new DeleteProductRequest(id));
+
+            if (result == false)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }
