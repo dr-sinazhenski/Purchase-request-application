@@ -1,5 +1,5 @@
 using Application;
-using Infrastructure.Database;
+using Infrastructure;
 using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +13,7 @@ builder.Services.AddSwaggerGen();
 
 builder.ConfigureProjectsOptions();
 builder.Services.AddDb();
-
-builder.Services.AddScoped<PlaceholderHandler, PlaceholderHandler>();
+builder.Services.AddMediatr();
 
 var app = builder.Build();
 
