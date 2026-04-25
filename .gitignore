@@ -429,3 +429,4 @@ FodyWeavers.xsd
 src/PurchaseRequestApi/WebApi/appsettings.json
 src/PurchaseRequestApi/WebApi/appsettings.json
 src/PurchaseRequestApi/WebApi/appsettings.json
+/src/PurchaseRequestApi/WebApi/appsettings.Development.json
