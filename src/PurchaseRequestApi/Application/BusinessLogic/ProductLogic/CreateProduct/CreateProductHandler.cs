@@ -6,15 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AutoWrapper;
+using Serilog;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
     public class CreateProductHandler : IRequestHandler<CreateProductRequest, ProductResDto?>
     {
+        private readonly ILogger _logger;
         private readonly AppDbContext _dbContext;
 
-        public CreateProductHandler(AppDbContext dbContext)
+        public CreateProductHandler(AppDbContext dbContext, ILogger logger)
         {
+            _logger = logger;
             _dbContext = dbContext;
         }
 
@@ -22,6 +25,7 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
         {
             try
             {
+                _logger.Information("==================Creating a Product================");
                 var product = new Product()
                 {
                     Id = Guid.NewGuid(),
@@ -41,6 +45,7 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
             }
             catch(Exception exception)
             {
+                _logger.Information("==================EXCEPTION!================");
                 throw;
             }
         }
