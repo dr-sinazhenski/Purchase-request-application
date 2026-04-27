@@ -5,36 +5,49 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AutoWrapper;
+using Serilog;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
     public class CreateProductHandler : IRequestHandler<CreateProductRequest, ProductResDto?>
     {
+        private readonly ILogger _logger;
         private readonly AppDbContext _dbContext;
 
-        public CreateProductHandler(AppDbContext dbContext)
+        public CreateProductHandler(AppDbContext dbContext, ILogger logger)
         {
+            _logger = logger;
             _dbContext = dbContext;
         }
 
         public async Task<ProductResDto> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
-            var product = new Product()
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = request.dto.Name,
-                Description = request.dto.Description
-            };
+                _logger.Information("==================Creating a Product================");
+                var product = new Product()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.dto.Name,
+                    Description = request.dto.Description
+                };
 
-            await _dbContext.Products.AddAsync(product);
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.Products.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
 
-            return new ProductResDto
+                return new ProductResDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description
+                };
+            }
+            catch(Exception exception)
             {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description
-            };
+                _logger.Information("==================EXCEPTION!================");
+                throw;
+            }
         }
     }
 }

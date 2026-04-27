@@ -6,6 +6,7 @@ using Application.BusinessLogic.ProductLogic.GetProductById;
 using Application.BusinessLogic.ProductLogic.UpdateProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace WebApi.Controllers
 {
@@ -13,10 +14,10 @@ namespace WebApi.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly ILogger<ProductController> _logger;
+        private readonly Serilog.ILogger _logger;
         private readonly IMediator _mediator;
 
-        public ProductController(ILogger<ProductController> logger, IMediator mediator)
+        public ProductController(Serilog.ILogger logger, IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
@@ -26,12 +27,13 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdRequest(id));
-
             if (product == null)
             {
+                _logger.Error("Product not found");
                 return BadRequest();
             }
-
+            
+            _logger.Information("Product found");
             return Ok(product);
         }
 
@@ -42,9 +44,11 @@ namespace WebApi.Controllers
 
             if (product == null)
             {
+                _logger.Error("Product creation failed");
                 return BadRequest();
             }
 
+            _logger.Information("Product creation succeeded");
             return Ok(product);
         }
 
@@ -55,9 +59,11 @@ namespace WebApi.Controllers
 
             if (product == null)
             {
+                _logger.Error("Product updating failed");
                 return BadRequest();
             }
 
+            _logger.Information("Product update succeeded");
             return Ok(product);
         }
 
@@ -68,9 +74,11 @@ namespace WebApi.Controllers
 
             if (result == false)
             {
+                _logger.Error("Product deletion failed");
                 return BadRequest();
-            }
+            }   
 
+            _logger.Information("Product deletion succeeded");
             return Ok();
         }
     }
