@@ -1,7 +1,13 @@
 using Application;
 using Infrastructure;
 using WebApi;
+using AutoWrapper;
+using Serilog;
 
+using var log = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
+    
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,8 +22,6 @@ builder.Services.AddDb();
 builder.Services.AddMediatr();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -25,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseApiResponseAndExceptionWrapper();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

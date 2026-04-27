@@ -6,6 +6,7 @@ using Application.BusinessLogic.ProductLogic.GetProductById;
 using Application.BusinessLogic.ProductLogic.UpdateProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace WebApi.Controllers
 {
@@ -26,12 +27,13 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdRequest(id));
-
             if (product == null)
             {
+                _logger.LogError("Product not found");
                 return BadRequest();
             }
-
+            
+            _logger.LogInformation("Product found");
             return Ok(product);
         }
 
@@ -42,9 +44,11 @@ namespace WebApi.Controllers
 
             if (product == null)
             {
+                _logger.LogError("Product creation failed");
                 return BadRequest();
             }
 
+            _logger.LogInformation("Product creation succeeded");
             return Ok(product);
         }
 
@@ -55,9 +59,11 @@ namespace WebApi.Controllers
 
             if (product == null)
             {
+                _logger.LogError("Product updating failed");
                 return BadRequest();
             }
 
+            _logger.LogInformation("Product update succeeded");
             return Ok(product);
         }
 
@@ -68,9 +74,11 @@ namespace WebApi.Controllers
 
             if (result == false)
             {
+                _logger.LogError("Product deletion failed");
                 return BadRequest();
             }
 
+            _logger.LogInformation("Product deletion succeeded");
             return Ok();
         }
     }

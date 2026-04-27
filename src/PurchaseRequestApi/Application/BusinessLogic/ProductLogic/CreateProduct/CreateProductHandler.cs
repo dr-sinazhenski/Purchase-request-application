@@ -5,6 +5,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AutoWrapper;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
@@ -19,22 +20,29 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
 
         public async Task<ProductResDto> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
-            var product = new Product()
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = request.dto.Name,
-                Description = request.dto.Description
-            };
+                var product = new Product()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.dto.Name,
+                    Description = request.dto.Description
+                };
 
-            await _dbContext.Products.AddAsync(product);
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.Products.AddAsync(product);
+                await _dbContext.SaveChangesAsync();
 
-            return new ProductResDto
+                return new ProductResDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description
+                };
+            }
+            catch(Exception exception)
             {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description
-            };
+                throw;
+            }
         }
     }
 }
