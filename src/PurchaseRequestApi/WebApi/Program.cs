@@ -1,8 +1,7 @@
 using Application;
 using Infrastructure;
-using WebApi;
-using AutoWrapper;
 using Serilog;
+using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +17,7 @@ using var log = new LoggerConfiguration()
     
 builder.Host.UseSerilog(log);
 
+builder.Services.AddSingleton(log);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
@@ -35,7 +35,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseApiResponseAndExceptionWrapper();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();

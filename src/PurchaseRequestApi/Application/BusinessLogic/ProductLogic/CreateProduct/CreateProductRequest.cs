@@ -1,10 +1,8 @@
 ﻿using Application.BusinessLogic.ProductLogic.Dto;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
-    public record CreateProductRequest(CreateProductReqDto dto) : IRequest<ProductResDto>;
+    public record CreateProductRequest(CreateProductReqDto dto) : IRequest<Result<ProductResDto>>;
 }

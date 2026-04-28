@@ -2,40 +2,42 @@
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.GetProductById
 {
-    public class GetProductByIdHandler : IRequestHandler<GetProductByIdRequest, ProductResDto?>
+    public class GetProductByIdHandler : IRequestHandler<GetProductByIdRequest, Result<ProductResDto>>
     {
         private readonly AppDbContext _dbContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<GetProductByIdHandler> _logger;
 
-        public GetProductByIdHandler(AppDbContext dbContext, ILogger logger)
+        public GetProductByIdHandler(AppDbContext dbContext, ILogger<GetProductByIdHandler> logger)
         {
             _dbContext = dbContext;
             _logger = logger;
         }
 
-        public async Task<ProductResDto> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
+        public async Task<Result<ProductResDto>> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
         {
-            _logger.Information("==================Getting a Product================");
+            _logger.LogInformation("Getting a Product");
             var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.id);
 
-            if (product == null)
+            /*if (product == null)
             {
-                return null;
-            }
+                _logger.Error("Product not found");
+                return Result<ProductResDto>.Failure(null);
+            }*/
 
-            return new ProductResDto
+            _logger.LogInformation("Product retrived");
+            var data = new ProductResDto
             {
                 Id = product.Id,
                 Name = product.Name,
                 Description = product.Description
             };
+
+            return Result<ProductResDto>.Success(data);
         }
     }
 }
