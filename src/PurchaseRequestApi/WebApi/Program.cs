@@ -9,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 using var log = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .WriteTo.Console()
+    .WriteTo.File(
+    path: "logs/log-.txt",
+    rollingInterval: RollingInterval.Day, 
+    retainedFileCountLimit: 7            
+    )
     .CreateLogger();
     
 builder.Host.UseSerilog(log);
