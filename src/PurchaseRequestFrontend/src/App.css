@@ -276,6 +276,16 @@
   color: #fff;
 }
 
+.btn.danger.solid {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .btn.compact {
   min-height: 27px;
   padding: 5px 11px;
@@ -404,14 +414,12 @@ td {
   background: var(--orange);
 }
 
-.status-resubmitted,
-.status-pending {
+.status-resubmitted {
   background: var(--blue-soft);
   color: var(--blue);
 }
 
-.status-resubmitted::before,
-.status-pending::before {
+.status-resubmitted::before {
   background: var(--blue);
 }
 
@@ -653,14 +661,19 @@ td {
 
 .meta-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin: 18px 0 8px;
 }
 
+.meta-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.meta-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .metric {
-  align-content: center;
-  min-height: 112px;
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -840,7 +853,9 @@ td {
   .detail-layout,
   .approval-layout,
   .form-grid,
-  .meta-grid {
+  .meta-grid,
+  .meta-grid-3,
+  .meta-grid-4 {
     grid-template-columns: 1fr;
   }
 

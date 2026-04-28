@@ -17,7 +17,7 @@ import {
 import { useState } from 'react'
 import './App.css'
 
-type Status = 'New' | 'Resubmitted' | 'Pending' | 'Approved' | 'Rejected'
+type Status = 'New' | 'Resubmitted' | 'Approved' | 'Rejected'
 type Screen = 'requests' | 'create' | 'detail' | 'edit' | 'approval'
 
 type LineItem = {
@@ -40,6 +40,7 @@ type RequestRecord = {
   approver: string
   submitted: string
   reason?: string
+  finalRejected?: boolean
   items: LineItem[]
 }
 
@@ -51,7 +52,7 @@ const statusFilters: Array<'All' | Status> = [
   'Rejected',
 ]
 
-const requests: RequestRecord[] = [
+const initialRequests: RequestRecord[] = [
   {
     id: 'REQ-0042',
     name: 'MacBook Pro 16" - Dev Team',
@@ -224,7 +225,22 @@ function formatMoney(value: number) {
   }).format(value)
 }
 
+function createRequestId(count: number) {
+  return `REQ-${String(37 + count).padStart(4, '0')}`
+}
+
+function formatSubmittedDate(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
 function App() {
+  const [requestRecords, setRequestRecords] = useState(initialRequests)
   const [screen, setScreen] = useState<Screen>('requests')
   const [selectedId, setSelectedId] = useState('REQ-0042')
   const [filter, setFilter] = useState<'All' | Status>('All')
@@ -233,16 +249,63 @@ function App() {
   )
 
   const selectedRequest =
-    requests.find((request) => request.id === selectedId) ?? requests[0]
+    requestRecords.find((request) => request.id === selectedId) ??
+    requestRecords[0]
   const filteredRequests =
     filter === 'All'
-      ? requests
-      : requests.filter((request) => request.status === filter)
+      ? requestRecords
+      : requestRecords.filter((request) => request.status === filter)
+  const reviewCount = requestRecords.filter((request) =>
+    ['New', 'Resubmitted'].includes(request.status),
+  ).length
 
   function openRequest(request: RequestRecord, target: Screen = 'detail') {
     setSelectedId(request.id)
     setDecision('idle')
     setScreen(target)
+  }
+
+  function createRequest(request: RequestRecord) {
+    setRequestRecords((currentRequests) => [request, ...currentRequests])
+    setSelectedId(request.id)
+    setFilter('All')
+    setDecision('idle')
+    setScreen('requests')
+  }
+
+  function updateRequest(request: RequestRecord) {
+    setRequestRecords((currentRequests) =>
+      currentRequests.map((currentRequest) =>
+        currentRequest.id === request.id ? request : currentRequest,
+      ),
+    )
+    setSelectedId(request.id)
+    setDecision('idle')
+    setScreen('detail')
+  }
+
+  function decideRequest(
+    decisionResult: 'approved' | 'rejected',
+    reason = '',
+    finalRejected = false,
+  ) {
+    const nextStatus = decisionResult === 'approved' ? 'Approved' : 'Rejected'
+
+    setRequestRecords((currentRequests) =>
+      currentRequests.map((request) =>
+        request.id === selectedRequest.id
+          ? {
+              ...request,
+              status: nextStatus,
+              reason: decisionResult === 'rejected' ? reason : request.reason,
+              finalRejected:
+                decisionResult === 'rejected' ? finalRejected : undefined,
+              updated: 'Just now',
+            }
+          : request,
+      ),
+    )
+    setDecision(decisionResult)
   }
 
   return (
@@ -269,12 +332,18 @@ function App() {
             </button>
             <button
               className={screen === 'approval' ? 'nav-item active' : 'nav-item'}
-              onClick={() => openRequest(requests[0], 'approval')}
+              onClick={() => {
+                const nextPending =
+                  requestRecords.find((request) =>
+                    ['New', 'Resubmitted'].includes(request.status),
+                  ) ?? requestRecords[0]
+                openRequest(nextPending, 'approval')
+              }}
               type="button"
             >
               <ClipboardCheck size={16} />
-              Pending Approval
-              <span className="nav-count">7</span>
+              Approval Queue
+              <span className="nav-count">{reviewCount}</span>
             </button>
             <button
               className={screen === 'create' ? 'nav-item active' : 'nav-item'}
@@ -300,6 +369,7 @@ function App() {
             <RequestsList
               filter={filter}
               filteredRequests={filteredRequests}
+              totalRequests={requestRecords.length}
               onCreate={() => setScreen('create')}
               onFilter={setFilter}
               onOpen={openRequest}
@@ -311,10 +381,8 @@ function App() {
               mode="create"
               request={draftRequest}
               onCancel={() => setScreen('requests')}
-              onSubmit={() => {
-                setSelectedId('REQ-0042')
-                setScreen('detail')
-              }}
+              onSubmit={createRequest}
+              requestCount={requestRecords.length}
             />
           )}
 
@@ -323,7 +391,8 @@ function App() {
               mode="edit"
               request={selectedRequest}
               onCancel={() => setScreen('detail')}
-              onSubmit={() => setScreen('detail')}
+              onSubmit={updateRequest}
+              requestCount={requestRecords.length}
             />
           )}
 
@@ -340,7 +409,7 @@ function App() {
             <ApprovalView
               decision={decision}
               onBack={() => setScreen('requests')}
-              onDecide={setDecision}
+              onDecide={decideRequest}
               request={selectedRequest}
             />
           )}
@@ -353,6 +422,7 @@ function App() {
 type RequestsListProps = {
   filter: 'All' | Status
   filteredRequests: RequestRecord[]
+  totalRequests: number
   onCreate: () => void
   onFilter: (filter: 'All' | Status) => void
   onOpen: (request: RequestRecord, target?: Screen) => void
@@ -361,6 +431,7 @@ type RequestsListProps = {
 function RequestsList({
   filter,
   filteredRequests,
+  totalRequests,
   onCreate,
   onFilter,
   onOpen,
@@ -368,7 +439,7 @@ function RequestsList({
   return (
     <>
       <Topbar
-        count="48 total"
+        count={`${totalRequests} total`}
         primaryAction="+ New Request"
         title="All Requests"
         onPrimary={onCreate}
@@ -428,7 +499,10 @@ function RequestsList({
                   </td>
                   <td>{request.type}</td>
                   <td>
-                    <StatusBadge status={request.status} />
+                    <StatusBadge
+                      finalRejected={request.finalRejected}
+                      status={request.status}
+                    />
                   </td>
                   <td className="money">{formatMoney(request.total)}</td>
                   <td>
@@ -444,7 +518,7 @@ function RequestsList({
                       onClick={() =>
                         onOpen(
                           request,
-                          request.status === 'Pending' ||
+                          request.status === 'New' ||
                             request.status === 'Resubmitted'
                             ? 'approval'
                             : 'detail',
@@ -452,7 +526,10 @@ function RequestsList({
                       }
                       type="button"
                     >
-                      {request.status === 'Resubmitted' ? 'Review' : 'View'}
+                      {request.status === 'New' ||
+                      request.status === 'Resubmitted'
+                        ? 'Review'
+                        : 'View'}
                     </button>
                   </td>
                 </tr>
@@ -462,7 +539,9 @@ function RequestsList({
         </div>
 
         <div className="table-footer">
-          <span>Showing {filteredRequests.length} of 48 requests</span>
+          <span>
+            Showing {filteredRequests.length} of {totalRequests} requests
+          </span>
           <div>
             <button className="btn compact" type="button">
               ← Prev
@@ -522,16 +601,51 @@ type RequestFormProps = {
   mode: 'create' | 'edit'
   request: RequestRecord
   onCancel: () => void
-  onSubmit: () => void
+  onSubmit: (request: RequestRecord) => void
+  requestCount: number
 }
 
-function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
+function RequestForm({
+  mode,
+  onCancel,
+  onSubmit,
+  request,
+  requestCount,
+}: RequestFormProps) {
   const isEdit = mode === 'edit'
+  const [name, setName] = useState(request.name)
+  const [type, setType] = useState(request.type)
+  const [description, setDescription] = useState(request.description)
   const [items, setItems] = useState(request.items)
   const total = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
   )
+  const nextStatus: Status = isEdit
+    ? request.status === 'Rejected'
+      ? 'Resubmitted'
+      : request.status
+    : 'New'
+
+  function handleSubmit() {
+    const submittedAt = formatSubmittedDate(new Date())
+
+    onSubmit({
+      ...request,
+      id: isEdit ? request.id : createRequestId(requestCount),
+      name,
+      type,
+      description,
+      items,
+      total,
+      status: nextStatus,
+      reason: request.reason,
+      finalRejected:
+        nextStatus === 'Resubmitted' ? undefined : request.finalRejected,
+      submitted: isEdit ? request.submitted : submittedAt,
+      updated: 'Just now',
+    })
+  }
 
   return (
     <>
@@ -548,7 +662,12 @@ function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
               </h2>
               <span>Fill in the details below. Required fields marked *</span>
             </div>
-            {isEdit && <StatusBadge status={request.status} />}
+            {isEdit && (
+              <StatusBadge
+                finalRejected={request.finalRejected}
+                status={request.status}
+              />
+            )}
           </div>
 
           {isEdit && request.status === 'Rejected' && (
@@ -563,10 +682,16 @@ function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
 
           <div className="form-grid">
             <Field label="Request Name *">
-              <input defaultValue={request.name} />
+              <input
+                onChange={(event) => setName(event.target.value)}
+                value={name}
+              />
             </Field>
             <Field label="Request Type *">
-              <select defaultValue={request.type}>
+              <select
+                onChange={(event) => setType(event.target.value)}
+                value={type}
+              >
                 <option>Hardware</option>
                 <option>Software</option>
                 <option>Cloud</option>
@@ -659,7 +784,11 @@ function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
           </div>
 
           <Field label="Additional Details">
-            <textarea defaultValue={request.description} rows={4} />
+            <textarea
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+              value={description}
+            />
           </Field>
         </div>
 
@@ -672,7 +801,7 @@ function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
           </div>
           <div className="summary-line">
             <span>Status after submit</span>
-            <strong>Pending</strong>
+            <strong>{nextStatus}</strong>
           </div>
           <div className="summary-line">
             <span>Currency</span>
@@ -682,7 +811,7 @@ function RequestForm({ mode, onCancel, onSubmit, request }: RequestFormProps) {
             <button className="btn" onClick={onCancel} type="button">
               Cancel
             </button>
-            <button className="btn primary" onClick={onSubmit} type="button">
+            <button className="btn primary" onClick={handleSubmit} type="button">
               {isEdit ? 'Save changes' : 'Submit request'}
               <Send size={14} />
             </button>
@@ -736,20 +865,29 @@ function RequestDetail({
               <h2>{request.name}</h2>
               <p>{request.description}</p>
             </div>
-            <StatusBadge status={request.status} />
+            <StatusBadge
+              finalRejected={request.finalRejected}
+              status={request.status}
+            />
           </div>
 
           {request.reason && (
             <div className="notice danger">
               <AlertTriangle size={18} />
               <div>
-                <strong>Rejected by {request.approver}</strong>
+                <strong>
+                  {request.status === 'Approved'
+                    ? `Previous rejection reason from ${request.approver}`
+                    : request.finalRejected
+                      ? `Final rejection by ${request.approver}`
+                      : `Rejected by ${request.approver}`}
+                </strong>
                 <span>{request.reason}</span>
               </div>
             </div>
           )}
 
-          <div className="meta-grid">
+          <div className="meta-grid meta-grid-4">
             <Metric label="Requester" value={request.creator} />
             <Metric label="Request Type" value={request.type} />
             <Metric label="Approver" value={request.approver} />
@@ -800,9 +938,13 @@ function RequestDetail({
             />
           </div>
           <div className="form-actions">
-            {request.status === 'Rejected' ? (
+            {request.status === 'Rejected' && !request.finalRejected ? (
               <button className="btn primary" onClick={onEdit} type="button">
                 Edit request
+              </button>
+            ) : request.status === 'Rejected' && request.finalRejected ? (
+              <button className="btn" disabled type="button">
+                Final decision recorded
               </button>
             ) : (
               <>
@@ -824,7 +966,11 @@ function RequestDetail({
 type ApprovalViewProps = {
   decision: 'idle' | 'approved' | 'rejected'
   onBack: () => void
-  onDecide: (decision: 'idle' | 'approved' | 'rejected') => void
+  onDecide: (
+    decision: 'approved' | 'rejected',
+    reason?: string,
+    finalRejected?: boolean,
+  ) => void
   request: RequestRecord
 }
 
@@ -836,10 +982,12 @@ function ApprovalView({
 }: ApprovalViewProps) {
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
+  const isDecided =
+    request.status === 'Approved' || request.status === 'Rejected'
 
   return (
     <>
-      <Topbar title="Pending Approval" />
+      <Topbar title="Approval Queue" />
       <section className="content-area approval-layout">
         <div className="panel detail-panel">
           <button className="back-button" onClick={onBack} type="button">
@@ -853,7 +1001,10 @@ function ApprovalView({
               <h2>{request.name}</h2>
               <p>{request.description}</p>
             </div>
-            <StatusBadge status="Pending" />
+            <StatusBadge
+              finalRejected={request.finalRejected}
+              status={request.status}
+            />
           </div>
 
           {decision !== 'idle' && (
@@ -864,13 +1015,13 @@ function ApprovalView({
                   Request {decision === 'approved' ? 'approved' : 'rejected'}
                 </strong>
                 <span>
-                  This state is mocked for the presentation flow.
+                  The status is now reflected in All Requests.
                 </span>
               </div>
             </div>
           )}
 
-          <div className="meta-grid">
+          <div className="meta-grid meta-grid-3">
             <Metric label="Requester" value={request.creator} />
             <Metric label="Total Amount" value={formatMoney(request.total)} />
             <Metric label="Submitted" value={request.submitted} />
@@ -898,26 +1049,30 @@ function ApprovalView({
           <p className="eyebrow">Approver Actions</p>
           <h2>Review decision</h2>
           <p className="approval-copy">
-            Approve immediately or reject with a reason shown to the requester.
+            {isDecided
+              ? 'Decision recorded. You can return to the request list to see the updated status.'
+              : 'Approve immediately, reject for resubmission, or final reject the request.'}
           </p>
-          <div className="form-actions stacked">
-            <button
-              className="btn success"
-              onClick={() => onDecide('approved')}
-              type="button"
-            >
-              <Check size={15} />
-              Approve request
-            </button>
-            <button
-              className="btn danger"
-              onClick={() => setShowRejectDialog(true)}
-              type="button"
-            >
-              <X size={15} />
-              Reject request
-            </button>
-          </div>
+          {!isDecided && (
+            <div className="form-actions stacked">
+              <button
+                className="btn success"
+                onClick={() => onDecide('approved')}
+                type="button"
+              >
+                <Check size={15} />
+                Approve request
+              </button>
+              <button
+                className="btn danger"
+                onClick={() => setShowRejectDialog(true)}
+                type="button"
+              >
+                <X size={15} />
+                Reject request
+              </button>
+            </div>
+          )}
         </aside>
 
         {showRejectDialog && (
@@ -933,8 +1088,8 @@ function ApprovalView({
               </div>
               <h2 id="reject-title">Reject request</h2>
               <p>
-                Add a reason so the requester understands what needs to change
-                before resubmitting.
+                Use reject when the requester may edit and resubmit. Use final
+                reject when the decision should be closed.
               </p>
               <Field label="Rejection reason">
                 <textarea
@@ -956,12 +1111,22 @@ function ApprovalView({
                 <button
                   className="btn danger"
                   onClick={() => {
-                    onDecide('rejected')
+                    onDecide('rejected', rejectReason, false)
                     setShowRejectDialog(false)
                   }}
                   type="button"
                 >
-                  Reject request
+                  Reject
+                </button>
+                <button
+                  className="btn danger solid"
+                  onClick={() => {
+                    onDecide('rejected', rejectReason, true)
+                    setShowRejectDialog(false)
+                  }}
+                  type="button"
+                >
+                  Final reject
                 </button>
               </div>
             </div>
@@ -1004,8 +1169,16 @@ function TimelineItem({ active, label, text }: TimelineItemProps) {
   )
 }
 
-function StatusBadge({ status }: { status: Status }) {
-  return <span className={`status status-${status.toLowerCase()}`}>{status}</span>
+function StatusBadge({
+  finalRejected = false,
+  status,
+}: {
+  finalRejected?: boolean
+  status: Status
+}) {
+  const label = finalRejected && status === 'Rejected' ? 'Final rejected' : status
+
+  return <span className={`status status-${status.toLowerCase()}`}>{label}</span>
 }
 
 export default App
