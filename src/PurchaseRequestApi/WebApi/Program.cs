@@ -17,6 +17,7 @@ using var log = new LoggerConfiguration()
     
 builder.Host.UseSerilog(log);
 
+builder.Services.AddSingleton(log);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
@@ -24,11 +25,6 @@ builder.Services.AddSwaggerGen();
 builder.ConfigureProjectsOptions();
 builder.Services.AddDb();
 builder.Services.AddMediatr();
-
-builder.Logging.ClearProviders();
-builder.Host.UseSerilog((context, services, cfg) => cfg
-    .Enrich.FromLogContext()
-    .WriteTo.Console());
 
 var app = builder.Build();
 

@@ -1,3 +1,4 @@
+using Application;
 using Application.BusinessLogic.ProductLogic.CreateProduct;
 using Application.BusinessLogic.ProductLogic.DeleteProduct;
 using Application.BusinessLogic.ProductLogic.Dto;
@@ -10,11 +11,17 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProductController : PurchaseController
+    public class ProductController : ControllerBase
     {
-        public ProductController(ILogger logger, IMediator mediator) : base(logger, mediator)
+        private readonly ILogger<ProductController> _logger;
+        private readonly IMediator _mediator;
+
+        public ProductController(ILogger<ProductController> logger, IMediator mediator)
         {
+            _logger = logger;
+            _mediator = mediator;
         }
+
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
