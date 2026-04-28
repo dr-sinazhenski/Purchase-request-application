@@ -2,15 +2,13 @@
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using AutoWrapper;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
-    public class CreateProductHandler : IRequestHandler<CreateProductRequest, ProductResDto?>
+    public class CreateProductHandler : IRequestHandler<CreateProductRequest, Result<ProductResDto>>
     {
         private readonly ILogger _logger;
         private readonly AppDbContext _dbContext;
@@ -21,33 +19,29 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
             _dbContext = dbContext;
         }
 
-        public async Task<ProductResDto> Handle(CreateProductRequest request, CancellationToken cancellationToken)
+        public async Task<Result<ProductResDto>> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
-            try
-            {
-                _logger.Information("==================Creating a Product================");
-                var product = new Product()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = request.dto.Name,
-                    Description = request.dto.Description
-                };
+            _logger.Information("Creating a Product");
 
-                await _dbContext.Products.AddAsync(product);
-                await _dbContext.SaveChangesAsync();
-
-                return new ProductResDto
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description
-                };
-            }
-            catch(Exception exception)
+            var product = new Product()
             {
-                _logger.Information("==================EXCEPTION!================");
-                throw;
-            }
+                Id = Guid.NewGuid(),
+                Name = request.dto.Name,
+                Description = request.dto.Description
+            };
+
+            await _dbContext.Products.AddAsync(product);
+            await _dbContext.SaveChangesAsync();
+            _logger.Information("Product created successfuly");
+
+            var data = new ProductResDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description
+            };
+
+            return Result<ProductResDto>.Success(data);
         }
     }
 }
