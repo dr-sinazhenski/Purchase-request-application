@@ -123,27 +123,7 @@ const initialRequests: RequestRecord[] = [
       },
     ],
   },
-  {
-    id: 'REQ-0040',
-    name: 'AWS Reserved Instances - Q2',
-    type: 'Cloud',
-    status: 'New',
-    total: 17500,
-    creator: 'Marco Polo',
-    initials: 'MR',
-    updated: '6 days ago',
-    submitted: 'Dec 12, 2024 at 11:10',
-    approver: 'Sarah Chlen',
-    description: 'Q2 infrastructure capacity reservation.',
-    items: [
-      {
-        name: 'Compute reservation',
-        category: 'Infrastructure',
-        quantity: 1,
-        unitPrice: 17500,
-      },
-    ],
-  },
+  
   {
     id: 'REQ-0039',
     name: 'Standing Desk Uplift V2 x 4',
@@ -296,6 +276,8 @@ function App() {
     setRequestRecords((currentRequests) => [request, ...currentRequests])
     setSelectedId(request.id)
     setFilter('All')
+    setTypeFilter('All')
+    setVisibleCount(6)
     setDecision('idle')
     setScreen('requests')
   }
@@ -336,6 +318,7 @@ function App() {
   }
 
   return (
+    <div className="app-page">
       <div className="app-shell">
         <aside className="sidebar">
           <div className="sidebar-header">
@@ -452,6 +435,7 @@ function App() {
           )}
         </main>
       </div>
+    </div>
   )
 }
 
@@ -486,7 +470,7 @@ function RequestsList({
   return (
     <>
       <Topbar
-        count={`${totalRequests} total`}
+        count={`${totalFiltered} shown of ${totalRequests}`}
         primaryAction="+ New Request"
         title="All Requests"
         onPrimary={onCreate}
@@ -506,44 +490,24 @@ function RequestsList({
         ))}
         <span className="divider" />
         <span>Type:</span>
-<div
-  style={{ display: 'flex', gap: '6px', overflowX: 'auto', maxWidth: '300px', scrollbarWidth: 'none', cursor: 'grab' }}
-  onWheel={(e) => {
-    e.preventDefault()
-    e.currentTarget.scrollLeft += e.deltaY
-  }}
-  onMouseDown={(e) => {
-    const el = e.currentTarget
-    el.style.cursor = 'grabbing'
-    const startX = e.pageX - el.offsetLeft
-    const scrollLeft = el.scrollLeft
-
-    const onMove = (ev: MouseEvent) => {
-      const x = ev.pageX - el.offsetLeft
-      el.scrollLeft = scrollLeft - (x - startX)
-    }
-    const onUp = () => {
-      el.style.cursor = 'grab'
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-  }}
->
-  {uniqueTypes.map((type) => (
-    <button
-      className={typeFilter === type ? 'chip active' : 'chip'}
-      key={type}
-      onClick={() => onTypeFilter(type)}
-      type="button"
-      style={{ flexShrink: 0 }}
-    >
-      {type}
-    </button>
-  ))}
-</div>
+        <div
+          className="type-filter"
+          onWheel={(event) => {
+            event.preventDefault()
+            event.currentTarget.scrollLeft += event.deltaY
+          }}
+        >
+          {uniqueTypes.map((type) => (
+            <button
+              className={typeFilter === type ? 'chip active' : 'chip'}
+              key={type}
+              onClick={() => onTypeFilter(type)}
+              type="button"
+            >
+              {type}
+            </button>
+          ))}
+        </div>
 
         <button className="sort-button" type="button">
           <SlidersHorizontal size={14} />
@@ -620,7 +584,8 @@ function RequestsList({
 
         <div className="table-footer">
           <span>
-            Showing {filteredRequests.length} of {totalFiltered} filtered requests
+            Showing {filteredRequests.length} of {totalFiltered} filtered
+            requests
           </span>
           {visibleCount < totalFiltered && (
             <button className="btn compact" onClick={onShowMore} type="button">
