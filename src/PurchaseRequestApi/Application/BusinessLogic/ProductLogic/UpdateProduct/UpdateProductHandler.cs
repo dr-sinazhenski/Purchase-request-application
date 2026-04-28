@@ -2,17 +2,17 @@
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 {
     public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, Result<ProductResDto?>>
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<UpdateProductHandler> _logger;
         private readonly AppDbContext _dbContext;
 
-        public UpdateProductHandler(AppDbContext dbContext, ILogger logger)
+        public UpdateProductHandler(AppDbContext dbContext, ILogger<UpdateProductHandler> logger)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -20,7 +20,7 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 
         public async Task<Result<ProductResDto>> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
         {
-            _logger.Information("Updating a Product");
+            _logger.LogInformation("Updating a Product");
             var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.dto.Id);
 
             if (product == null)
@@ -33,7 +33,7 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 
             _dbContext.Update(product);
             await _dbContext.SaveChangesAsync();
-            _logger.Information("Product updated");
+            _logger.LogInformation("Product updated");
 
             var data = new ProductResDto
             {

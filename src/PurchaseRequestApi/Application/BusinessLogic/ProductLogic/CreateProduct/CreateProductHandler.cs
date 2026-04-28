@@ -1,19 +1,19 @@
-﻿using Application.BusinessLogic.ProductLogic.Dto;
+﻿using Application.BusinessLogic.ProductLogic.DeleteProduct;
+using Application.BusinessLogic.ProductLogic.Dto;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
     public class CreateProductHandler : IRequestHandler<CreateProductRequest, Result<ProductResDto>>
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<CreateProductHandler> _logger;
         private readonly AppDbContext _dbContext;
 
-        public CreateProductHandler(AppDbContext dbContext, ILogger logger)
+        public CreateProductHandler(AppDbContext dbContext, ILogger<CreateProductHandler> logger)
         {
             _logger = logger;
             _dbContext = dbContext;
@@ -21,7 +21,7 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
 
         public async Task<Result<ProductResDto>> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
-            _logger.Information("Creating a Product");
+            _logger.LogInformation("Creating a Product");
 
             var product = new Product()
             {
@@ -32,7 +32,7 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
 
             await _dbContext.Products.AddAsync(product);
             await _dbContext.SaveChangesAsync();
-            _logger.Information("Product created successfuly");
+            _logger.LogInformation("Product created successfuly");
 
             var data = new ProductResDto
             {

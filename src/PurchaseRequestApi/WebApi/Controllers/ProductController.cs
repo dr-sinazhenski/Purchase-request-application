@@ -1,4 +1,3 @@
-using Application;
 using Application.BusinessLogic.ProductLogic.CreateProduct;
 using Application.BusinessLogic.ProductLogic.DeleteProduct;
 using Application.BusinessLogic.ProductLogic.Dto;
@@ -6,22 +5,15 @@ using Application.BusinessLogic.ProductLogic.GetProductById;
 using Application.BusinessLogic.ProductLogic.UpdateProduct;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
-using Shared;
 
 namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProductController : ControllerBase
+    public class ProductController : PurchaseController
     {
-        private readonly Serilog.ILogger _logger;
-        private readonly IMediator _mediator;
-
-        public ProductController(Serilog.ILogger logger, IMediator mediator)
+        public ProductController(ILogger logger, IMediator mediator) : base(logger, mediator)
         {
-            _logger = logger;
-            _mediator = mediator;
         }
 
         [HttpGet("{id}")]
@@ -31,7 +23,7 @@ namespace WebApi.Controllers
 
             if (!result.IsSuccess)
             {
-                _logger.Error("Product not found");
+                _logger.LogError("Product not found");
                 return BadRequest(result);
             }
 
@@ -45,11 +37,11 @@ namespace WebApi.Controllers
 
             if (!result.IsSuccess)
             {
-                _logger.Error("Product creation failed");
+                _logger.LogError("Product creation failed");
                 return BadRequest(result);
             }
 
-            _logger.Information("Product creation succeeded");
+            _logger.LogInformation("Product creation succeeded");
             return Ok(result);
         }
 
@@ -60,11 +52,11 @@ namespace WebApi.Controllers
 
             if (!result.IsSuccess)
             {
-                _logger.Error("Product updating failed");
+                _logger.LogError("Product updating failed");
                 return BadRequest(result);
             }
 
-            _logger.Information("Product update succeeded");
+            _logger.LogInformation("Product update succeeded");
             return Ok(result);
         }
 
@@ -75,11 +67,11 @@ namespace WebApi.Controllers
 
             if (!result.IsSuccess)
             {
-                _logger.Error("Product deletion failed");
+                _logger.LogError("Product deletion failed");
                 return BadRequest(result);
             }   
 
-            _logger.Information("Product deletion succeeded");
+            _logger.LogInformation("Product deletion succeeded");
             return Ok(result);
         }
     }
