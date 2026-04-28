@@ -3,16 +3,21 @@ using Infrastructure;
 using Serilog;
 using WebApi;
 
-using var log = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateLogger();
-    
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+using var log = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.Console()
+    .WriteTo.File(
+    path: "logs/log-.txt",
+    rollingInterval: RollingInterval.Day, 
+    retainedFileCountLimit: 7            
+    )
+    .CreateLogger();
+    
+builder.Host.UseSerilog(log);
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
@@ -26,18 +31,16 @@ builder.Host.UseSerilog((context, services, cfg) => cfg
     .WriteTo.Console());
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
