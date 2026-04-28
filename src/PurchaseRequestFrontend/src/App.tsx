@@ -124,6 +124,27 @@ const initialRequests: RequestRecord[] = [
     ],
   },
   {
+    id: 'REQ-0040',
+    name: 'AWS Reserved Instances - Q2',
+    type: 'Cloud',
+    status: 'New',
+    total: 17500,
+    creator: 'Marco Polo',
+    initials: 'MR',
+    updated: '6 days ago',
+    submitted: 'Dec 12, 2024 at 11:10',
+    approver: 'Sarah Chlen',
+    description: 'Q2 infrastructure capacity reservation.',
+    items: [
+      {
+        name: 'Compute reservation',
+        category: 'Infrastructure',
+        quantity: 1,
+        unitPrice: 17500,
+      },
+    ],
+  },
+  {
     id: 'REQ-0039',
     name: 'Standing Desk Uplift V2 x 4',
     type: 'Furniture',
@@ -244,17 +265,23 @@ function App() {
   const [screen, setScreen] = useState<Screen>('requests')
   const [selectedId, setSelectedId] = useState('REQ-0042')
   const [filter, setFilter] = useState<'All' | Status>('All')
+  const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<'idle' | 'approved' | 'rejected'>(
     'idle',
   )
+  const [visibleCount, setVisibleCount] = useState(6)
+  const uniqueTypes = ['All', ...new Set(requestRecords.map((request) => request.type))]
 
   const selectedRequest =
     requestRecords.find((request) => request.id === selectedId) ??
     requestRecords[0]
-  const filteredRequests =
-    filter === 'All'
-      ? requestRecords
-      : requestRecords.filter((request) => request.status === filter)
+  const allFilteredRequests = requestRecords.filter((request) => {
+    const matchesStatus = filter === 'All' || request.status === filter
+    const matchesType = typeFilter === 'All' || request.type === typeFilter
+
+    return matchesStatus && matchesType
+  })
+  const filteredRequests = allFilteredRequests.slice(0, visibleCount)
   const reviewCount = requestRecords.filter((request) =>
     ['New', 'Resubmitted'].includes(request.status),
   ).length
@@ -309,8 +336,6 @@ function App() {
   }
 
   return (
-    <div className="app-page">
-      <div className="screen-label">ProcureFlow - request workflow demo</div>
       <div className="app-shell">
         <aside className="sidebar">
           <div className="sidebar-header">
@@ -369,10 +394,22 @@ function App() {
             <RequestsList
               filter={filter}
               filteredRequests={filteredRequests}
-              totalRequests={requestRecords.length}
               onCreate={() => setScreen('create')}
-              onFilter={setFilter}
+              onFilter={(nextFilter) => {
+                setFilter(nextFilter)
+                setVisibleCount(6)
+              }}
               onOpen={openRequest}
+              onShowMore={() => setVisibleCount((count) => count + 6)}
+              onTypeFilter={(nextTypeFilter) => {
+                setTypeFilter(nextTypeFilter)
+                setVisibleCount(6)
+              }}
+              totalFiltered={allFilteredRequests.length}
+              totalRequests={requestRecords.length}
+              typeFilter={typeFilter}
+              uniqueTypes={uniqueTypes}
+              visibleCount={visibleCount}
             />
           )}
 
@@ -415,26 +452,36 @@ function App() {
           )}
         </main>
       </div>
-    </div>
   )
 }
 
 type RequestsListProps = {
   filter: 'All' | Status
+  typeFilter: string
+  uniqueTypes: string[]
   filteredRequests: RequestRecord[]
   totalRequests: number
   onCreate: () => void
   onFilter: (filter: 'All' | Status) => void
+  onTypeFilter: (type: string) => void
   onOpen: (request: RequestRecord, target?: Screen) => void
+  visibleCount: number
+  totalFiltered: number
+  onShowMore: () => void
 }
-
 function RequestsList({
   filter,
+  typeFilter,
+  uniqueTypes,
   filteredRequests,
   totalRequests,
   onCreate,
   onFilter,
+  onTypeFilter,
   onOpen,
+  visibleCount,
+  totalFiltered,
+  onShowMore,
 }: RequestsListProps) {
   return (
     <>
@@ -459,12 +506,45 @@ function RequestsList({
         ))}
         <span className="divider" />
         <span>Type:</span>
-        <button className="chip" type="button">
-          Hardware
-        </button>
-        <button className="chip" type="button">
-          Software
-        </button>
+<div
+  style={{ display: 'flex', gap: '6px', overflowX: 'auto', maxWidth: '300px', scrollbarWidth: 'none', cursor: 'grab' }}
+  onWheel={(e) => {
+    e.preventDefault()
+    e.currentTarget.scrollLeft += e.deltaY
+  }}
+  onMouseDown={(e) => {
+    const el = e.currentTarget
+    el.style.cursor = 'grabbing'
+    const startX = e.pageX - el.offsetLeft
+    const scrollLeft = el.scrollLeft
+
+    const onMove = (ev: MouseEvent) => {
+      const x = ev.pageX - el.offsetLeft
+      el.scrollLeft = scrollLeft - (x - startX)
+    }
+    const onUp = () => {
+      el.style.cursor = 'grab'
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }}
+>
+  {uniqueTypes.map((type) => (
+    <button
+      className={typeFilter === type ? 'chip active' : 'chip'}
+      key={type}
+      onClick={() => onTypeFilter(type)}
+      type="button"
+      style={{ flexShrink: 0 }}
+    >
+      {type}
+    </button>
+  ))}
+</div>
+
         <button className="sort-button" type="button">
           <SlidersHorizontal size={14} />
           Sort: Newest first
@@ -540,25 +620,13 @@ function RequestsList({
 
         <div className="table-footer">
           <span>
-            Showing {filteredRequests.length} of {totalRequests} requests
+            Showing {filteredRequests.length} of {totalFiltered} filtered requests
           </span>
-          <div>
-            <button className="btn compact" type="button">
-              ← Prev
+          {visibleCount < totalFiltered && (
+            <button className="btn compact" onClick={onShowMore} type="button">
+              Show more
             </button>
-            <button className="btn compact primary" type="button">
-              1
-            </button>
-            <button className="btn compact" type="button">
-              2
-            </button>
-            <button className="btn compact" type="button">
-              3
-            </button>
-            <button className="btn compact" type="button">
-              Next →
-            </button>
-          </div>
+          )}
         </div>
       </section>
     </>
@@ -584,9 +652,6 @@ function Topbar({ count, onPrimary, primaryAction, title }: TopbarProps) {
           <Search size={14} />
           <input defaultValue="MacBook" aria-label="Search requests" />
         </label>
-        <button className="btn" type="button">
-          Filter
-        </button>
         {primaryAction && (
           <button className="btn primary" onClick={onPrimary} type="button">
             {primaryAction}
