@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260429220009_TemAccountRequestFkDrop2")]
-    partial class TemAccountRequestFkDrop2
+    [Migration("20260429222342_CreateDb")]
+    partial class CreateDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -161,6 +161,74 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "Standard business laptop for daily work use",
+                            Name = "Laptop"
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            Description = "24-inch Full HD display",
+                            Name = "Monitor"
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            Description = "Wired USB office keyboard",
+                            Name = "Keyboard"
+                        },
+                        new
+                        {
+                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            Description = "Wired USB optical mouse",
+                            Name = "Mouse"
+                        },
+                        new
+                        {
+                            Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                            Description = "Standard office desk with cable management",
+                            Name = "Desk"
+                        },
+                        new
+                        {
+                            Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                            Description = "Ergonomic office chair with lumbar support",
+                            Name = "Chair"
+                        },
+                        new
+                        {
+                            Id = new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "A5 lined notebook, pack of 3",
+                            Name = "Notebook"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "Pack of 10 ballpoint pens",
+                            Name = "Pen Set"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "Annual Microsoft 365 Business Standard license",
+                            Name = "Microsoft 365"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "Annual Adobe Creative Cloud all-apps license",
+                            Name = "Adobe Creative Cloud"
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            Description = "Annual enterprise antivirus license",
+                            Name = "Antivirus"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Region", b =>
@@ -293,6 +361,63 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RequestTypeId");
 
                     b.ToTable("ProductGroup", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            RequestTypeId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            RequestTypeId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            RequestTypeId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                            RequestTypeId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                            RequestTypeId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            ProductId = new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            RequestTypeId = new Guid("33333333-3333-3333-3333-333333333333")
+                        });
                 });
 
             modelBuilder.Entity("AccountRole", b =>

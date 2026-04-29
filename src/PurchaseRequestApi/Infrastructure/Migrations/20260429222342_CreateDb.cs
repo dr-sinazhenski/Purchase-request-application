@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class DbRecreation : Migration
+    public partial class CreateDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -155,6 +155,29 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Requests",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RequestTypeId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Requests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Requests_RequestTypes_RequestTypeId",
+                        column: x => x.RequestTypeId,
+                        principalTable: "RequestTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AccountRole",
                 columns: table => new
                 {
@@ -174,36 +197,6 @@ namespace Infrastructure.Migrations
                         name: "FK_AccountRole_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Requests",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    RequesterId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RequestTypeId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Requests", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Requests_Accounts_RequesterId",
-                        column: x => x.RequesterId,
-                        principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Requests_RequestTypes_RequestTypeId",
-                        column: x => x.RequestTypeId,
-                        principalTable: "RequestTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -261,6 +254,24 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Products",
+                columns: new[] { "Id", "Description", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "A5 lined notebook, pack of 3", "Notebook" },
+                    { new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Pack of 10 ballpoint pens", "Pen Set" },
+                    { new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Annual Microsoft 365 Business Standard license", "Microsoft 365" },
+                    { new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Annual Adobe Creative Cloud all-apps license", "Adobe Creative Cloud" },
+                    { new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Annual enterprise antivirus license", "Antivirus" },
+                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Standard business laptop for daily work use", "Laptop" },
+                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "24-inch Full HD display", "Monitor" },
+                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Wired USB office keyboard", "Keyboard" },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Wired USB optical mouse", "Mouse" },
+                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Standard office desk with cable management", "Desk" },
+                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Ergonomic office chair with lumbar support", "Chair" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "RequestTypes",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -268,6 +279,24 @@ namespace Infrastructure.Migrations
                     { new Guid("11111111-1111-1111-1111-111111111111"), "IT Products" },
                     { new Guid("22222222-2222-2222-2222-222222222222"), "Office Supplies" },
                     { new Guid("33333333-3333-3333-3333-333333333333"), "Software & Licenses" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ProductGroup",
+                columns: new[] { "ProductId", "RequestTypeId" },
+                values: new object[,]
+                {
+                    { new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("22222222-2222-2222-2222-222222222222") },
+                    { new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("22222222-2222-2222-2222-222222222222") },
+                    { new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("33333333-3333-3333-3333-333333333333") },
+                    { new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("33333333-3333-3333-3333-333333333333") },
+                    { new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("33333333-3333-3333-3333-333333333333") },
+                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), new Guid("22222222-2222-2222-2222-222222222222") },
+                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), new Guid("22222222-2222-2222-2222-222222222222") }
                 });
 
             migrationBuilder.CreateIndex(
@@ -311,11 +340,6 @@ namespace Infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Requests_RequesterId",
-                table: "Requests",
-                column: "RequesterId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Requests_RequestTypeId",
                 table: "Requests",
                 column: "RequestTypeId");
@@ -343,22 +367,22 @@ namespace Infrastructure.Migrations
                 name: "Roles");
 
             migrationBuilder.DropTable(
+                name: "Accounts");
+
+            migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Requests");
 
             migrationBuilder.DropTable(
-                name: "Accounts");
-
-            migrationBuilder.DropTable(
-                name: "RequestTypes");
-
-            migrationBuilder.DropTable(
                 name: "ApproverProfiles");
 
             migrationBuilder.DropTable(
                 name: "Regions");
+
+            migrationBuilder.DropTable(
+                name: "RequestTypes");
         }
     }
 }
