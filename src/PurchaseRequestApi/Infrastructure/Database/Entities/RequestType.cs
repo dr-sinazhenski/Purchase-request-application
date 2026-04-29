@@ -6,7 +6,7 @@ namespace Infrastructure.Database.Entities
     {
         required public string Name { get; set; }
 
-        required public ICollection<Request> Requests { get; set; }
-        required public ICollection<Product> Product { get; set; }
+        public ICollection<Request> Requests { get; set; }
+        public ICollection<Product> Product { get; set; }
     }
 }
