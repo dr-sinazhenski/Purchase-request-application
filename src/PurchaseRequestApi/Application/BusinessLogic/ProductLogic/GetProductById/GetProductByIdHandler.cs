@@ -21,7 +21,9 @@ namespace Application.BusinessLogic.ProductLogic.GetProductById
         public async Task<Result<ProductResDto>> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Getting a Product");
-            var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.id);
+            var product = await _dbContext.Products
+                .Include(p => p.RequestType)
+                .FirstOrDefaultAsync(x => x.Id == request.id);
 
             /*if (product == null)
             {
@@ -34,7 +36,8 @@ namespace Application.BusinessLogic.ProductLogic.GetProductById
             {
                 Id = product.Id,
                 Name = product.Name,
-                Description = product.Description
+                Description = product.Description,
+                RequestTypeIds = product.RequestType.Select(rt => rt.Id).ToList()
             };
 
             return Result<ProductResDto>.Success(data);

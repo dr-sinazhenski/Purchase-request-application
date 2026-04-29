@@ -5,6 +5,7 @@ using Infrastructure.Database.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Shared;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
@@ -23,6 +24,10 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
         {
             _logger.LogInformation("Creating a Product");
 
+            var requestTypes = await _dbContext.RequestTypes
+                .Where(rt => request.dto.RequestTypeIds.Contains(rt.Id))
+                .ToListAsync();
+
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
@@ -38,7 +43,8 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
             {
                 Id = product.Id,
                 Name = product.Name,
-                Description = product.Description
+                Description = product.Description,
+                RequestTypeIds = requestTypes.Select(rt => rt.Id).ToList()
             };
 
             return Result<ProductResDto>.Success(data);

@@ -21,15 +21,22 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
         public async Task<Result<ProductResDto>> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Updating a Product");
-            var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.dto.Id);
+            var product = await _dbContext.Products
+                .Include(p => p.RequestType)
+                .FirstOrDefaultAsync(x => x.Id == request.dto.Id);
 
             if (product == null)
             {
                 return null;
             }
 
+            var requestTypes = await _dbContext.RequestTypes
+                .Where(rt => request.dto.RequestTypeIds.Contains(rt.Id))
+                .ToListAsync(cancellationToken);
+
             product.Name = request.dto.Name;
             product.Description = request.dto.Description;
+            product.RequestType = requestTypes;
 
             _dbContext.Update(product);
             await _dbContext.SaveChangesAsync();
@@ -39,7 +46,8 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
             {
                 Id = product.Id,
                 Name = product.Name,
-                Description = product.Description
+                Description = product.Description,
+                RequestTypeIds = product.RequestType.Select(rt => rt.Id).ToList()
             };
 
             return Result<ProductResDto>.Success(data);
