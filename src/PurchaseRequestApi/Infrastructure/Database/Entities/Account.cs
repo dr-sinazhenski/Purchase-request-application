@@ -11,7 +11,7 @@ namespace Infrastructure.Database.Entities
         required public Region Region { get; set; }
         required public ApproverProfile ApproverProfile { get; set; }
         required public ICollection<Role> Role { get; set; }
-        required public ICollection<Comment> Comments { get; set; }
-        required public ICollection<Request> Requests { get; set; }
+        //required public ICollection<Comment> Comments { get; set; }
+        //required public ICollection<Request> Requests { get; set; }
     }
 }

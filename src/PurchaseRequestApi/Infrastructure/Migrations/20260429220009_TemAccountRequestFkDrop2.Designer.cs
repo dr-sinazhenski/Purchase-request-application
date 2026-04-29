@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260416182626_CreateBaseTables")]
-    partial class CreateBaseTables
+    [Migration("20260429220009_TemAccountRequestFkDrop2")]
+    partial class TemAccountRequestFkDrop2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -188,21 +188,29 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("RequestTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RequesterId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("RequestTypeId");
-
-                    b.HasIndex("RequesterId");
 
                     b.ToTable("Requests");
                 });
@@ -220,6 +228,23 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("RequestTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "IT Products"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "Office Supplies"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Name = "Software & Licenses"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequesterProduct", b =>
@@ -305,13 +330,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Database.Entities.Comment", b =>
                 {
                     b.HasOne("Infrastructure.Database.Entities.Account", "Account")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Database.Entities.Request", "Request")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -348,15 +373,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Database.Entities.Account", "Requester")
-                        .WithMany("Requests")
-                        .HasForeignKey("RequesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("RequestType");
-
-                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequesterProduct", b =>
@@ -393,13 +410,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Infrastructure.Database.Entities.Account", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Requests");
-                });
-
             modelBuilder.Entity("Infrastructure.Database.Entities.ApproverProfile", b =>
                 {
                     b.Navigation("Accounts");
@@ -421,8 +431,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Request", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("RequesterProducts");
                 });
 

@@ -9,13 +9,13 @@ namespace Infrastructure.Database.Entities
         required public DateTime UpdatedAt { get; set; }
 
 
-        public Guid RequesterId { get; set; }
-        public Account Requester { get; set; }
+        //public Guid RequesterId { get; set; }
+        //public Account Requester { get; set; }
         public Guid RequestTypeId { get; set; }
         required public RequestType RequestType { get; set; }
         
 
-        public ICollection<Comment> Comments { get; set; }
+        //public ICollection<Comment> Comments { get; set; }
         public ICollection<RequesterProduct> RequesterProducts { get; set; }
     }
 }

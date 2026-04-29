@@ -40,15 +40,15 @@ namespace Infrastructure.Database
                 .HasForeignKey(a => a.ApproverProfileId)
                 .IsRequired(false);
 
-            modelBuilder.Entity<Comment>()
+            /*modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Request)
                 .WithMany(r => r.Comments)
-                .HasForeignKey(c => c.RequestId);
+                .HasForeignKey(c => c.RequestId);*/
 
-            modelBuilder.Entity<Comment>()
+            /*modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Account)
                 .WithMany(a => a.Comments)
-                .HasForeignKey(c => c.AccountId);
+                .HasForeignKey(c => c.AccountId);*/
 
             modelBuilder.Entity<Request>()
                 .Property(e => e.Status)
@@ -59,10 +59,10 @@ namespace Infrastructure.Database
                 .WithMany(rt => rt.Requests)
                 .HasForeignKey(r => r.RequestTypeId);
 
-            modelBuilder.Entity<Request>()
+            /*modelBuilder.Entity<Request>()
                 .HasOne(r => r.Requester)
                 .WithMany(a => a.Requests)
-                .HasForeignKey(r => r.RequesterId);
+                .HasForeignKey(r => r.RequesterId);*/
 
             modelBuilder.Entity<RequesterProduct>()
                 .HasKey(rp => new { rp.RequestId, rp.ProductId });
@@ -97,21 +97,9 @@ namespace Infrastructure.Database
 
             //---SEED DATA---
             modelBuilder.Entity<RequestType>().HasData(
-                new RequestType
-                {
-                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    Name = "IT Products"
-                },
-                new RequestType
-                {
-                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                    Name = "Office Supplies"
-                },
-                new RequestType
-                {
-                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-                    Name = "Software & Licenses"
-                }
+                new RequestType { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),Name = "IT Products" },
+                new RequestType { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Office Supplies" },
+                new RequestType { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "Software & Licenses" }
             );
         }
     }

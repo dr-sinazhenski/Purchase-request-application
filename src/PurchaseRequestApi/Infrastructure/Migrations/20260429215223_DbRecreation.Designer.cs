@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260429215223_DbRecreation")]
+    partial class DbRecreation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,6 +198,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("RequestTypeId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("RequesterId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
@@ -208,6 +214,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RequestTypeId");
+
+                    b.HasIndex("RequesterId");
 
                     b.ToTable("Requests");
                 });
@@ -327,13 +335,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Database.Entities.Comment", b =>
                 {
                     b.HasOne("Infrastructure.Database.Entities.Account", "Account")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Database.Entities.Request", "Request")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -370,7 +378,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Database.Entities.Account", "Requester")
+                        .WithMany("Requests")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("RequestType");
+
+                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequesterProduct", b =>
@@ -407,6 +423,13 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Infrastructure.Database.Entities.Account", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Requests");
+                });
+
             modelBuilder.Entity("Infrastructure.Database.Entities.ApproverProfile", b =>
                 {
                     b.Navigation("Accounts");
@@ -428,6 +451,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Request", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("RequesterProducts");
                 });
 
