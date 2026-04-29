@@ -96,21 +96,40 @@ namespace Infrastructure.Database
 
             //---SEED DATA---
             modelBuilder.Entity<RequestType>().HasData(
-                new RequestType
-                {
-                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    Name = "IT Products"
-                },
-                new RequestType
-                {
-                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                    Name = "Office Supplies"
-                },
-                new RequestType
-                {
-                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-                    Name = "Software & Licenses"
-                }
+                new RequestType { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "IT Products" },
+                new RequestType { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "Office Supplies" },
+                new RequestType { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "Software & Licenses" }
+            );
+
+            modelBuilder.Entity<Product>().HasData(
+                new Product { Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Laptop",               Description = "Standard business laptop for daily work use" },
+                new Product { Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Name = "Monitor",              Description = "24-inch Full HD display" },
+                new Product { Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), Name = "Keyboard",             Description = "Wired USB office keyboard" },
+                new Product { Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), Name = "Mouse",                Description = "Wired USB optical mouse" },
+                new Product { Id = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), Name = "Desk",                Description = "Standard office desk with cable management" },
+                new Product { Id = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), Name = "Chair",               Description = "Ergonomic office chair with lumbar support" },
+                new Product { Id = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Notebook",            Description = "A5 lined notebook, pack of 3" },
+                new Product { Id = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Pen Set",             Description = "Pack of 10 ballpoint pens" },
+                new Product { Id = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Microsoft 365",       Description = "Annual Microsoft 365 Business Standard license" },
+                new Product { Id = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Adobe Creative Cloud", Description = "Annual Adobe Creative Cloud all-apps license" },
+                new Product { Id = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Name = "Antivirus",           Description = "Annual enterprise antivirus license" }
+            );
+
+            modelBuilder.Entity("ProductRequestType").HasData(
+                // IT Products
+                new { ProductId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") },
+                new { ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") },
+                new { ProductId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") },
+                new { ProductId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") },
+                // Office Supplies
+                new { ProductId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), RequestTypeId = Guid.Parse("22222222-2222-2222-2222-222222222222") },
+                new { ProductId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), RequestTypeId = Guid.Parse("22222222-2222-2222-2222-222222222222") },
+                new { ProductId = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("22222222-2222-2222-2222-222222222222") },
+                new { ProductId = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("22222222-2222-2222-2222-222222222222") },
+                // Software & Licenses
+                new { ProductId = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") },
+                new { ProductId = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") },
+                new { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") }
             );
         }
     }
