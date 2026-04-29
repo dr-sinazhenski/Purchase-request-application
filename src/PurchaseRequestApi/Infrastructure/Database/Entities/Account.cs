@@ -1,5 +1,3 @@
-using System;
-
 namespace Infrastructure.Database.Entities
 {
     public class Account : Entity

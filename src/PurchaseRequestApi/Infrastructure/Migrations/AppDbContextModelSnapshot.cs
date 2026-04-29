@@ -67,7 +67,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.ApproverProfile", b =>
@@ -88,7 +88,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApproverProfiles");
+                    b.ToTable("ApproverProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Comment", b =>
@@ -116,7 +116,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RequestId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Price", b =>
@@ -138,7 +138,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RegionId");
 
-                    b.ToTable("Prices");
+                    b.ToTable("Prices", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Product", b =>
@@ -157,7 +157,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Region", b =>
@@ -176,7 +176,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Regions");
+                    b.ToTable("Regions", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Request", b =>
@@ -201,7 +201,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RequesterId");
 
-                    b.ToTable("Requests");
+                    b.ToTable("Requests", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequestType", b =>
@@ -216,7 +216,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RequestTypes");
+                    b.ToTable("RequestTypes", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequesterProduct", b =>
@@ -234,7 +234,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("RequesterProducts");
+                    b.ToTable("RequesterProducts", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Role", b =>
@@ -249,7 +249,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("ProductRequestType", b =>
