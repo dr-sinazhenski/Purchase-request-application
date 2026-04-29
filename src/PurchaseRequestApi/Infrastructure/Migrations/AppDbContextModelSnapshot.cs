@@ -260,6 +260,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("EditedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("RequestTypeId")
                         .HasColumnType("uuid");
 
@@ -269,9 +272,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
