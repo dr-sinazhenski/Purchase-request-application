@@ -1,4 +1,4 @@
-namespace Application.BusinessLogic.RequestTypeLogic.Dto
+﻿namespace Application.BusinessLogic.RequestTypeLogic.Dto
 {
     public class RequestTypeResDto
     {

@@ -192,28 +192,22 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("EditedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<Guid>("RequestTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("RequesterId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RequestTypeId");
-
-                    b.HasIndex("RequesterId");
 
                     b.ToTable("Requests");
                 });
@@ -333,13 +327,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Database.Entities.Comment", b =>
                 {
                     b.HasOne("Infrastructure.Database.Entities.Account", "Account")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Database.Entities.Request", "Request")
-                        .WithMany("Comments")
+                        .WithMany()
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -376,15 +370,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Database.Entities.Account", "Requester")
-                        .WithMany("Requests")
-                        .HasForeignKey("RequesterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("RequestType");
-
-                    b.Navigation("Requester");
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.RequesterProduct", b =>
@@ -421,13 +407,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Infrastructure.Database.Entities.Account", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Requests");
-                });
-
             modelBuilder.Entity("Infrastructure.Database.Entities.ApproverProfile", b =>
                 {
                     b.Navigation("Accounts");
@@ -449,8 +428,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Request", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("RequesterProducts");
                 });
 
