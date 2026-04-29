@@ -1,6 +1,7 @@
 using Application.BusinessLogic.RequestLogic.CreateRequest;
 using Application.BusinessLogic.RequestLogic.Dto;
 using Application.BusinessLogic.RequestLogic.GetAllRequests;
+using Application.BusinessLogic.RequestLogic.UpdateRequest;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
@@ -43,6 +44,19 @@ namespace WebApi.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError("Failed to fetch requests");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] CreateRequestDto dto)
+        {
+            var result = await _mediator.Send(new UpdateRequestCommand(dto));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to update request");
                 return BadRequest(result);
             }
 
