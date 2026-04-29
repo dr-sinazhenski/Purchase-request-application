@@ -93,6 +93,25 @@ namespace Infrastructure.Database
                 .HasMany(p => p.RequestType)
                 .WithMany(rt => rt.Product)
                 .UsingEntity(j => j.ToTable("ProductGroup"));
+
+            //---SEED DATA---
+            modelBuilder.Entity<RequestType>().HasData(
+                new RequestType
+                {
+                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    Name = "IT Products"
+                },
+                new RequestType
+                {
+                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    Name = "Office Supplies"
+                },
+                new RequestType
+                {
+                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = "Software & Licenses"
+                }
+            );
         }
     }
 }
