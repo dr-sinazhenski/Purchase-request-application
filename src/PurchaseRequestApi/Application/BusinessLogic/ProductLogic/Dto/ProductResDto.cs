@@ -9,5 +9,6 @@ namespace Application.BusinessLogic.ProductLogic.Dto
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public List<Guid> RequestTypeIds { get; set; } = new List<Guid>();
     }
 }
