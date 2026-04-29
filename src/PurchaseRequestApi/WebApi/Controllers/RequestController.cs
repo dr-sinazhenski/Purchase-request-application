@@ -1,5 +1,6 @@
 using Application.BusinessLogic.RequestLogic.CreateRequest;
 using Application.BusinessLogic.RequestLogic.Dto;
+using Application.BusinessLogic.RequestLogic.GetAllRequests;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
@@ -28,6 +29,20 @@ namespace WebApi.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError("Failed to create request");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllRequestsCommand());
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch requests");
                 return BadRequest(result);
             }
 
