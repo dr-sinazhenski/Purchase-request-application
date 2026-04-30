@@ -1,0 +1,175 @@
+import type { RequestRecord, Status } from '../types'
+
+export const statusFilters: Array<'All' | Status> = [
+  'All',
+  'New',
+  'Resubmitted',
+  'Approved',
+  'Rejected',
+]
+
+export const initialRequests: RequestRecord[] = [
+  {
+    id: 'REQ-0042',
+    name: 'MacBook Pro 16" - Dev Team',
+    type: 'Hardware',
+    status: 'Resubmitted',
+    total: 3499,
+    creator: 'James Kim',
+    initials: 'JK',
+    updated: '2h ago',
+    submitted: 'Dec 14, 2024 at 09:42',
+    approver: 'Sarah Chen',
+    description:
+      'Replacing 2019 MBP for lead developer. Needed for faster Xcode build times and local mobile testing.',
+    items: [
+      {
+        name: 'MacBook Pro 16"',
+        category: 'Laptop',
+        quantity: 1,
+        unitPrice: 3299,
+      },
+      {
+        name: 'AppleCare+',
+        category: 'Warranty',
+        quantity: 1,
+        unitPrice: 200,
+      },
+    ],
+  },
+  {
+    id: 'REQ-0041',
+    name: 'Adobe Creative Suite',
+    type: 'Software',
+    status: 'Approved',
+    total: 6240,
+    creator: 'Lisa Park',
+    initials: 'LP',
+    updated: 'Yesterday',
+    submitted: 'Dec 13, 2024 at 16:20',
+    approver: 'Sarah Chen',
+    description: 'Marketing team annual license for 12 seats.',
+    items: [
+      {
+        name: 'Creative Cloud All Apps',
+        category: 'License',
+        quantity: 12,
+        unitPrice: 520,
+      },
+    ],
+  },
+  {
+    id: 'REQ-0040',
+    name: 'AWS Reserved Instances - Q2',
+    type: 'Cloud',
+    status: 'New',
+    total: 18500,
+    creator: 'Marco Rossi',
+    initials: 'MR',
+    updated: '3 days ago',
+    submitted: 'Dec 11, 2024 at 11:10',
+    approver: 'Sarah Chen',
+    description: 'Q2 infrastructure capacity reservation.',
+    items: [
+      {
+        name: 'Compute reservation',
+        category: 'Infrastructure',
+        quantity: 1,
+        unitPrice: 18500,
+      },
+    ],
+  },
+  {
+    id: 'REQ-0039',
+    name: 'Standing Desk Uplift V2 x 4',
+    type: 'Furniture',
+    status: 'Rejected',
+    total: 2800,
+    creator: 'Amy Nguyen',
+    initials: 'AN',
+    updated: '5 days ago',
+    submitted: 'Dec 9, 2024 at 13:45',
+    approver: 'Sarah Chen',
+    description: 'Office upgrade for new hires joining Q1.',
+    reason: 'Budget owner asked to bundle this with the Q1 office refresh.',
+    items: [
+      {
+        name: 'Uplift V2 standing desk',
+        category: 'Furniture',
+        quantity: 4,
+        unitPrice: 700,
+      },
+    ],
+  },
+  {
+    id: 'REQ-0038',
+    name: 'GitHub Enterprise - Annual',
+    type: 'Software',
+    status: 'Approved',
+    total: 21000,
+    creator: 'Tom Walsh',
+    initials: 'TW',
+    updated: '1 week ago',
+    submitted: 'Dec 6, 2024 at 10:25',
+    approver: 'Sarah Chen',
+    description: 'Annual renewal for engineering organization.',
+    items: [
+      {
+        name: 'GitHub Enterprise seats',
+        category: 'License',
+        quantity: 70,
+        unitPrice: 300,
+      },
+    ],
+  },
+  {
+    id: 'REQ-0037',
+    name: 'Figma Organization Plan',
+    type: 'Software',
+    status: 'New',
+    total: 1680,
+    creator: 'Diana Lee',
+    initials: 'DL',
+    updated: '2 weeks ago',
+    submitted: 'Dec 1, 2024 at 12:05',
+    approver: 'Sarah Chen',
+    description: 'Design organization plan for product squads.',
+    items: [
+      {
+        name: 'Figma organization license',
+        category: 'License',
+        quantity: 8,
+        unitPrice: 210,
+      },
+    ],
+  },
+]
+
+export const draftRequest: RequestRecord = {
+  id: 'REQ-0043',
+  name: 'Design team hardware refresh',
+  type: 'Hardware',
+  status: 'New',
+  total: 4198,
+  creator: 'Nick Sinazhenski',
+  initials: 'NS',
+  updated: 'Draft',
+  submitted: 'Not submitted yet',
+  approver: 'Sarah Chen',
+  description:
+    'Required for the new designer joining in January. Previous request was revised to better align with Q4 budget constraints.',
+  items: [
+    {
+      name: 'MacBook Air 15"',
+      category: 'Laptop',
+      quantity: 2,
+      unitPrice: 1799,
+    },
+    {
+      name: 'USB-C display dock',
+      category: 'Accessory',
+      quantity: 2,
+      unitPrice: 300,
+    },
+  ],
+}

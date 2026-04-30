@@ -1,0 +1,43 @@
+.meta-grid {
+  display: grid;
+  gap: 16px;
+  margin: 22px 0 10px;
+}
+
+.meta-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.meta-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+
+.metric span {
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.metric strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+@media (max-width: 1100px) {
+  .meta-grid,
+  .meta-grid-3,
+  .meta-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}

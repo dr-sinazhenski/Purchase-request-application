@@ -1,0 +1,153 @@
+.approval-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+.detail-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.detail-title h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.detail-title p,
+.line-item span {
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 14px;
+}
+
+.back-button {
+  margin-bottom: 22px;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.line-items {
+  display: grid;
+  gap: 12px;
+}
+
+.line-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.line-item div {
+  display: grid;
+  gap: 6px;
+}
+
+.approval-panel {
+  position: sticky;
+  top: 24px;
+}
+
+.approval-panel h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.approval-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.approval-copy {
+  margin: 12px 0 22px;
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  background: rgba(24, 24, 27, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  width: min(520px, 100%);
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.24),
+    0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.modal-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  place-items: center;
+  border-radius: 14px;
+}
+
+.modal-icon.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.modal h2 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 26px;
+}
+
+.modal p {
+  margin: 0 0 22px;
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 1100px) {
+  .approval-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .approval-panel {
+    position: static;
+  }
+}

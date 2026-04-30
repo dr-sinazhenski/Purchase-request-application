@@ -1,0 +1,52 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.status::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  content: "";
+}
+
+.status-new {
+  background: var(--orange-soft);
+  color: var(--orange);
+}
+
+.status-new::before {
+  background: var(--orange);
+}
+
+.status-resubmitted {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.status-resubmitted::before {
+  background: var(--blue);
+}
+
+.status-approved {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.status-approved::before {
+  background: var(--green);
+}
+
+.status-rejected {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.status-rejected::before {
+  background: var(--danger);
+}
