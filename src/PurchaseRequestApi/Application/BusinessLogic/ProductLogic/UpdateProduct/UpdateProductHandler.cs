@@ -7,7 +7,7 @@ using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 {
-    public class UpdateProductHandler : IRequestHandler<UpdateProductRequest, Result<ProductResDto?>>
+    public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result<ProductResDto?>>
     {
         private readonly ILogger<UpdateProductHandler> _logger;
         private readonly AppDbContext _dbContext;
@@ -18,7 +18,7 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
             _dbContext = dbContext;
         }
 
-        public async Task<Result<ProductResDto>> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
+        public async Task<Result<ProductResDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Updating a Product");
             var product = await _dbContext.Products

@@ -4,5 +4,5 @@ using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
-    public record CreateProductRequest(CreateProductReqDto dto) : IRequest<Result<ProductResDto>>;
+    public record CreateProductCommand(CreateProductDto dto) : IRequest<Result<ProductResDto>>;
 }

@@ -6,7 +6,7 @@ using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.DeleteProduct
 {
-    public class DeleteProductHandler : IRequestHandler<DeleteProductRequest, Result>
+    public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result>
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<DeleteProductHandler> _logger;
@@ -17,7 +17,7 @@ namespace Application.BusinessLogic.ProductLogic.DeleteProduct
             _logger = logger;
         }
 
-        public async Task<Result> Handle(DeleteProductRequest request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deleting a Product");
             var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.id);

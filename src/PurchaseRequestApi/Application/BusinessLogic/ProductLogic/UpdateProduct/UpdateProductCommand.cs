@@ -7,5 +7,5 @@ using System.Text;
 
 namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 {
-    public record UpdateProductRequest(CreateProductReqDto dto) : IRequest<Result<ProductResDto?>>;
+    public record UpdateProductCommand(CreateProductDto dto) : IRequest<Result<ProductResDto?>>;
 }

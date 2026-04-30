@@ -26,7 +26,7 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var result = await _mediator.Send(new GetProductByIdRequest(id));
+            var result = await _mediator.Send(new GetProductByIdCommand(id));
 
             if (!result.IsSuccess)
             {
@@ -38,9 +38,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateProductReqDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         { 
-            var result = await _mediator.Send(new CreateProductRequest(dto));
+            var result = await _mediator.Send(new CreateProductCommand(dto));
 
             if (!result.IsSuccess)
             {
@@ -53,9 +53,9 @@ namespace WebApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] CreateProductReqDto dto)
+        public async Task<IActionResult> Update([FromBody] CreateProductDto dto)
         {
-            var result = await _mediator.Send(new UpdateProductRequest(dto));
+            var result = await _mediator.Send(new UpdateProductCommand(dto));
 
             if (!result.IsSuccess)
             {
@@ -70,7 +70,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _mediator.Send(new DeleteProductRequest(id));
+            var result = await _mediator.Send(new DeleteProductCommand(id));
 
             if (!result.IsSuccess)
             {

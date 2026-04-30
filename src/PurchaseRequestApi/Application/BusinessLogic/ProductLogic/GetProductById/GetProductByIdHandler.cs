@@ -7,7 +7,7 @@ using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.GetProductById
 {
-    public class GetProductByIdHandler : IRequestHandler<GetProductByIdRequest, Result<ProductResDto>>
+    public class GetProductByIdHandler : IRequestHandler<GetProductByIdCommand, Result<ProductResDto>>
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetProductByIdHandler> _logger;
@@ -18,7 +18,7 @@ namespace Application.BusinessLogic.ProductLogic.GetProductById
             _logger = logger;
         }
 
-        public async Task<Result<ProductResDto>> Handle(GetProductByIdRequest request, CancellationToken cancellationToken)
+        public async Task<Result<ProductResDto>> Handle(GetProductByIdCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Getting a Product");
             var product = await _dbContext.Products
