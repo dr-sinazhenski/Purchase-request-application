@@ -43,7 +43,7 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
                 Description = r.Description,
                 Status = r.Status.ToString(),
                 CreatedAt = r.CreatedAt,
-                EditedAt = r.EditedAt,
+                UpdatedAt = r.UpdatedAt,
                 RequestType = new RequestTypeResDto
                 {
                     Id = r.RequestType.Id,

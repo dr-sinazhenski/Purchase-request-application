@@ -3,7 +3,7 @@ using Application.BusinessLogic.ProductLogic.Dto;
 
 namespace Application.BusinessLogic.ProductLogic.Validators
 {
-    public class ProductValidator : AbstractValidator<CreateProductReqDto>
+    public class ProductValidator : AbstractValidator<CreateProductDto>
     {
         public ProductValidator()
         {

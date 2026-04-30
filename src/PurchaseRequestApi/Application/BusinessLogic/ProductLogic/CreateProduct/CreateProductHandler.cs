@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
-    public class CreateProductHandler : IRequestHandler<CreateProductRequest, Result<ProductResDto>>
+    public class CreateProductHandler : IRequestHandler<CreateProductCommand, Result<ProductResDto>>
     {
         private readonly ILogger<CreateProductHandler> _logger;
         private readonly AppDbContext _dbContext;
@@ -20,7 +20,7 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
             _dbContext = dbContext;
         }
 
-        public async Task<Result<ProductResDto>> Handle(CreateProductRequest request, CancellationToken cancellationToken)
+        public async Task<Result<ProductResDto>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Creating a Product");
 

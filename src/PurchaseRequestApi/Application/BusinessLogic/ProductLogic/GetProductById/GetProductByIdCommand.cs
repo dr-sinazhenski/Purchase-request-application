@@ -4,5 +4,5 @@ using Shared;
 
 namespace Application.BusinessLogic.ProductLogic.GetProductById
 {
-    public record GetProductByIdRequest(Guid id) : IRequest<Result<ProductResDto>>;
+    public record GetProductByIdCommand(Guid id) : IRequest<Result<ProductResDto>>;
 }

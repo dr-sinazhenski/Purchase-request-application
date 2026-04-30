@@ -40,6 +40,11 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 _logger.LogInformation("Reqest type not found");
             }
 
+            if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.Rejected && request.Status != RequestStatus.Resubmited)
+            {
+                _logger.LogInformation("Reqest type incorrect");
+            }
+
             request.Title = command.dto.Title;
             request.Description = command.dto.Description;
             request.RequestTypeId = type.Id;
@@ -51,7 +56,7 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 request.Status = RequestStatus.Resubmited;
             }
 
-            await _dbContext.Requests.AddAsync(request);
+            _dbContext.Requests.Update(request);
             await _dbContext.SaveChangesAsync();
 
             _logger.LogInformation("Reqest updated");
@@ -70,6 +75,11 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 CreatedAt = request.CreatedAt,
                 UpdatedAt = DateTime.UtcNow
             };
+
+            if (request.RejectionComment != null)
+            {
+                reqDto.RejectionCommentText = request.RejectionComment.ToString();
+            }
 
             return Result<GetRequestDetailsResDto>.Success(reqDto);
         }
