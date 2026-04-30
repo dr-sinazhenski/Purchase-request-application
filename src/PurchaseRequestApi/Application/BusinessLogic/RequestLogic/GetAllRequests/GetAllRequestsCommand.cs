@@ -4,5 +4,5 @@ using Shared;
 
 namespace Application.BusinessLogic.RequestLogic.GetAllRequests
 {
-    public record GetAllRequestsCommand() : IRequest<Result<List<GetRequestsDto>>>;
+    public record GetAllRequestsCommand() : IRequest<Result<List<GetRequestResDto>>>;
 }

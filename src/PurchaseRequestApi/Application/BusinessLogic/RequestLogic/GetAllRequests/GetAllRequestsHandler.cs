@@ -8,7 +8,7 @@ using Shared;
 
 namespace Application.BusinessLogic.RequestLogic.GetAllRequests
 {
-    public class GetAllRequestsHandler : IRequestHandler<GetAllRequestsCommand, Result<List<GetRequestsDto>>>
+    public class GetAllRequestsHandler : IRequestHandler<GetAllRequestsCommand, Result<List<GetRequestResDto>>>
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetAllRequestsHandler> _logger;
@@ -19,14 +19,14 @@ namespace Application.BusinessLogic.RequestLogic.GetAllRequests
             _logger = logger;
         }
 
-        public async Task<Result<List<GetRequestsDto>>> Handle(GetAllRequestsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetRequestResDto>>> Handle(GetAllRequestsCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Fetching all requests");
 
             var requests = await _dbContext.Requests
                 .AsNoTracking()
                 .Include(r => r.RequestType)
-                .Select(r => new GetRequestsDto
+                .Select(r => new GetRequestResDto
                 {
                     Id = r.Id,
                     Title = r.Title,
@@ -41,7 +41,7 @@ namespace Application.BusinessLogic.RequestLogic.GetAllRequests
                 })
                 .ToListAsync(cancellationToken);
 
-            return Result<List<GetRequestsDto>>.Success(requests);
+            return Result<List<GetRequestResDto>>.Success(requests);
         }
     }
 }

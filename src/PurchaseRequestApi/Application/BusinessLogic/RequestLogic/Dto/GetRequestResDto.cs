@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Application.BusinessLogic.RequestLogic.Dto
 {
-    public class GetRequestsDto
+    public class GetRequestResDto
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
