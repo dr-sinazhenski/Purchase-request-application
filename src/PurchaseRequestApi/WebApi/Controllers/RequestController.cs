@@ -3,6 +3,7 @@ using Application.BusinessLogic.RequestLogic.Dto;
 using Application.BusinessLogic.RequestLogic.GetAllRequests;
 using Application.BusinessLogic.RequestLogic.UpdateRequest;
 using Application.BusinessLogic.RequestLogic.GetRequestById;
+using Application.BusinessLogic.RequestLogic.DeleteRequest;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
@@ -76,6 +77,20 @@ namespace WebApi.Controllers
                 return BadRequest(result);
             }
 
+            return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteRequestCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to delete request {Id}", id);
+                return BadRequest(result);
+            }
+
+            _logger.LogInformation("Request {Id} deleted", id);
             return Ok(result);
         }
     }
