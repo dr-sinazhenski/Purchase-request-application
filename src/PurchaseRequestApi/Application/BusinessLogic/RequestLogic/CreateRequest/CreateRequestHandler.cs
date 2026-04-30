@@ -42,7 +42,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 RequestType = type,
                 Status = RequestStatus.Submited,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                EditedAt = DateTime.UtcNow
             };
 
             await _dbContext.Requests.AddAsync(request);
