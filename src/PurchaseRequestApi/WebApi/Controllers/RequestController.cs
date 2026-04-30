@@ -2,6 +2,7 @@ using Application.BusinessLogic.RequestLogic.CreateRequest;
 using Application.BusinessLogic.RequestLogic.Dto;
 using Application.BusinessLogic.RequestLogic.GetAllRequests;
 using Application.BusinessLogic.RequestLogic.UpdateRequest;
+using Application.BusinessLogic.RequestLogic.GetRequestById;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
@@ -49,6 +50,21 @@ namespace WebApi.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetRequestByIdCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Request {Id} not found", id);
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CreateRequestDto dto)
         {
