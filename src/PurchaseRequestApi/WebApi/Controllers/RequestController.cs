@@ -1,6 +1,9 @@
 using Application.BusinessLogic.RequestLogic.CreateRequest;
 using Application.BusinessLogic.RequestLogic.Dto;
+using Application.BusinessLogic.RequestLogic.GetAllRequests;
 using Application.BusinessLogic.RequestLogic.UpdateRequest;
+using Application.BusinessLogic.RequestLogic.GetRequestById;
+using Application.BusinessLogic.RequestLogic.DeleteRequest;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
@@ -35,6 +38,34 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllRequestsCommand());
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch requests");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetRequestByIdCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Request {Id} not found", id);
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CreateRequestDto dto)
         {
@@ -46,6 +77,20 @@ namespace WebApi.Controllers
                 return BadRequest(result);
             }
 
+            return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteRequestCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to delete request {Id}", id);
+                return BadRequest(result);
+            }
+
+            _logger.LogInformation("Request {Id} deleted", id);
             return Ok(result);
         }
     }
