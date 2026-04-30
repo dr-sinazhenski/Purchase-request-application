@@ -27,7 +27,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
         {
             _logger.LogInformation("Creating new request");
 
-            var type = _dbContext.RequestTypes.FirstOrDefault(x => x.Id == command.dto.requestTypeId);
+            var type = _dbContext.RequestTypes.FirstOrDefault(x => x.Id == command.dto.RequestTypeId);
             if (type == null)
             {
 

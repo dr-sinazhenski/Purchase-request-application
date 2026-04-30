@@ -14,6 +14,6 @@ namespace Application.BusinessLogic.RequestLogic.Dto
         public RequestTypeResDto RequestType { get; set; }
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime EditedAt { get; set; }
     }
 }
