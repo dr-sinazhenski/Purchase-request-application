@@ -6,11 +6,11 @@ namespace Infrastructure.Database.Entities
         required public string Description { get; set; }
         required public RequestStatus Status { get; set; }
         required public DateTime CreatedAt { get; set; }
-        required public DateTime EditedAt { get; set; }
+        required public DateTime UpdatedAt { get; set; }
 
 
-        public Guid RequesterId { get; set; }
-        public Account Requester { get; set; }
+        public Guid? RequesterId { get; set; }
+        public Account? Requester { get; set; }
         required public Guid RequestTypeId { get; set; }
         required public RequestType RequestType { get; set; }
         public Guid? RejectionCommentId { get; set; }

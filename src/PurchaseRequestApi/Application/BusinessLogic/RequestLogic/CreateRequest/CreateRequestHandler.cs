@@ -42,7 +42,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 RequestType = type,
                 Status = RequestStatus.Submited,
                 CreatedAt = DateTime.UtcNow,
-                EditedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow
             };
 
             await _dbContext.Requests.AddAsync(request);
@@ -53,6 +53,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 Id = request.Id,
                 Title = request.Title,
                 Description = request.Description,
+                Status = request.Status.ToString(),
                 RequestType = new RequestTypeResDto()
                 {
                     Id = request.RequestType.Id,

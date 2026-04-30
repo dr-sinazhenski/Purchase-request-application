@@ -8,7 +8,7 @@ using Shared;
 
 namespace Application.BusinessLogic.RequestLogic.GetAllRequests
 {
-    public class GetAllRequestsHandler : IRequestHandler<GetAllRequestsCommand, Result<List<GetAllRequestsDto>>>
+    public class GetAllRequestsHandler : IRequestHandler<GetAllRequestsCommand, Result<List<GetRequestsDto>>>
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetAllRequestsHandler> _logger;
@@ -19,20 +19,20 @@ namespace Application.BusinessLogic.RequestLogic.GetAllRequests
             _logger = logger;
         }
 
-        public async Task<Result<List<GetAllRequestsDto>>> Handle(GetAllRequestsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<List<GetRequestsDto>>> Handle(GetAllRequestsCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Fetching all requests");
 
             var requests = await _dbContext.Requests
                 .AsNoTracking()
                 .Include(r => r.RequestType)
-                .Select(r => new GetAllRequestsDto
+                .Select(r => new GetRequestsDto
                 {
                     Id = r.Id,
                     Title = r.Title,
-                   /* Status = r.Status.ToString(),*/
+                    Status = r.Status.ToString(),
                     CreatedAt = r.CreatedAt,
-                    EditedAt = r.EditedAt,
+                    UpdatedAt = r.UpdatedAt,
                     RequestType = new RequestTypeResDto
                     {
                         Id = r.RequestType.Id,
@@ -41,7 +41,7 @@ namespace Application.BusinessLogic.RequestLogic.GetAllRequests
                 })
                 .ToListAsync(cancellationToken);
 
-            return Result<List<GetAllRequestsDto>>.Success(requests);
+            return Result<List<GetRequestsDto>>.Success(requests);
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430003515_NamesUpdate")]
+    partial class NamesUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,7 +100,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AccountId")
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreationTime")
@@ -269,7 +272,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("RequestTypeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RequesterId")
+                    b.Property<Guid>("RequesterId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Status")
@@ -466,7 +469,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Infrastructure.Database.Entities.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountId");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Database.Entities.Request", "Request")
                         .WithMany("Comments")
@@ -512,7 +517,9 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Infrastructure.Database.Entities.Account", "Requester")
                         .WithMany()
-                        .HasForeignKey("RequesterId");
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("RejectionComment");
 

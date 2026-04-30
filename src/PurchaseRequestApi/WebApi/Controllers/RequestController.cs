@@ -8,6 +8,8 @@ using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Application.BusinessLogic.RequestLogic.ApproveRequest;
+using Application.BusinessLogic.RequestLogic.RejectRequest;
 
 namespace WebApi.Controllers
 {
@@ -91,6 +93,36 @@ namespace WebApi.Controllers
             }
 
             _logger.LogInformation("Request {Id} deleted", id);
+            return Ok(result);
+        }
+
+        [HttpPut("/Approve/{id}")]
+        public async Task<IActionResult> Approve(Guid id)
+        {
+            var result = await _mediator.Send(new ApproveRequestCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to approve request {Id}", id);
+                return BadRequest(result);
+            }
+
+            _logger.LogInformation("Request {Id} approved", id);
+            return Ok(result);
+        }
+
+        [HttpPut("/Reject/")]
+        public async Task<IActionResult> Reject([FromBody] RejectRequestDto dto)
+        {
+            var result = await _mediator.Send(new RejectRequestCommand(dto));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to reject request {Id}", dto.Id);
+                return BadRequest(result);
+            }
+
+            _logger.LogInformation("Request {Id} reject", dto.Id);
             return Ok(result);
         }
     }
