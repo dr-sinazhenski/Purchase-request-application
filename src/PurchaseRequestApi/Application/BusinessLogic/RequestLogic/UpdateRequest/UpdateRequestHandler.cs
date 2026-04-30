@@ -71,6 +71,11 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 UpdatedAt = DateTime.UtcNow
             };
 
+            if (request.RejectionComment != null)
+            {
+                reqDto.RejectionCommentText = request.RejectionComment.ToString();
+            }
+
             return Result<GetRequestDetailsResDto>.Success(reqDto);
         }
     }

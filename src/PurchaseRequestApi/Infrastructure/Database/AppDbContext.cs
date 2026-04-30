@@ -40,10 +40,10 @@ namespace Infrastructure.Database
                 .HasForeignKey(a => a.ApproverProfileId)
                 .IsRequired(false);
 
-            /*modelBuilder.Entity<Comment>()
+            modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Request)
                 .WithMany(r => r.Comments)
-                .HasForeignKey(c => c.RequestId);*/
+                .HasForeignKey(c => c.RequestId);
 
             /*modelBuilder.Entity<Comment>()
                 .HasOne(c => c.Account)

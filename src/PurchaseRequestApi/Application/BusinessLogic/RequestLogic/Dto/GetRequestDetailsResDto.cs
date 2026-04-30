@@ -13,6 +13,7 @@ namespace Application.BusinessLogic.RequestLogic.Dto
         public string Description { get; set; }
         public RequestTypeResDto RequestType { get; set; }
         public string Status { get; set; }
+        public string? RejectionCommentText { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

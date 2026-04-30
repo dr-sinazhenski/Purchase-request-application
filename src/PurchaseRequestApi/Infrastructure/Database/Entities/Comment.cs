@@ -9,7 +9,7 @@ namespace Infrastructure.Database.Entities
         required public string Text { get; set; }
         public DateTime CreationTime { get; set; }
 
-        required public Request Request { get; set; }
-        required public Account Account { get; set; }
+        public Request Request { get; set; }
+        public Account Account { get; set; }
     }
 }
