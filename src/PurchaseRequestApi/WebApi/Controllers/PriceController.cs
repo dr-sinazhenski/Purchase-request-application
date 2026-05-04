@@ -3,6 +3,7 @@ using Application.BusinessLogic.PriceLogic.DeletePrice;
 using Application.BusinessLogic.PriceLogic.Dto;
 using Application.BusinessLogic.PriceLogic.GetPrice;
 using Application.BusinessLogic.PriceLogic.UpdatePrice;
+using Application.BusinessLogic.PriceLogic.GetAllPrices;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,20 @@ namespace WebApi.Controllers
         {
             _logger = logger;
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllPricesCommand());
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch prices");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
         [HttpPost]

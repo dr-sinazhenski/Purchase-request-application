@@ -3,6 +3,7 @@ using Application.BusinessLogic.RegionLogic.DeleteRegion;
 using Application.BusinessLogic.RegionLogic.Dto;
 using Application.BusinessLogic.RegionLogic.GetRegion;
 using Application.BusinessLogic.RegionLogic.UpdateRegion;
+using Application.BusinessLogic.RegionLogic.GetAllRegions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,20 @@ namespace WebApi.Controllers
         {
             _logger = logger;
             _mediator = mediator;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllRegionsCommand());
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch regions");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
         [HttpPost]

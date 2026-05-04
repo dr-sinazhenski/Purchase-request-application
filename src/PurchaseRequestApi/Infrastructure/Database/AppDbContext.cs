@@ -132,6 +132,58 @@ namespace Infrastructure.Database
                 new { ProductId = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") },
                 new { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") }
             );
+            modelBuilder.Entity<Region>().HasData(
+                new Region { Id = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Name = "North America", Currency = "USD" },
+                new Region { Id = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Name = "Europe",        Currency = "EUR" },
+                new Region { Id = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Name = "Lithuania",     Currency = "EUR" }
+            );
+
+            modelBuilder.Entity<Price>().HasData(
+                // Laptop
+                new Price { ProductId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 1200.00m, UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 1100.00m, UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 1050.00m, UnitsOfMeasure = "pcs" },
+                // Monitor
+                new Price { ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 300.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 280.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 270.00m,  UnitsOfMeasure = "pcs" },
+                // Keyboard
+                new Price { ProductId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 45.00m,   UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 40.00m,   UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 38.00m,   UnitsOfMeasure = "pcs" },
+                // Mouse
+                new Price { ProductId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 25.00m,   UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 22.00m,   UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 20.00m,   UnitsOfMeasure = "pcs" },
+                // Desk
+                new Price { ProductId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 350.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 320.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 300.00m,  UnitsOfMeasure = "pcs" },
+                // Chair
+                new Price { ProductId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 400.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 370.00m,  UnitsOfMeasure = "pcs" },
+                new Price { ProductId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 350.00m,  UnitsOfMeasure = "pcs" },
+                // Notebook
+                new Price { ProductId = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 12.00m,   UnitsOfMeasure = "pack" },
+                new Price { ProductId = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 10.00m,   UnitsOfMeasure = "pack" },
+                new Price { ProductId = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 9.00m,    UnitsOfMeasure = "pack" },
+                // Pen Set
+                new Price { ProductId = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 8.00m,    UnitsOfMeasure = "pack" },
+                new Price { ProductId = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 7.00m,    UnitsOfMeasure = "pack" },
+                new Price { ProductId = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 6.50m,    UnitsOfMeasure = "pack" },
+                // Microsoft 365
+                new Price { ProductId = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 150.00m,  UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 140.00m,  UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 135.00m,  UnitsOfMeasure = "license" },
+                // Adobe Creative Cloud
+                new Price { ProductId = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 600.00m,  UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 560.00m,  UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 540.00m,  UnitsOfMeasure = "license" },
+                // Antivirus
+                new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 80.00m,   UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 75.00m,   UnitsOfMeasure = "license" },
+                new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 70.00m,   UnitsOfMeasure = "license" }
+            );
         }
     }
 }
