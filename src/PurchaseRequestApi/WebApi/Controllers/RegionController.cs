@@ -1,0 +1,81 @@
+using Application.BusinessLogic.RegionLogic.CreateRegion;
+using Application.BusinessLogic.RegionLogic.DeleteRegion;
+using Application.BusinessLogic.RegionLogic.Dto;
+using Application.BusinessLogic.RegionLogic.GetRegion;
+using Application.BusinessLogic.RegionLogic.UpdateRegion;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class RegionController : ControllerBase
+    {
+        private readonly ILogger<RegionController> _logger;
+        private readonly IMediator _mediator;
+
+        public RegionController(ILogger<RegionController> logger, IMediator mediator)
+        {
+            _logger = logger;
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CrudRegionDto dto)
+        {
+            var result = await _mediator.Send(new CreateRegionCommand(dto));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to create region");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetRegionCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Region {Id} not found", id);
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update([FromBody] CrudRegionDto dto)
+        {
+            var result = await _mediator.Send(new UpdateRegionCommand(dto));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to update region {Id}", dto.Id);
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _mediator.Send(new DeleteRegionCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to delete region {Id}", id);
+                return BadRequest(result);
+            }
+
+            _logger.LogInformation("Region {Id} deleted", id);
+            return Ok(result);
+        }
+    }
+}
