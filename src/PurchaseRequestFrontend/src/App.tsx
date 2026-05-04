@@ -6,8 +6,30 @@ import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
-import { draftRequest, initialRequests } from './data/requests'
+import { initialRequests } from './data/requests'
 import type { DecisionState, RequestRecord, Screen, Status } from './types'
+
+const blankRequest: RequestRecord = {
+  id: '',
+  name: '',
+  type: '',
+  status: 'New',
+  total: 0,
+  creator: 'Current user',
+  initials: 'CU',
+  updated: 'Draft',
+  submitted: 'Not submitted yet',
+  approver: 'Sarah Chen',
+  description: '',
+  items: [
+    {
+      name: '',
+      category: '',
+      quantity: 1,
+      unitPrice: 0,
+    },
+  ],
+}
 
 function App() {
   const [requestRecords, setRequestRecords] = useState(initialRequests)
@@ -122,7 +144,7 @@ function App() {
       {screen === 'create' && (
         <RequestForm
           mode="create"
-          request={draftRequest}
+          request={blankRequest}
           onCancel={() => setScreen('requests')}
           onSubmit={createRequest}
           requestCount={requestRecords.length}

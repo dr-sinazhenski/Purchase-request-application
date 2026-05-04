@@ -1,5 +1,5 @@
 import { AlertTriangle, Layers3, Plus, Send } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { RequestRecord, Status } from '../../types'
 import {
@@ -7,16 +7,36 @@ import {
   formatMoney,
   formatSubmittedDate,
 } from '../../utils/format'
+import {
+  createRequestApi,
+  loadRequestTypes,
+} from '../../api'
+import type { RequestTypeOption } from '../../api'
 import { Field } from '../Field/Field'
 import { StatusBadge } from '../StatusBadge/StatusBadge'
 import { Topbar } from '../Topbar/Topbar'
 import './RequestForm.css'
 
+function mapBackendStatus(status: string): Status {
+  switch (status) {
+    case 'Submited':
+      return 'New'
+    case 'Resubmited':
+      return 'Resubmitted'
+    case 'Approved':
+      return 'Approved'
+    case 'Rejected':
+      return 'Rejected'
+    default:
+      return 'New'
+  }
+}
+
 type RequestFormProps = {
   mode: 'create' | 'edit'
   request: RequestRecord
   onCancel: () => void
-  onSubmit: (request: RequestRecord) => void
+  onSubmit: (request: RequestRecord) => void | Promise<void>
   requestCount: number
 }
 
@@ -32,6 +52,13 @@ export function RequestForm({
   const [type, setType] = useState(request.type)
   const [description, setDescription] = useState(request.description)
   const [items, setItems] = useState(request.items)
+  const [requestTypes, setRequestTypes] = useState<RequestTypeOption[]>([])
+  const [selectedRequestTypeId, setSelectedRequestTypeId] = useState('')
+  const [isLoadingRequestTypes, setIsLoadingRequestTypes] = useState(false)
+  const [requestTypeError, setRequestTypeError] = useState('')
+  const [submitError, setSubmitError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const total = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
@@ -42,10 +69,56 @@ export function RequestForm({
       : request.status
     : 'New'
 
-  function handleSubmit() {
-    const submittedAt = formatSubmittedDate(new Date())
+  useEffect(() => {
+    let mounted = true
 
-    onSubmit({
+    async function loadTypes() {
+      setIsLoadingRequestTypes(true)
+      setRequestTypeError('')
+
+      try {
+        const result = await loadRequestTypes()
+        if (!mounted) return
+
+        if (!result.isSuccess || !result.data) {
+          setRequestTypeError('Unable to load request types from API.')
+          return
+        }
+
+        setRequestTypes(result.data)
+        const existingType = result.data.find(
+          (option) => option.name === request.type,
+        )
+        const initialType = existingType ?? result.data[0]
+
+        if (initialType) {
+          setSelectedRequestTypeId(initialType.id)
+          setType(initialType.name)
+        }
+      } catch (error) {
+        setRequestTypeError('Unable to load request types from API.')
+      } finally {
+        if (mounted) {
+          setIsLoadingRequestTypes(false)
+        }
+      }
+    }
+
+    loadTypes()
+
+    return () => {
+      mounted = false
+    }
+  }, [request.type])
+
+  async function handleSubmit() {
+    if (!selectedRequestTypeId) {
+      setSubmitError('Please select a request type before submitting.')
+      return
+    }
+
+    const submittedAt = formatSubmittedDate(new Date())
+    const requestPayload = {
       ...request,
       id: isEdit ? request.id : createRequestId(requestCount),
       name,
@@ -59,7 +132,53 @@ export function RequestForm({
         nextStatus === 'Resubmitted' ? undefined : request.finalRejected,
       submitted: isEdit ? request.submitted : submittedAt,
       updated: 'Just now',
-    })
+    }
+
+    if (!isEdit) {
+      try {
+        setSubmitError('')
+        setIsSubmitting(true)
+        const result = await createRequestApi({
+          title: name,
+          description,
+          requestTypeId: selectedRequestTypeId,
+        })
+
+        if (!result.isSuccess || !result.data) {
+          setSubmitError('Failed to create request.')
+          setIsSubmitting(false)
+          return
+        }
+
+        // Map API response to RequestRecord
+        const createdRequest: RequestRecord = {
+          id: result.data.id,
+          name: result.data.title,
+          type: result.data.requestType.name,
+          status: mapBackendStatus(result.data.status),
+          total,
+          creator: 'Current user', // TODO: get from auth
+          initials: 'CU',
+          updated: 'Just now',
+          submitted: formatSubmittedDate(new Date(result.data.createdAt)),
+          approver: 'Sarah Chen', // TODO: get from somewhere
+          description: result.data.description,
+          items,
+        }
+
+        await onSubmit(createdRequest)
+      } catch (error) {
+        setSubmitError(
+          error instanceof Error
+            ? error.message
+            : 'Request creation failed. Please try again.',
+        )
+        setIsSubmitting(false)
+        return
+      }
+    } else {
+      await onSubmit(requestPayload)
+    }
   }
 
   return (
@@ -95,6 +214,16 @@ export function RequestForm({
             </div>
           )}
 
+          {(requestTypeError || submitError) && (
+            <div className="notice danger">
+              <AlertTriangle size={18} />
+              <div>
+                <strong>Error</strong>
+                <span>{requestTypeError || submitError}</span>
+              </div>
+            </div>
+          )}
+
           <div className="form-grid">
             <Field label="Request Name *">
               <input
@@ -104,13 +233,28 @@ export function RequestForm({
             </Field>
             <Field label="Request Type *">
               <select
-                onChange={(event) => setType(event.target.value)}
-                value={type}
+                disabled={isLoadingRequestTypes}
+                onChange={(event) => {
+                  const selectedId = event.target.value
+                  const selectedType = requestTypes.find(
+                    (option) => option.id === selectedId,
+                  )
+                  setSelectedRequestTypeId(selectedId)
+                  setType(selectedType?.name ?? '')
+                }}
+                value={selectedRequestTypeId}
               >
-                <option>Hardware</option>
-                <option>Software</option>
-                <option>Cloud</option>
-                <option>Furniture</option>
+                {isLoadingRequestTypes && (
+                  <option value="">Loading request types...</option>
+                )}
+                {!isLoadingRequestTypes && requestTypes.length === 0 && (
+                  <option value="">No request types available</option>
+                )}
+                {requestTypes.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
               </select>
             </Field>
           </div>
@@ -147,7 +291,7 @@ export function RequestForm({
               <span>Total</span>
             </div>
             {items.map((item, index) => (
-              <div className="item-row" key={`${item.name}-${index}`}>
+              <div className="item-row" key={index}>
                 <input
                   aria-label="Product name"
                   onChange={(event) =>
@@ -224,8 +368,13 @@ export function RequestForm({
             <button className="btn" onClick={onCancel} type="button">
               Cancel
             </button>
-            <button className="btn primary" onClick={handleSubmit} type="button">
-              {isEdit ? 'Save changes' : 'Submit request'}
+            <button
+              className="btn primary"
+              onClick={handleSubmit}
+              type="button"
+              disabled={isSubmitting || isLoadingRequestTypes}
+            >
+              {isEdit ? 'Save changes' : isSubmitting ? 'Submitting...' : 'Submit request'}
               <Send size={14} />
             </button>
           </div>
