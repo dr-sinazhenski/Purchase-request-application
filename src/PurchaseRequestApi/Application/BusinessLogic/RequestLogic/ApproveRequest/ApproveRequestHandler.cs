@@ -31,11 +31,15 @@ namespace Application.BusinessLogic.RequestLogic.ApproveRequest
             var request = await _dbContext.Requests.FirstOrDefaultAsync(x => x.Id == command.id);
             if (request == null)
             {
-                _logger.LogInformation("Request not found");
+                var err = new Error(404, $"Request with id= {command.id} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
             if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.Resubmited)
             {
-                _logger.LogInformation("Wrong request status");
+                var err = new Error(400, $"Approving request with status {request.Status} is forbiden");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             request.Status = RequestStatus.Approved;
