@@ -10,6 +10,7 @@ import {
 import {
   createRequestApi,
   loadRequestTypes,
+  updateRequestApi,
 } from '../../api'
 import type { RequestTypeOption } from '../../api'
 import { Field } from '../Field/Field'
@@ -177,7 +178,51 @@ export function RequestForm({
         return
       }
     } else {
-      await onSubmit(requestPayload)
+      try {
+        setSubmitError('')
+        setIsSubmitting(true)
+        const result = await updateRequestApi({
+          id: request.id,
+          title: name,
+          description,
+          requestTypeId: selectedRequestTypeId,
+        })
+
+        if (!result.isSuccess || !result.data) {
+          setSubmitError('Failed to update request.')
+          setIsSubmitting(false)
+          return
+        }
+
+        const updatedRequest: RequestRecord = {
+          id: result.data.id,
+          name: result.data.title,
+          type: result.data.requestType.name,
+          status: mapBackendStatus(result.data.status),
+          total,
+          creator: request.creator,
+          initials: request.initials,
+          updated: 'Just now',
+          submitted: request.submitted,
+          approver: request.approver,
+          description: result.data.description,
+          items,
+          reason: request.reason,
+          finalRejected: request.finalRejected,
+        }
+
+        await onSubmit(updatedRequest)
+      } catch (error) {
+        setSubmitError(
+          error instanceof Error
+            ? error.message
+            : 'Request update failed. Please try again.',
+        )
+        setIsSubmitting(false)
+        return
+      } finally {
+        setIsSubmitting(false)
+      }
     }
   }
 
@@ -288,12 +333,14 @@ export function RequestForm({
               <span>Product</span>
               <span>Category</span>
               <span>Qty</span>
+              <span>Price</span>
               <span>Total</span>
             </div>
             {items.map((item, index) => (
               <div className="item-row" key={index}>
                 <input
                   aria-label="Product name"
+                  placeholder="Product name"
                   onChange={(event) =>
                     setItems((currentItems) =>
                       currentItems.map((currentItem, currentIndex) =>
@@ -307,6 +354,7 @@ export function RequestForm({
                 />
                 <input
                   aria-label="Product category"
+                  placeholder="Category"
                   onChange={(event) =>
                     setItems((currentItems) =>
                       currentItems.map((currentItem, currentIndex) =>
@@ -333,7 +381,28 @@ export function RequestForm({
                     )
                   }
                   type="number"
+                  min="1"
                   value={item.quantity}
+                />
+                <input
+                  aria-label="Unit price"
+                  placeholder="0.00"
+                  onChange={(event) =>
+                    setItems((currentItems) =>
+                      currentItems.map((currentItem, currentIndex) =>
+                        currentIndex === index
+                          ? {
+                              ...currentItem,
+                              unitPrice: Number(event.target.value),
+                            }
+                          : currentItem,
+                      ),
+                    )
+                  }
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={item.unitPrice}
                 />
                 <strong>{formatMoney(item.quantity * item.unitPrice)}</strong>
               </div>

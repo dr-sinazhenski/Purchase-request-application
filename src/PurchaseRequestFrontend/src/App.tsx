@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import './App.css'
 import { AppShell } from './components/AppShell/AppShell'
@@ -6,7 +6,6 @@ import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
-import { initialRequests } from './data/requests'
 import type { DecisionState, RequestRecord, Screen, Status } from './types'
 
 const blankRequest: RequestRecord = {
@@ -31,14 +30,62 @@ const blankRequest: RequestRecord = {
   ],
 }
 
+function normalizeStatus(status: string): Status {
+  switch (status) {
+    case 'Submited':
+      return 'New'
+    case 'Resubmited':
+      return 'Resubmitted'
+    case 'Approved':
+      return 'Approved'
+    case 'Rejected':
+    case 'FinalReject':
+      return 'Rejected'
+    default:
+      return 'New'
+  }
+}
+
 function App() {
-  const [requestRecords, setRequestRecords] = useState(initialRequests)
+  const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
   const [screen, setScreen] = useState<Screen>('requests')
-  const [selectedId, setSelectedId] = useState('REQ-0042')
+  const [selectedId, setSelectedId] = useState('')
   const [filter, setFilter] = useState<'All' | Status>('All')
   const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<DecisionState>('idle')
   const [visibleCount, setVisibleCount] = useState(6)
+
+  useEffect(() => {
+    async function fetchRequests() {
+      try {
+        const response = await fetch('/Request')
+        const result = await response.json()
+
+        if (result.isSuccess && result.data) {
+          setRequestRecords(
+            result.data.map((dto: any) => ({
+              id: dto.id,
+              name: dto.title,
+              type: dto.requestType.name,
+              status: normalizeStatus(dto.status),
+              total: 0,
+              creator: 'Current user',
+              initials: 'CU',
+              updated: new Date(dto.updatedAt).toLocaleDateString(),
+              submitted: new Date(dto.createdAt).toLocaleDateString(),
+              approver: 'Sarah Chen',
+              description: '',
+              items: [],
+            })),
+          )
+        }
+      } catch (error) {
+        console.error('Failed to load requests:', error)
+      }
+    }
+
+    fetchRequests()
+  }, [])
 
   const uniqueTypes = [
     'All',
@@ -46,7 +93,7 @@ function App() {
   ]
   const selectedRequest =
     requestRecords.find((request) => request.id === selectedId) ??
-    requestRecords[0]
+    blankRequest
   const allFilteredRequests = requestRecords.filter((request) => {
     const matchesStatus = filter === 'All' || request.status === filter
     const matchesType = typeFilter === 'All' || request.type === typeFilter

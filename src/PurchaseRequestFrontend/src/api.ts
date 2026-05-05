@@ -28,6 +28,10 @@ export type CreateRequestApiDto = {
   requestTypeId: string
 }
 
+export type UpdateRequestApiDto = CreateRequestApiDto & {
+  id: string
+}
+
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
 
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
@@ -52,6 +56,18 @@ export async function createRequestApi(
 ): Promise<ApiResult<RequestDetailsApiDto>> {
   return fetchJson<ApiResult<RequestDetailsApiDto>>('/Request', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function updateRequestApi(
+  dto: UpdateRequestApiDto,
+): Promise<ApiResult<RequestDetailsApiDto>> {
+  return fetchJson<ApiResult<RequestDetailsApiDto>>('/Request', {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },

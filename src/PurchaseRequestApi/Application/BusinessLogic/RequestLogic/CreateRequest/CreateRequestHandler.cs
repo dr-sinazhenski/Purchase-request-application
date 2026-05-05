@@ -30,7 +30,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
             var type = _dbContext.RequestTypes.FirstOrDefault(x => x.Id == command.dto.RequestTypeId);
             if (type == null)
             {
-
+                return Result<GetRequestDetailsResDto>.Failure(null);
             }
 
             var request = new Request

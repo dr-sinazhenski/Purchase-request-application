@@ -32,17 +32,20 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
             if (request == null)
             {
                 _logger.LogInformation("Reqest not found");
+                return Result<GetRequestDetailsResDto>.Failure(null);
             }
 
             var type = await _dbContext.RequestTypes.FirstOrDefaultAsync(x => x.Id == command.dto.RequestTypeId);
             if (type == null)
             {
                 _logger.LogInformation("Reqest type not found");
+                return Result<GetRequestDetailsResDto>.Failure(null);
             }
 
             if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.Rejected && request.Status != RequestStatus.Resubmited)
             {
                 _logger.LogInformation("Reqest type incorrect");
+                return Result<GetRequestDetailsResDto>.Failure(null);
             }
 
             request.Title = command.dto.Title;
