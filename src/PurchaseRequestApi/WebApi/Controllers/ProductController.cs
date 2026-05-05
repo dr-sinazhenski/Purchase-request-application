@@ -2,8 +2,10 @@ using Application;
 using Application.BusinessLogic.ProductLogic.CreateProduct;
 using Application.BusinessLogic.ProductLogic.DeleteProduct;
 using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.ProductLogic.GetAllProducts;
 using Application.BusinessLogic.ProductLogic.GetProductById;
 using Application.BusinessLogic.ProductLogic.UpdateProduct;
+using Application.BusinessLogic.RegionLogic.GetAllRegions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +24,19 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _mediator.Send(new GetAllProductsCommand());
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch products");
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
