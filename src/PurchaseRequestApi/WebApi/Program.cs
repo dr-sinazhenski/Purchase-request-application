@@ -2,6 +2,7 @@ using Application;
 using Infrastructure;
 using Serilog;
 using WebApi;
+using WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,7 @@ using var log = new LoggerConfiguration()
     retainedFileCountLimit: 7            
     )
     .CreateLogger();
-    
+
 builder.Host.UseSerilog(log);
 
 builder.Services.AddSingleton(log);
@@ -27,6 +28,8 @@ builder.Services.AddDb();
 builder.Services.AddMediatr();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

@@ -20,7 +20,6 @@ namespace Application.BusinessLogic.PriceLogic.GetAllPrices
         public async Task<Result<List<CrudPriceDto>>> Handle(GetAllPricesCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Fetching all prices");
-
             var prices = _dbContext.Prices.Select(p => new CrudPriceDto
             {
                 ProductId = p.ProductId,
