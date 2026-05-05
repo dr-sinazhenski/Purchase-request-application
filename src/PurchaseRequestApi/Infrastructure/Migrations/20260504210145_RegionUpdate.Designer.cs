@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504210145_RegionUpdate")]
+    partial class RegionUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,239 +142,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Prices");
-
-                    b.HasData(
-                        new
-                        {
-                            ProductId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 1200.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 1100.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 1050.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 300.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 280.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 270.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 45.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 40.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 38.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 25.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 22.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 20.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 350.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 320.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 300.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 400.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 370.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 350.00m,
-                            UnitsOfMeasure = "pcs"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 12.00m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 10.00m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 9.00m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 8.00m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 7.00m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 6.50m,
-                            UnitsOfMeasure = "pack"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 150.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 140.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 135.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 600.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 560.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("44444444-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 540.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Amount = 80.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 75.00m,
-                            UnitsOfMeasure = "license"
-                        },
-                        new
-                        {
-                            ProductId = new Guid("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            RegionId = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 70.00m,
-                            UnitsOfMeasure = "license"
-                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Product", b =>
@@ -478,26 +248,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Regions");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Currency = "USD",
-                            Name = "North America"
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"),
-                            Currency = "EUR",
-                            Name = "Europe"
-                        },
-                        new
-                        {
-                            Id = new Guid("cccccccc-dddd-dddd-dddd-dddddddddddd"),
-                            Currency = "EUR",
-                            Name = "Lithuania"
-                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Database.Entities.Request", b =>

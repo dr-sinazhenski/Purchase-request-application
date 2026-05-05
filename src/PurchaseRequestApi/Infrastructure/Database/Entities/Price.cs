@@ -9,7 +9,7 @@ namespace Infrastructure.Database.Entities
         public decimal Amount { get; set; }
         required public string UnitsOfMeasure { get; set; }
 
-        required public Product Product { get; set; }
-        required public Region Region { get; set; }
+        public Product Product { get; set; }
+        public Region Region { get; set; }
     }
 }

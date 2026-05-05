@@ -61,6 +61,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 },
             };
 
+            _logger.LogInformation($"Request created id= {reqDto.Id}");
             return Result<GetRequestDetailsResDto>.Success(reqDto);
         }
     }
