@@ -24,7 +24,11 @@ namespace Application.BusinessLogic.RegionLogic.UpdateRegion
             var region = _dbContext.Regions.FirstOrDefault(x => x.Id == command.dto.Id);
 
             if (region == null)
-                return null;
+            {
+                var err = new Error(404, $"Region with id= {command.dto.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudRegionDto>.Failure(err);
+            }
 
             region.Name = command.dto.Name;
             region.Currency = command.dto.Currency;

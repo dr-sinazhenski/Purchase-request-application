@@ -1,4 +1,5 @@
 ﻿using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +24,14 @@ namespace Application.BusinessLogic.ProductLogic.GetProductById
             _logger.LogInformation("Getting a Product");
             var product = await _dbContext.Products
                 .Include(p => p.RequestType)
-                .FirstOrDefaultAsync(x => x.Id == request.id);
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
 
-            /*if (product == null)
+            if (product == null)
             {
-                _logger.Error("Product not found");
-                return Result<ProductResDto>.Failure(null);
-            }*/
+                var err = new Error(404, $"Product with id= {request.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<ProductResDto>.Failure(err);
+            }
 
             _logger.LogInformation("Product retrived");
             var data = new ProductResDto

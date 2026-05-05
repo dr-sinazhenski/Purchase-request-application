@@ -1,4 +1,5 @@
-﻿using Infrastructure.Database;
+﻿using Application.BusinessLogic.RequestLogic.Dto;
+using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,11 +21,13 @@ namespace Application.BusinessLogic.ProductLogic.DeleteProduct
         public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deleting a Product");
-            var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.id);
+            var product = await _dbContext.Products.FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (product == null)
             {
-                return Result.Success();
+                var err = new Error(404, $"Product with id= {request.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             _dbContext.Products.Remove(product);
