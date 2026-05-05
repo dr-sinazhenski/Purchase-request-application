@@ -1,11 +1,13 @@
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
+using Infrastructure.Database.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Shared;
 
 namespace Application.BusinessLogic.RegionLogic.DeleteRegion
 {
-    public class DeleteRegionHandler : IRequestHandler<DeleteRegionCommand, Result<bool>>
+    public class DeleteRegionHandler : IRequestHandler<DeleteRegionCommand, Result>
     {
         private readonly ILogger<DeleteRegionHandler> _logger;
         private readonly AppDbContext _dbContext;
@@ -16,19 +18,23 @@ namespace Application.BusinessLogic.RegionLogic.DeleteRegion
             _dbContext = dbContext;
         }
 
-        public async Task<Result<bool>> Handle(DeleteRegionCommand command, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteRegionCommand command, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deleting region {Id}", command.Id);
 
             var region = _dbContext.Regions.FirstOrDefault(x => x.Id == command.Id);
 
             if (region == null)
-                return null;
+            {
+                var err = new Error(404, $"Region with id= {command.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result.Failure(err);
+            }
 
             _dbContext.Regions.Remove(region);
             await _dbContext.SaveChangesAsync();
 
-            return Result<bool>.Success(true);
+            return Result.Success();
         }
     }
 }

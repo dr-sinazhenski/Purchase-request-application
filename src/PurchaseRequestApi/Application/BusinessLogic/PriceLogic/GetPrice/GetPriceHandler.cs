@@ -26,7 +26,11 @@ namespace Application.BusinessLogic.PriceLogic.GetPrice
                 x.ProductId == command.ProductId && x.RegionId == command.RegionId);
 
             if (price == null)
-                return null;
+            {
+                 var err = new Error(404, $"Price with productId= {command.ProductId} and regionId= {command.RegionId} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudPriceDto>.Failure(err);
+            }
 
             return Result<CrudPriceDto>.Success(new CrudPriceDto
             {

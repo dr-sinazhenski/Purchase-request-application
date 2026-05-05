@@ -30,7 +30,9 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
             var type = _dbContext.RequestTypes.FirstOrDefault(x => x.Id == command.dto.RequestTypeId);
             if (type == null)
             {
-
+                var err = new Error(404, $"Request type with id= {command.dto.RequestTypeId} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             var request = new Request
@@ -61,6 +63,7 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 },
             };
 
+            _logger.LogInformation($"Request created id= {reqDto.Id}");
             return Result<GetRequestDetailsResDto>.Success(reqDto);
         }
     }

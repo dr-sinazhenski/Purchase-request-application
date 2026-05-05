@@ -31,18 +31,24 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
 
             if (request == null)
             {
-                _logger.LogInformation("Reqest not found");
+                var err = new Error(404, $"Request with id= {command.dto.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             var type = await _dbContext.RequestTypes.FirstOrDefaultAsync(x => x.Id == command.dto.RequestTypeId);
             if (type == null)
             {
-                _logger.LogInformation("Reqest type not found");
+                var err = new Error(404, $"Request type with id= {command.dto.RequestTypeId} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.Rejected && request.Status != RequestStatus.Resubmited)
             {
-                _logger.LogInformation("Reqest type incorrect");
+                var err = new Error(400, $"Editing request with status {request.Status} is forbiden");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             request.Title = command.dto.Title;

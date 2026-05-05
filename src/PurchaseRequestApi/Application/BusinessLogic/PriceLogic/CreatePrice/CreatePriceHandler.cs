@@ -1,4 +1,5 @@
 using Application.BusinessLogic.PriceLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using MediatR;
@@ -25,19 +26,32 @@ namespace Application.BusinessLogic.PriceLogic.CreatePrice
 
             var product = _dbContext.Products.FirstOrDefault(x => x.Id == command.dto.ProductId);
             if (product == null)
-                return null;
+            {
+                var err = new Error(404, $"Product with id= {command.dto.ProductId} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudPriceDto>.Failure(err);
+            }
 
             var region = _dbContext.Regions.FirstOrDefault(x => x.Id == command.dto.RegionId);
             if (region == null)
-                return null;
+            {
+                var err = new Error(404, $"Region with id= {command.dto.RegionId} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudPriceDto>.Failure(err);
+            }
 
             var existing = _dbContext.Prices.FirstOrDefault(x =>
                 x.ProductId == command.dto.ProductId && x.RegionId == command.dto.RegionId);
             if (existing != null)
-                return null;
+            {
+                var err = new Error(400, $"Price for this product in this region already exist");
+                _logger.LogError(err.ToString());
+                return Result<CrudPriceDto>.Failure(err);
+            }
 
             var price = new Price
             {
+                
                 ProductId = command.dto.ProductId,
                 RegionId = command.dto.RegionId,
                 Amount = command.dto.Amount,

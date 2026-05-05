@@ -1,4 +1,5 @@
 using Application.BusinessLogic.PriceLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,11 @@ namespace Application.BusinessLogic.PriceLogic.UpdatePrice
                 x.ProductId == command.dto.ProductId && x.RegionId == command.dto.RegionId);
 
             if (price == null)
-                return null;
+            {
+                var err = new Error(404, $"Price with productId= {command.dto.ProductId} and regionId= {command.dto.RegionId} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudPriceDto>.Failure(err);
+            }
 
             price.Amount = command.dto.Amount;
             price.UnitsOfMeasure = command.dto.UnitsOfMeasure;

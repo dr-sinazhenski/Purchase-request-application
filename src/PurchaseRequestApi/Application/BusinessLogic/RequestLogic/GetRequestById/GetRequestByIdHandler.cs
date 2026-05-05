@@ -32,8 +32,9 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
 
             if (r == null)
             {
-                _logger.LogWarning("Request {Id} not found", request.Id);
-                return null;
+                var err = new Error(404, $"Request with id= {request.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
             var data = new GetRequestDetailsResDto

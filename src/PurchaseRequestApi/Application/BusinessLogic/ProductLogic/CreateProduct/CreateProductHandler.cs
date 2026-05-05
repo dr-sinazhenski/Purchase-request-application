@@ -1,11 +1,12 @@
 ﻿using Application.BusinessLogic.ProductLogic.DeleteProduct;
 using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shared;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.BusinessLogic.ProductLogic.CreateProduct
 {
@@ -27,6 +28,13 @@ namespace Application.BusinessLogic.ProductLogic.CreateProduct
             var requestTypes = await _dbContext.RequestTypes
                 .Where(rt => request.dto.RequestTypeIds.Contains(rt.Id))
                 .ToListAsync();
+
+            if (requestTypes.Count == 0)
+            {
+                var err = new Error(404, $"Product must have atleast one related type");
+                _logger.LogError(err.ToString());
+                return Result<ProductResDto>.Failure(err);
+            }
 
             var product = new Product()
             {

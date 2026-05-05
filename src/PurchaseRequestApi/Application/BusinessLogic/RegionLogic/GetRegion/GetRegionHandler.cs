@@ -24,7 +24,11 @@ namespace Application.BusinessLogic.RegionLogic.GetRegion
             var region = _dbContext.Regions.FirstOrDefault(x => x.Id == command.Id);
 
             if (region == null)
-                return null;
+            {
+                var err = new Error(404, $"Region with id= {command.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<CrudRegionDto>.Failure(err);
+            }
 
             return Result<CrudRegionDto>.Success(new CrudRegionDto
             {

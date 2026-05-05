@@ -1,4 +1,5 @@
 ﻿using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,9 @@ namespace Application.BusinessLogic.ProductLogic.UpdateProduct
 
             if (product == null)
             {
-                return null;
+                var err = new Error(404, $"Product with id= {request.dto.Id} not found");
+                _logger.LogError(err.ToString());
+                return Result<ProductResDto>.Failure(err);
             }
 
             var requestTypes = await _dbContext.RequestTypes

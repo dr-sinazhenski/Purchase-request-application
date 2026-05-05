@@ -7,5 +7,5 @@ using System.Text;
 
 namespace Application.BusinessLogic.ProductLogic.DeleteProduct
 {
-    public record DeleteProductCommand(Guid id) : IRequest<Result>;
+    public record DeleteProductCommand(Guid Id) : IRequest<Result>;
 }
