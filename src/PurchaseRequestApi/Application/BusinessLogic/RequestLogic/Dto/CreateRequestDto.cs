@@ -1,9 +1,4 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Application.BusinessLogic.RequestLogic.Dto
+﻿namespace Application.BusinessLogic.RequestLogic.Dto
 {
     public class CreateRequestDto
     {
