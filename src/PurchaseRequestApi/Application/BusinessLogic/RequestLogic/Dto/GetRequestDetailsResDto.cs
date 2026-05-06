@@ -1,4 +1,5 @@
-﻿using Application.BusinessLogic.RequestTypeLogic.Dto;
+﻿using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,7 @@ namespace Application.BusinessLogic.RequestLogic.Dto
         public string? RejectionCommentText { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public List<ProductListItemDto> Products { get; set; }
     }
 }

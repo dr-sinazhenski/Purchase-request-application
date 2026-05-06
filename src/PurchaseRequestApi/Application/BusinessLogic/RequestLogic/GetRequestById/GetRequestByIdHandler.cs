@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shared;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Application.BusinessLogic.RequestLogic.GetRequestById
 {
@@ -50,7 +51,24 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
                     Id = r.RequestType.Id,
                     Name = r.RequestType.Name
                 },
+                Products = new List<ProductListItemDto>()
             };
+
+            var productsIds = r.RequesterProducts.Select(x => x.ProductId).ToList();
+            var products = _dbContext.Products.Where(p => productsIds.Contains(p.Id)).ToList();
+            var prices = _dbContext.Prices.Where(p => p.RegionId == new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb") && productsIds.Contains(p.Product.Id)).ToList();
+
+            foreach (var product in products)
+            {
+                data.Products.Add(new ProductListItemDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Amount = r.RequesterProducts.First(x => x.ProductId == product.Id).Quantity,
+                    Price = prices.First(p => p.ProductId == product.Id).Amount
+                });
+            }
 
             return Result<GetRequestDetailsResDto>.Success(data);
         }
