@@ -1,4 +1,5 @@
-﻿using Application.BusinessLogic.RequestLogic.Dto;
+﻿using Application.BusinessLogic.ProductLogic.Dto;
+using Application.BusinessLogic.RequestLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
@@ -27,7 +28,7 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
         {
             _logger.LogInformation("Updating request");
 
-            var request = await _dbContext.Requests.FirstOrDefaultAsync(x => x.Id == command.dto.Id);
+            var request = await _dbContext.Requests.Include(x => x.RequesterProducts).FirstOrDefaultAsync(x => x.Id == command.dto.Id);
 
             if (request == null)
             {
@@ -57,6 +58,46 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
             request.RequestType = type;
             request.UpdatedAt = DateTime.UtcNow;
 
+
+            var productsIdsAmount = command.dto.ProductIdAmount.Where(x => x.Value > 0).ToDictionary();
+            var productsIds = productsIdsAmount.Keys.ToList();
+
+            var toUpdate = request.RequesterProducts.Where(rp => productsIds.Contains(rp.ProductId)).ToList();
+            var toDelete = request.RequesterProducts.Where(rp => !productsIds.Contains(rp.ProductId)).ToList();
+            var toInsert = productsIds.Where(id => !toUpdate.Any(pr => pr.ProductId == id)).ToList();
+
+            foreach (var rp in toUpdate)
+            {
+                rp.Quantity = productsIdsAmount[rp.ProductId];
+            }
+
+            foreach (var rp in toDelete)
+            {
+                request.RequesterProducts.Remove(rp);
+            }
+
+            var products = _dbContext.Products.Where(p => toInsert.Contains(p.Id) && p.RequestType.Contains(type)).ToList();
+
+            RequesterProduct requesterProduct;
+            foreach (var product in products)
+            {
+                if (command.dto.ProductIdAmount[product.Id] > 0)
+                {
+                    requesterProduct = new RequesterProduct
+                    {
+                        Request = request,
+                        RequestId = request.Id,
+                        Product = product,
+                        ProductId = product.Id,
+                        Quantity = command.dto.ProductIdAmount[product.Id]
+                    };
+
+                    request.RequesterProducts.Add(requesterProduct);
+
+                    await _dbContext.RequesterProducts.AddAsync(requesterProduct);
+                }
+            }
+
             if (request.Status is RequestStatus.Rejected)
             {
                 request.Status = RequestStatus.Resubmited;
@@ -79,8 +120,25 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 },
                 Status = request.Status.ToString(),
                 CreatedAt = request.CreatedAt,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                Products = new List<ProductListItemDto>()
             };
+
+            var productsForDto = await _dbContext.Products.Include(x => x.RequestType).Where(x => productsIds.Contains(x.Id)).ToListAsync();
+
+            var prices = _dbContext.Prices.Where(p => p.RegionId == new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb") && productsIds.Contains(p.Product.Id)).ToList();
+
+            foreach (var product in productsForDto)
+            {
+                reqDto.Products.Add(new ProductListItemDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Amount = command.dto.ProductIdAmount[product.Id],
+                    Price = prices.First(p => p.ProductId == product.Id).Amount
+                });
+            }
 
             if (request.RejectionComment != null)
             {

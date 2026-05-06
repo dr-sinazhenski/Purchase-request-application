@@ -64,18 +64,22 @@ namespace Infrastructure.Database
                 .WithMany(a => a.Requests)
                 .HasForeignKey(r => r.RequesterId);*/
 
-            modelBuilder.Entity<RequesterProduct>()
-                .HasKey(rp => new { rp.RequestId, rp.ProductId });
+            modelBuilder.Entity<RequesterProduct>(builder =>
+            {
+                builder.HasKey(rp => new { rp.RequestId, rp.ProductId });
 
-            modelBuilder.Entity<RequesterProduct>()
-                .HasOne(rp => rp.Request)
-                .WithMany(r => r.RequesterProducts)
-                .HasForeignKey(rp => rp.RequestId);
+                builder.HasOne(rp => rp.Request)
+                    .WithMany(r => r.RequesterProducts)
+                    .HasForeignKey(rp => rp.RequestId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.ClientCascade);
 
-            modelBuilder.Entity<RequesterProduct>()
-                .HasOne(rp => rp.Product)
-                .WithMany(p => p.RequesterProducts)
-                .HasForeignKey(rp => rp.ProductId);
+                builder.HasOne(rp => rp.Product)
+                    .WithMany(p => p.RequesterProducts)
+                    .HasForeignKey(rp => rp.ProductId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.ClientCascade);
+            });
 
             modelBuilder.Entity<Price>()
                 .HasKey(p => new { p.ProductId, p.RegionId });

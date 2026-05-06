@@ -1,9 +1,11 @@
 ﻿using Application.BusinessLogic.ProductLogic.CreateProduct;
+using Application.BusinessLogic.ProductLogic.Dto;
 using Application.BusinessLogic.RequestLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Shared;
 using System;
@@ -44,8 +46,34 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 RequestType = type,
                 Status = RequestStatus.Submited,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                RequesterProducts = new List<RequesterProduct>()
             };
+
+
+            var productsIds = command.dto.ProductIdAmount.Keys.ToList();
+            var products = _dbContext.Products.Include(x => x.RequestType).Where(p => productsIds.Contains(p.Id) && p.RequestType.Contains(type)).ToList();
+
+            RequesterProduct requesterProduct;
+            foreach (var product in products)
+            {
+                if (command.dto.ProductIdAmount[product.Id] > 0)
+                {
+                    requesterProduct = new RequesterProduct
+                    {
+                        Request = request,
+                        RequestId = request.Id,
+                        Product = product,
+                        ProductId = product.Id,
+                        Quantity = command.dto.ProductIdAmount[product.Id]
+                    };
+
+                    request.RequesterProducts.Add(requesterProduct);
+
+                    await _dbContext.RequesterProducts.AddAsync(requesterProduct);
+                }
+            }
+
 
             await _dbContext.Requests.AddAsync(request);
             await _dbContext.SaveChangesAsync();
@@ -61,7 +89,22 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                     Id = request.RequestType.Id,
                     Name = request.RequestType.Name,
                 },
+                Products = new List<ProductListItemDto>()
             };
+
+            var prices = _dbContext.Prices.Where(p => p.RegionId == new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb") && productsIds.Contains(p.Product.Id)).ToList();
+
+            foreach (var product in products)
+            {
+                reqDto.Products.Add(new ProductListItemDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    Amount = command.dto.ProductIdAmount[product.Id],
+                    Price = prices.First(p => p.ProductId == product.Id).Amount
+                });
+            }
 
             _logger.LogInformation($"Request created id= {reqDto.Id}");
             return Result<GetRequestDetailsResDto>.Success(reqDto);
