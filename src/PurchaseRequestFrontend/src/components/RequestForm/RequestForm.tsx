@@ -3,16 +3,24 @@ import { useEffect, useState } from 'react'
 
 import type { RequestRecord, Status } from '../../types'
 import {
-  createRequestId,
   formatMoney,
   formatSubmittedDate,
 } from '../../utils/format'
 import {
   createRequestApi,
   loadRequestTypes,
+  loadProducts,
+  loadPrices,
+  loadRegions,
   updateRequestApi,
 } from '../../api'
-import type { RequestTypeOption } from '../../api'
+import type {
+  PriceOption,
+  ProductOption,
+  RegionOption,
+  RequestItemApiDto,
+  RequestTypeOption,
+} from '../../api'
 import { Field } from '../Field/Field'
 import { StatusBadge } from '../StatusBadge/StatusBadge'
 import { Topbar } from '../Topbar/Topbar'
@@ -33,12 +41,21 @@ function mapBackendStatus(status: string): Status {
   }
 }
 
+function mapApiItems(items: RequestItemApiDto[]) {
+  return items.map((item) => ({
+    name: item.name,
+    category: item.unitsOfMeasure,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    productId: item.productId,
+  }))
+}
+
 type RequestFormProps = {
   mode: 'create' | 'edit'
   request: RequestRecord
   onCancel: () => void
   onSubmit: (request: RequestRecord) => void | Promise<void>
-  requestCount: number
 }
 
 export function RequestForm({
@@ -46,20 +63,28 @@ export function RequestForm({
   onCancel,
   onSubmit,
   request,
-  requestCount,
 }: RequestFormProps) {
   const isEdit = mode === 'edit'
   const [name, setName] = useState(request.name)
-  const [type, setType] = useState(request.type)
   const [description, setDescription] = useState(request.description)
   const [items, setItems] = useState(request.items)
   const [requestTypes, setRequestTypes] = useState<RequestTypeOption[]>([])
   const [selectedRequestTypeId, setSelectedRequestTypeId] = useState('')
   const [isLoadingRequestTypes, setIsLoadingRequestTypes] = useState(false)
   const [requestTypeError, setRequestTypeError] = useState('')
+  const [products, setProducts] = useState<ProductOption[]>([])
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false)
+  const [productError, setProductError] = useState('')
+  const [prices, setPrices] = useState<PriceOption[]>([])
+  const [regions, setRegions] = useState<RegionOption[]>([])
+  const [selectedRegionId, setSelectedRegionId] = useState('')
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false)
+  const [priceError, setPriceError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const selectedRegion = regions.find((region) => region.id === selectedRegionId)
+  const currency = selectedRegion?.currency ?? 'EUR'
   const total = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
@@ -94,7 +119,6 @@ export function RequestForm({
 
         if (initialType) {
           setSelectedRequestTypeId(initialType.id)
-          setType(initialType.name)
         }
       } catch (error) {
         setRequestTypeError('Unable to load request types from API.')
@@ -105,34 +129,111 @@ export function RequestForm({
       }
     }
 
+    async function loadProds() {
+      setIsLoadingProducts(true)
+      setProductError('')
+
+      try {
+        const result = await loadProducts()
+        if (!mounted) return
+
+        if (!result.isSuccess || !result.data) {
+          setProductError('Unable to load products from API.')
+          return
+        }
+
+        setProducts(result.data)
+      } catch (error) {
+        setProductError('Unable to load products from API.')
+      } finally {
+        if (mounted) {
+          setIsLoadingProducts(false)
+        }
+      }
+    }
+
+    async function loadPriceData() {
+      setIsLoadingPrices(true)
+      setPriceError('')
+
+      try {
+        const [priceResult, regionResult] = await Promise.all([
+          loadPrices(),
+          loadRegions(),
+        ])
+        if (!mounted) return
+
+        if (!priceResult.isSuccess || !priceResult.data) {
+          setPriceError('Unable to load prices from API.')
+          return
+        }
+
+        if (!regionResult.isSuccess || !regionResult.data) {
+          setPriceError('Unable to load regions from API.')
+          return
+        }
+
+        setPrices(priceResult.data)
+        setRegions(regionResult.data)
+
+        const europeRegion = regionResult.data.find(
+          (region) => region.name === 'Europe',
+        )
+        const initialRegion = europeRegion ?? regionResult.data[0]
+
+        if (initialRegion) {
+          setSelectedRegionId(initialRegion.id)
+        }
+      } catch (error) {
+        setPriceError('Unable to load prices from API.')
+      } finally {
+        if (mounted) {
+          setIsLoadingPrices(false)
+        }
+      }
+    }
+
     loadTypes()
+    loadProds()
+    loadPriceData()
 
     return () => {
       mounted = false
     }
   }, [request.type])
 
+  function findPrice(productId: string, regionId = selectedRegionId) {
+    return prices.find(
+      (price) => price.productId === productId && price.regionId === regionId,
+    )
+  }
+
+  function applyPricesForRegion(regionId: string) {
+    setItems((currentItems) =>
+      currentItems.map((currentItem) => {
+        if (!currentItem.productId) {
+          return currentItem
+        }
+
+        const price = findPrice(currentItem.productId, regionId)
+
+        if (!price) {
+          return currentItem
+        }
+
+        return {
+          ...currentItem,
+          category: price.unitsOfMeasure,
+          unitPrice: price.amount,
+        }
+      }),
+    )
+  }
+
   async function handleSubmit() {
     if (!selectedRequestTypeId) {
       setSubmitError('Please select a request type before submitting.')
       return
-    }
-
-    const submittedAt = formatSubmittedDate(new Date())
-    const requestPayload = {
-      ...request,
-      id: isEdit ? request.id : createRequestId(requestCount),
-      name,
-      type,
-      description,
-      items,
-      total,
-      status: nextStatus,
-      reason: request.reason,
-      finalRejected:
-        nextStatus === 'Resubmitted' ? undefined : request.finalRejected,
-      submitted: isEdit ? request.submitted : submittedAt,
-      updated: 'Just now',
     }
 
     if (!isEdit) {
@@ -143,6 +244,12 @@ export function RequestForm({
           title: name,
           description,
           requestTypeId: selectedRequestTypeId,
+          items: items
+            .filter((item) => item.productId)
+            .map((item) => ({
+              productId: item.productId!,
+              quantity: item.quantity,
+            })),
         })
 
         if (!result.isSuccess || !result.data) {
@@ -164,7 +271,7 @@ export function RequestForm({
           submitted: formatSubmittedDate(new Date(result.data.createdAt)),
           approver: 'Sarah Chen', // TODO: get from somewhere
           description: result.data.description,
-          items,
+          items: result.data.items?.length ? mapApiItems(result.data.items) : items,
         }
 
         await onSubmit(createdRequest)
@@ -186,6 +293,12 @@ export function RequestForm({
           title: name,
           description,
           requestTypeId: selectedRequestTypeId,
+          items: items
+            .filter((item) => item.productId)
+            .map((item) => ({
+              productId: item.productId!,
+              quantity: item.quantity,
+            })),
         })
 
         if (!result.isSuccess || !result.data) {
@@ -206,7 +319,7 @@ export function RequestForm({
           submitted: request.submitted,
           approver: request.approver,
           description: result.data.description,
-          items,
+          items: result.data.items?.length ? mapApiItems(result.data.items) : items,
           reason: request.reason,
           finalRejected: request.finalRejected,
         }
@@ -259,12 +372,14 @@ export function RequestForm({
             </div>
           )}
 
-          {(requestTypeError || submitError) && (
+          {(requestTypeError || productError || priceError || submitError) && (
             <div className="notice danger">
               <AlertTriangle size={18} />
               <div>
                 <strong>Error</strong>
-                <span>{requestTypeError || submitError}</span>
+                <span>
+                  {requestTypeError || productError || priceError || submitError}
+                </span>
               </div>
             </div>
           )}
@@ -281,11 +396,7 @@ export function RequestForm({
                 disabled={isLoadingRequestTypes}
                 onChange={(event) => {
                   const selectedId = event.target.value
-                  const selectedType = requestTypes.find(
-                    (option) => option.id === selectedId,
-                  )
                   setSelectedRequestTypeId(selectedId)
-                  setType(selectedType?.name ?? '')
                 }}
                 value={selectedRequestTypeId}
               >
@@ -298,6 +409,29 @@ export function RequestForm({
                 {requestTypes.map((option) => (
                   <option key={option.id} value={option.id}>
                     {option.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Price Region">
+              <select
+                disabled={isLoadingPrices}
+                onChange={(event) => {
+                  const nextRegionId = event.target.value
+                  setSelectedRegionId(nextRegionId)
+                  applyPricesForRegion(nextRegionId)
+                }}
+                value={selectedRegionId}
+              >
+                {isLoadingPrices && (
+                  <option value="">Loading regions...</option>
+                )}
+                {!isLoadingPrices && regions.length === 0 && (
+                  <option value="">No regions available</option>
+                )}
+                {regions.map((region) => (
+                  <option key={region.id} value={region.id}>
+                    {region.name} ({region.currency})
                   </option>
                 ))}
               </select>
@@ -315,10 +449,11 @@ export function RequestForm({
                 setItems((currentItems) => [
                   ...currentItems,
                   {
-                    name: 'New product',
-                    category: 'Category',
+                    name: '',
+                    category: '',
                     quantity: 1,
                     unitPrice: 0,
+                    productId: undefined,
                   },
                 ])
               }
@@ -331,30 +466,63 @@ export function RequestForm({
           <div className="items-list">
             <div className="item-row item-row-head">
               <span>Product</span>
-              <span>Category</span>
+              <span>Unit</span>
               <span>Qty</span>
               <span>Price</span>
               <span>Total</span>
             </div>
-            {items.map((item, index) => (
-              <div className="item-row" key={index}>
+            {items.map((item, index) => {
+              const availableProducts = products.filter((product) =>
+                product.requestTypeIds.includes(selectedRequestTypeId),
+              )
+              return (
+                <div className="item-row" key={index}>
+                  <select
+                    aria-label="Product"
+                    disabled={isLoadingProducts}
+                    onChange={(event) => {
+                      const selectedProductId = event.target.value
+                      const selectedProduct = products.find(
+                        (p) => p.id === selectedProductId,
+                      )
+                      const selectedPrice = selectedProductId
+                        ? findPrice(selectedProductId)
+                        : undefined
+                      setItems((currentItems) =>
+                        currentItems.map((currentItem, currentIndex) =>
+                          currentIndex === index
+                            ? {
+                                ...currentItem,
+                                productId: selectedProductId || undefined,
+                                name: selectedProduct?.name ?? '',
+                                category:
+                                  selectedPrice?.unitsOfMeasure ??
+                                  currentItem.category,
+                                unitPrice:
+                                  selectedPrice?.amount ?? currentItem.unitPrice,
+                              }
+                            : currentItem,
+                        ),
+                      )
+                    }}
+                    value={item.productId ?? ''}
+                  >
+                    {isLoadingProducts && (
+                      <option value="">Loading products...</option>
+                    )}
+                    {!isLoadingProducts && availableProducts.length === 0 && (
+                      <option value="">No products available for this type</option>
+                    )}
+                    <option value="">Select a product...</option>
+                    {availableProducts.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </select>
                 <input
-                  aria-label="Product name"
-                  placeholder="Product name"
-                  onChange={(event) =>
-                    setItems((currentItems) =>
-                      currentItems.map((currentItem, currentIndex) =>
-                        currentIndex === index
-                          ? { ...currentItem, name: event.target.value }
-                          : currentItem,
-                      ),
-                    )
-                  }
-                  value={item.name}
-                />
-                <input
-                  aria-label="Product category"
-                  placeholder="Category"
+                  aria-label="Unit of measure"
+                  placeholder="Unit"
                   onChange={(event) =>
                     setItems((currentItems) =>
                       currentItems.map((currentItem, currentIndex) =>
@@ -404,9 +572,11 @@ export function RequestForm({
                   step="0.01"
                   value={item.unitPrice}
                 />
-                <strong>{formatMoney(item.quantity * item.unitPrice)}</strong>
+                <strong>
+                  {formatMoney(item.quantity * item.unitPrice, currency)}
+                </strong>
               </div>
-            ))}
+            ) })}
           </div>
 
           <Field label="Additional Details">
@@ -420,7 +590,7 @@ export function RequestForm({
 
         <aside className="panel summary-panel">
           <p className="eyebrow">Summary</p>
-          <h2>{formatMoney(total)}</h2>
+          <h2>{formatMoney(total, currency)}</h2>
           <div className="summary-line">
             <span>Approver</span>
             <strong>{request.approver}</strong>
@@ -431,7 +601,11 @@ export function RequestForm({
           </div>
           <div className="summary-line">
             <span>Currency</span>
-            <strong>EUR</strong>
+            <strong>{selectedRegion?.currency ?? 'EUR'}</strong>
+          </div>
+          <div className="summary-line">
+            <span>Price region</span>
+            <strong>{selectedRegion?.name ?? 'Not selected'}</strong>
           </div>
           <div className="form-actions">
             <button className="btn" onClick={onCancel} type="button">
@@ -452,3 +626,4 @@ export function RequestForm({
     </>
   )
 }
+

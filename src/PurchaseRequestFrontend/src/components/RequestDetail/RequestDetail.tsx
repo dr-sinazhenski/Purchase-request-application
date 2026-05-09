@@ -1,4 +1,5 @@
-import { AlertTriangle, FileText } from 'lucide-react'
+import { AlertTriangle, FileText, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
 import type { RequestRecord } from '../../types'
 import { formatMoney } from '../../utils/format'
@@ -12,15 +13,43 @@ type RequestDetailProps = {
   request: RequestRecord
   onApprove: () => void
   onBack: () => void
+  onDelete: (id: string) => Promise<void>
   onEdit: () => void
 }
 
 export function RequestDetail({
   onApprove,
   onBack,
+  onDelete,
   onEdit,
   request,
 }: RequestDetailProps) {
+  const [deleteError, setDeleteError] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      `Delete request "${request.name}"? This cannot be undone.`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    try {
+      setDeleteError('')
+      setIsDeleting(true)
+      await onDelete(request.id)
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to delete request. Please try again.',
+      )
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <>
       <Topbar title="Request Details" />
@@ -55,6 +84,16 @@ export function RequestDetail({
                       : `Rejected by ${request.approver}`}
                 </strong>
                 <span>{request.reason}</span>
+              </div>
+            </div>
+          )}
+
+          {deleteError && (
+            <div className="notice danger">
+              <AlertTriangle size={18} />
+              <div>
+                <strong>Delete failed</strong>
+                <span>{deleteError}</span>
               </div>
             </div>
           )}
@@ -128,6 +167,15 @@ export function RequestDetail({
                 </button>
               </>
             )}
+            <button
+              className="btn danger"
+              disabled={isDeleting}
+              onClick={handleDelete}
+              type="button"
+            >
+              <Trash2 size={14} />
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </button>
           </div>
         </aside>
       </section>
