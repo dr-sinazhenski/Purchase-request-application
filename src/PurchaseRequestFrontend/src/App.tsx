@@ -6,6 +6,8 @@ import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
+import { deleteRequestApi } from './api'
+import type { RequestItemApiDto } from './api'
 import type { DecisionState, RequestRecord, Screen, Status } from './types'
 
 const blankRequest: RequestRecord = {
@@ -46,6 +48,16 @@ function normalizeStatus(status: string): Status {
   }
 }
 
+function mapApiItems(items: RequestItemApiDto[] = []) {
+  return items.map((item) => ({
+    name: item.name,
+    category: item.unitsOfMeasure,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    productId: item.productId,
+  }))
+}
+
 function App() {
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
   const [screen, setScreen] = useState<Screen>('requests')
@@ -63,20 +75,27 @@ function App() {
 
         if (result.isSuccess && result.data) {
           setRequestRecords(
-            result.data.map((dto: any) => ({
-              id: dto.id,
-              name: dto.title,
-              type: dto.requestType.name,
-              status: normalizeStatus(dto.status),
-              total: 0,
-              creator: 'Current user',
-              initials: 'CU',
-              updated: new Date(dto.updatedAt).toLocaleDateString(),
-              submitted: new Date(dto.createdAt).toLocaleDateString(),
-              approver: 'Sarah Chen',
-              description: '',
-              items: [],
-            })),
+            result.data.map((dto: any) => {
+              const items = mapApiItems(dto.items)
+
+              return {
+                id: dto.id,
+                name: dto.title,
+                type: dto.requestType.name,
+                status: normalizeStatus(dto.status),
+                total: items.reduce(
+                  (sum, item) => sum + item.quantity * item.unitPrice,
+                  0,
+                ),
+                creator: 'Current user',
+                initials: 'CU',
+                updated: new Date(dto.updatedAt).toLocaleDateString(),
+                submitted: new Date(dto.createdAt).toLocaleDateString(),
+                approver: 'Sarah Chen',
+                description: dto.description ?? '',
+                items,
+              }
+            }),
           )
         }
       } catch (error) {
@@ -130,6 +149,21 @@ function App() {
     setSelectedId(request.id)
     setDecision('idle')
     setScreen('detail')
+  }
+
+  async function deleteRequest(id: string) {
+    const result = await deleteRequestApi(id)
+
+    if (!result.isSuccess) {
+      throw new Error(result.error?.message ?? 'Failed to delete request.')
+    }
+
+    setRequestRecords((currentRequests) =>
+      currentRequests.filter((request) => request.id !== id),
+    )
+    setSelectedId('')
+    setDecision('idle')
+    setScreen('requests')
   }
 
   function decideRequest(
@@ -194,7 +228,6 @@ function App() {
           request={blankRequest}
           onCancel={() => setScreen('requests')}
           onSubmit={createRequest}
-          requestCount={requestRecords.length}
         />
       )}
 
@@ -204,7 +237,6 @@ function App() {
           request={selectedRequest}
           onCancel={() => setScreen('detail')}
           onSubmit={updateRequest}
-          requestCount={requestRecords.length}
         />
       )}
 
@@ -213,6 +245,7 @@ function App() {
           request={selectedRequest}
           onApprove={() => setScreen('approval')}
           onBack={() => setScreen('requests')}
+          onDelete={deleteRequest}
           onEdit={() => setScreen('edit')}
         />
       )}

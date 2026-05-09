@@ -1,7 +1,7 @@
-export function formatMoney(value: number) {
+export function formatMoney(value: number, currency = 'EUR') {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'EUR',
+    currency,
   }).format(value)
 }
 

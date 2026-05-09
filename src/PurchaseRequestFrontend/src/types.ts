@@ -7,6 +7,14 @@ export type LineItem = {
   category: string
   quantity: number
   unitPrice: number
+  productId?: string
+}
+
+export type Product = {
+  id: string
+  name: string
+  description: string
+  requestTypeIds: string[]
 }
 
 export type RequestRecord = {
