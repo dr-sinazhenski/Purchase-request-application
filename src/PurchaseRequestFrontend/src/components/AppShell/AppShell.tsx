@@ -6,25 +6,23 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import type { RequestRecord, Screen } from '../../types'
+import type { Screen } from '../../types'
 import './AppShell.css'
 
 type AppShellProps = {
   children: ReactNode
+  onApprovalQueue: () => void
   onCreate: () => void
-  onOpen: (request: RequestRecord, target?: Screen) => void
   onRequests: () => void
-  requestRecords: RequestRecord[]
   reviewCount: number
   screen: Screen
 }
 
 export function AppShell({
   children,
+  onApprovalQueue,
   onCreate,
-  onOpen,
   onRequests,
-  requestRecords,
   reviewCount,
   screen,
 }: AppShellProps) {
@@ -32,12 +30,16 @@ export function AppShell({
     <div className="app-page">
       <div className="app-shell">
         <aside className="sidebar">
-          <div className="sidebar-header">
+          <button
+            className="sidebar-header brand-link"
+            onClick={onRequests}
+            type="button"
+          >
             <div className="brand-mark">
               <PackagePlus size={16} strokeWidth={2.4} />
             </div>
             <span>ProcureFlow</span>
-          </div>
+          </button>
 
           <nav className="nav">
             <p className="nav-kicker">Overview</p>
@@ -51,14 +53,7 @@ export function AppShell({
             </button>
             <button
               className={screen === 'approval' ? 'nav-item active' : 'nav-item'}
-              onClick={() => {
-                const nextPending =
-                  requestRecords.find((request) =>
-                    ['New', 'Resubmitted'].includes(request.status),
-                  ) ?? requestRecords[0]
-
-                onOpen(nextPending, 'approval')
-              }}
+              onClick={onApprovalQueue}
               type="button"
             >
               <ClipboardCheck size={16} />

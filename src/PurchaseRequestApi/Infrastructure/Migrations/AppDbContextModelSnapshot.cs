@@ -779,13 +779,13 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Database.Entities.Product", "Product")
                         .WithMany("RequesterProducts")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Database.Entities.Request", "Request")
                         .WithMany("RequesterProducts")
                         .HasForeignKey("RequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("Product");

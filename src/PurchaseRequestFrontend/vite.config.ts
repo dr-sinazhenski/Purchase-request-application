@@ -11,6 +11,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/Approve': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/Reject': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
       '/RequestType': {
         target: 'http://localhost:5239',
         changeOrigin: true,

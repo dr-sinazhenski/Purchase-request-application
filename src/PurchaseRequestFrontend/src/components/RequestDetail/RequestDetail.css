@@ -28,6 +28,23 @@
   font-size: 14px;
 }
 
+.description-block {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.description-block strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.description-block p {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .back-button {
   margin-bottom: 22px;
   border: 0;

@@ -64,7 +64,10 @@ export function RequestDetail({
                 {request.id} · {request.submitted}
               </p>
               <h2>{request.name}</h2>
-              <p>{request.description}</p>
+              <div className="description-block">
+                <strong>Description</strong>
+                <p>{request.description}</p>
+              </div>
             </div>
             <StatusBadge
               finalRejected={request.finalRejected}

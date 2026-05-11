@@ -27,12 +27,26 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   height: 83px;
   padding: 24px;
   border-bottom: 1px solid var(--border);
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
   color: var(--ink);
   font-size: 16px;
   font-weight: 700;
+  text-align: left;
+}
+
+.brand-link {
+  background: #fff;
+}
+
+.brand-link:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .brand-mark {

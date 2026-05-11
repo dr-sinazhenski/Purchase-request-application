@@ -6,8 +6,20 @@ import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
-import { deleteRequestApi } from './api'
-import type { RequestItemApiDto } from './api'
+import {
+  approveRequestApi,
+  deleteRequestApi,
+  loadRequestDetails,
+  loadRequests,
+  rejectRequestApi,
+} from './api'
+import type { RequestDetailsApiDto, RequestItemApiDto } from './api'
+import {
+  getRouteScreen,
+  parseRoute,
+  routeToPath,
+  type AppRoute,
+} from './router'
 import type { DecisionState, RequestRecord, Screen, Status } from './types'
 
 const blankRequest: RequestRecord = {
@@ -24,6 +36,7 @@ const blankRequest: RequestRecord = {
   description: '',
   items: [
     {
+      productId: undefined,
       name: '',
       category: '',
       quantity: 1,
@@ -51,52 +64,72 @@ function normalizeStatus(status: string): Status {
 function mapApiItems(items: RequestItemApiDto[] = []) {
   return items.map((item) => ({
     name: item.name,
-    category: item.unitsOfMeasure,
-    quantity: item.quantity,
-    unitPrice: item.unitPrice,
-    productId: item.productId,
+    category: item.description,
+    quantity: item.amount,
+    unitPrice: item.price,
+    productId: item.id,
   }))
 }
 
+function mapApiRequest(dto: RequestDetailsApiDto): RequestRecord {
+  const items = mapApiItems(dto.products)
+  const createdAt = dto.createdAt ? new Date(dto.createdAt) : new Date()
+  const updatedAt = dto.updatedAt ? new Date(dto.updatedAt) : createdAt
+
+  return {
+    id: dto.id,
+    name: dto.title,
+    type: dto.requestType.name,
+    status: normalizeStatus(dto.status),
+    total: items.reduce(
+      (sum, item) => sum + item.quantity * item.unitPrice,
+      0,
+    ),
+    creator: 'Current user',
+    initials: 'CU',
+    updated: updatedAt.toLocaleDateString(),
+    submitted: createdAt.toLocaleDateString(),
+    approver: 'Sarah Chen',
+    description: dto.description ?? '',
+    reason: dto.rejectionCommentText,
+    finalRejected: dto.status === 'FinalReject',
+    items,
+  }
+}
+
 function App() {
+  const [route, setRoute] = useState<AppRoute>(() =>
+    parseRoute(window.location.pathname),
+  )
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
-  const [screen, setScreen] = useState<Screen>('requests')
-  const [selectedId, setSelectedId] = useState('')
   const [filter, setFilter] = useState<'All' | Status>('All')
   const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<DecisionState>('idle')
   const [visibleCount, setVisibleCount] = useState(6)
+  const screen = getRouteScreen(route)
+  const selectedId = ('requestId' in route ? route.requestId : '') ?? ''
 
   useEffect(() => {
     async function fetchRequests() {
       try {
-        const response = await fetch('/Request')
-        const result = await response.json()
+        const result = await loadRequests()
 
         if (result.isSuccess && result.data) {
-          setRequestRecords(
-            result.data.map((dto: any) => {
-              const items = mapApiItems(dto.items)
-
-              return {
-                id: dto.id,
-                name: dto.title,
-                type: dto.requestType.name,
-                status: normalizeStatus(dto.status),
-                total: items.reduce(
-                  (sum, item) => sum + item.quantity * item.unitPrice,
-                  0,
-                ),
-                creator: 'Current user',
-                initials: 'CU',
-                updated: new Date(dto.updatedAt).toLocaleDateString(),
-                submitted: new Date(dto.createdAt).toLocaleDateString(),
-                approver: 'Sarah Chen',
-                description: dto.description ?? '',
-                items,
-              }
-            }),
+          const detailResults = await Promise.all(
+            result.data.map((dto) => loadRequestDetails(dto.id)),
           )
+          const details = detailResults
+            .filter(
+              (
+                detailResult,
+              ): detailResult is {
+                isSuccess: true
+                data: RequestDetailsApiDto
+              } => Boolean(detailResult.isSuccess && detailResult.data),
+            )
+            .map((detailResult) => detailResult.data)
+
+          setRequestRecords(details.map(mapApiRequest))
         }
       } catch (error) {
         console.error('Failed to load requests:', error)
@@ -106,6 +139,71 @@ function App() {
     fetchRequests()
   }, [])
 
+  useEffect(() => {
+    function handlePopState() {
+      setDecision('idle')
+      setRoute(parseRoute(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selectedId) {
+      return
+    }
+
+    async function fetchSelectedRequest() {
+      try {
+        const result = await loadRequestDetails(selectedId)
+
+        if (result.isSuccess && result.data) {
+          const detailedRequest = mapApiRequest(result.data)
+
+          setRequestRecords((currentRequests) => {
+            const existingRequest = currentRequests.some(
+              (request) => request.id === detailedRequest.id,
+            )
+
+            if (!existingRequest) {
+              return [detailedRequest, ...currentRequests]
+            }
+
+            return currentRequests.map((currentRequest) =>
+              currentRequest.id === detailedRequest.id
+                ? detailedRequest
+                : currentRequest,
+            )
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load request details:', error)
+      }
+    }
+
+    fetchSelectedRequest()
+  }, [selectedId])
+
+  function navigate(route: AppRoute, replace = false) {
+    const path = routeToPath(route)
+    const currentPath = `${window.location.pathname}${window.location.search}`
+
+    if (currentPath !== path) {
+      if (replace) {
+        window.history.replaceState(null, '', path)
+      } else {
+        window.history.pushState(null, '', path)
+      }
+    }
+
+    setDecision('idle')
+    setRoute(route)
+  }
+
   const uniqueTypes = [
     'All',
     ...new Set(requestRecords.map((request) => request.type)),
@@ -113,6 +211,9 @@ function App() {
   const selectedRequest =
     requestRecords.find((request) => request.id === selectedId) ??
     blankRequest
+  const selectedApprovalRequest = selectedId
+    ? requestRecords.find((request) => request.id === selectedId)
+    : undefined
   const allFilteredRequests = requestRecords.filter((request) => {
     const matchesStatus = filter === 'All' || request.status === filter
     const matchesType = typeFilter === 'All' || request.type === typeFilter
@@ -123,21 +224,25 @@ function App() {
   const reviewCount = requestRecords.filter((request) =>
     ['New', 'Resubmitted'].includes(request.status),
   ).length
+  const approvalQueueRequests = requestRecords.filter((request) =>
+    ['New', 'Resubmitted'].includes(request.status),
+  )
 
-  function openRequest(request: RequestRecord, target: Screen = 'detail') {
-    setSelectedId(request.id)
-    setDecision('idle')
-    setScreen(target)
+  async function openRequest(request: RequestRecord, target: Screen = 'detail') {
+    if (target === 'create' || target === 'requests') {
+      navigate({ screen: target })
+      return
+    }
+
+    navigate({ screen: target, requestId: request.id })
   }
 
   function createRequest(request: RequestRecord) {
     setRequestRecords((currentRequests) => [request, ...currentRequests])
-    setSelectedId(request.id)
     setFilter('All')
     setTypeFilter('All')
     setVisibleCount(6)
-    setDecision('idle')
-    setScreen('requests')
+    navigate({ screen: 'requests' })
   }
 
   function updateRequest(request: RequestRecord) {
@@ -146,9 +251,7 @@ function App() {
         currentRequest.id === request.id ? request : currentRequest,
       ),
     )
-    setSelectedId(request.id)
-    setDecision('idle')
-    setScreen('detail')
+    navigate({ screen: 'detail', requestId: request.id }, true)
   }
 
   async function deleteRequest(id: string) {
@@ -161,16 +264,34 @@ function App() {
     setRequestRecords((currentRequests) =>
       currentRequests.filter((request) => request.id !== id),
     )
-    setSelectedId('')
-    setDecision('idle')
-    setScreen('requests')
+    navigate({ screen: 'requests' })
   }
 
-  function decideRequest(
+  async function decideRequest(
     decisionResult: 'approved' | 'rejected',
     reason = '',
     finalRejected = false,
   ) {
+    if (!selectedRequest.id) {
+      throw new Error('Select a request before recording a decision.')
+    }
+
+    const result =
+      decisionResult === 'approved'
+        ? await approveRequestApi(selectedRequest.id)
+        : await rejectRequestApi({
+            id: selectedRequest.id,
+            reason,
+            isFinal: finalRejected,
+          })
+
+    if (!result.isSuccess) {
+      throw new Error(
+        result.error?.message ??
+          `Failed to ${decisionResult === 'approved' ? 'approve' : 'reject'} request.`,
+      )
+    }
+
     const nextStatus = decisionResult === 'approved' ? 'Approved' : 'Rejected'
 
     setRequestRecords((currentRequests) =>
@@ -192,10 +313,9 @@ function App() {
 
   return (
     <AppShell
-      onCreate={() => setScreen('create')}
-      onOpen={openRequest}
-      onRequests={() => setScreen('requests')}
-      requestRecords={requestRecords}
+      onApprovalQueue={() => navigate({ screen: 'approval' })}
+      onCreate={() => navigate({ screen: 'create' })}
+      onRequests={() => navigate({ screen: 'requests' })}
       reviewCount={reviewCount}
       screen={screen}
     >
@@ -203,7 +323,7 @@ function App() {
         <RequestsList
           filter={filter}
           filteredRequests={filteredRequests}
-          onCreate={() => setScreen('create')}
+          onCreate={() => navigate({ screen: 'create' })}
           onFilter={(nextFilter) => {
             setFilter(nextFilter)
             setVisibleCount(6)
@@ -226,7 +346,7 @@ function App() {
         <RequestForm
           mode="create"
           request={blankRequest}
-          onCancel={() => setScreen('requests')}
+          onCancel={() => navigate({ screen: 'requests' })}
           onSubmit={createRequest}
         />
       )}
@@ -235,7 +355,9 @@ function App() {
         <RequestForm
           mode="edit"
           request={selectedRequest}
-          onCancel={() => setScreen('detail')}
+          onCancel={() =>
+            navigate({ screen: 'detail', requestId: selectedRequest.id })
+          }
           onSubmit={updateRequest}
         />
       )}
@@ -243,19 +365,27 @@ function App() {
       {screen === 'detail' && (
         <RequestDetail
           request={selectedRequest}
-          onApprove={() => setScreen('approval')}
-          onBack={() => setScreen('requests')}
+          onApprove={() =>
+            navigate({ screen: 'approval', requestId: selectedRequest.id })
+          }
+          onBack={() => navigate({ screen: 'requests' })}
           onDelete={deleteRequest}
-          onEdit={() => setScreen('edit')}
+          onEdit={() =>
+            navigate({ screen: 'edit', requestId: selectedRequest.id })
+          }
         />
       )}
 
       {screen === 'approval' && (
         <ApprovalView
           decision={decision}
-          onBack={() => setScreen('requests')}
+          onBack={() => navigate({ screen: 'approval' })}
           onDecide={decideRequest}
-          request={selectedRequest}
+          onOpenRequest={(request) =>
+            navigate({ screen: 'approval', requestId: request.id })
+          }
+          request={selectedApprovalRequest}
+          requests={approvalQueueRequests}
         />
       )}
     </AppShell>
