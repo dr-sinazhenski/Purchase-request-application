@@ -6,6 +6,7 @@ using Application.BusinessLogic.ProductLogic.GetAllProducts;
 using Application.BusinessLogic.ProductLogic.GetProductById;
 using Application.BusinessLogic.ProductLogic.UpdateProduct;
 using Application.BusinessLogic.RegionLogic.GetAllRegions;
+using Application.BusinessLogic.ProductLogic.GetProductsFiltered;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -94,6 +95,21 @@ namespace WebApi.Controllers
             }   
 
             _logger.LogInformation("Product deletion succeeded");
+            return Ok(result);
+        }
+        [HttpGet("filtered")]
+        public async Task<IActionResult> GetFiltered(
+            [FromQuery] Guid? regionId,
+            [FromQuery] Guid? requestTypeId)
+        {
+            var result = await _mediator.Send(new GetProductsFilteredCommand(regionId, requestTypeId));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch filtered products");
+                return BadRequest(result);
+            }
+
             return Ok(result);
         }
     }
