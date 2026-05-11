@@ -7,6 +7,8 @@ export type Screen =
   | 'edit'
   | 'approval'
   | 'profile'
+  | 'signin'
+  | 'signup'
 
 export type LineItem = {
   name: string

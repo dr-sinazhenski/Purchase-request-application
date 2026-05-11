@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { AppShell } from './components/AppShell/AppShell'
 import { ApprovalView } from './components/ApprovalView/ApprovalView'
+import { AuthView } from './components/AuthView/AuthView'
+import { ProfileView } from './components/ProfileView/ProfileView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
-import { Topbar } from './components/Topbar/Topbar'
 import {
   approveRequestApi,
   deleteRequestApi,
@@ -112,6 +113,10 @@ function App() {
   const selectedId = ('requestId' in route ? route.requestId : '') ?? ''
 
   useEffect(() => {
+    if (screen === 'signin' || screen === 'signup') {
+      return
+    }
+
     async function fetchRequests() {
       try {
         const result = await loadRequests()
@@ -139,7 +144,7 @@ function App() {
     }
 
     fetchRequests()
-  }, [])
+  }, [screen])
 
   useEffect(() => {
     function handlePopState() {
@@ -257,7 +262,9 @@ function App() {
       return
     }
 
-    navigate({ screen: target, requestId: request.id })
+    if (target === 'detail' || target === 'edit' || target === 'approval') {
+      navigate({ screen: target, requestId: request.id })
+    }
   }
 
   function createRequest(request: RequestRecord) {
@@ -332,6 +339,16 @@ function App() {
       ),
     )
     setDecision(decisionResult)
+  }
+
+  if (screen === 'signin' || screen === 'signup') {
+    return (
+      <AuthView
+        mode={screen}
+        onModeChange={(nextMode) => navigate({ screen: nextMode })}
+        onSuccess={() => navigate({ screen: 'requests' })}
+      />
+    )
   }
 
   return (
@@ -419,10 +436,7 @@ function App() {
       )}
 
       {screen === 'profile' && (
-        <>
-          <Topbar title="Profile" />
-          <section className="content-area" />
-        </>
+        <ProfileView onLogout={() => navigate({ screen: 'signin' })} />
       )}
     </AppShell>
   )
