@@ -16,26 +16,90 @@ type ApprovalViewProps = {
     decision: 'approved' | 'rejected',
     reason?: string,
     finalRejected?: boolean,
-  ) => void
-  request: RequestRecord
+  ) => void | Promise<void>
+  onOpenRequest: (request: RequestRecord) => void
+  request?: RequestRecord
+  requests: RequestRecord[]
 }
 
 export function ApprovalView({
   decision,
   onBack,
   onDecide,
+  onOpenRequest,
   request,
+  requests,
 }: ApprovalViewProps) {
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
+  const [decisionError, setDecisionError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const isDecided =
-    request.status === 'Approved' || request.status === 'Rejected'
+    request?.status === 'Approved' || request?.status === 'Rejected'
+
+  async function submitDecision(
+    nextDecision: 'approved' | 'rejected',
+    reason = '',
+    finalRejected = false,
+  ) {
+    try {
+      setDecisionError('')
+      setIsSubmitting(true)
+      await onDecide(nextDecision, reason, finalRejected)
+      setShowRejectDialog(false)
+      setRejectReason('')
+    } catch (error) {
+      setDecisionError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to record decision. Please try again.',
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <>
       <Topbar title="Approval Queue" />
-      <section className="content-area approval-layout">
-        <div className="panel detail-panel">
+      {!request ? (
+        <section className="content-area approval-list-layout">
+          <div className="panel queue-panel queue-panel-wide">
+            <div className="queue-header">
+              <p className="eyebrow">Waiting for review</p>
+              <strong>{requests.length}</strong>
+            </div>
+
+            {requests.length === 0 ? (
+              <p className="queue-empty">No requests are waiting for approval.</p>
+            ) : (
+              <div className="queue-list">
+                {requests.map((queuedRequest) => (
+                  <button
+                    className="queue-item"
+                    key={queuedRequest.id}
+                    onClick={() => onOpenRequest(queuedRequest)}
+                    type="button"
+                  >
+                    <span>
+                      <strong>{queuedRequest.name}</strong>
+                      <small>
+                        {queuedRequest.type} - {formatMoney(queuedRequest.total)}
+                      </small>
+                    </span>
+                    <StatusBadge
+                      finalRejected={queuedRequest.finalRejected}
+                      status={queuedRequest.status}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      ) : (
+        <section className="content-area approval-layout">
+          <div className="panel detail-panel">
           <button className="back-button" onClick={onBack} type="button">
             ← Approval queue
           </button>
@@ -63,6 +127,16 @@ export function ApprovalView({
                   Request {decision === 'approved' ? 'approved' : 'rejected'}
                 </strong>
                 <span>The status is now reflected in All Requests.</span>
+              </div>
+            </div>
+          )}
+
+          {decisionError && (
+            <div className="notice danger">
+              <AlertTriangle size={18} />
+              <div>
+                <strong>Decision failed</strong>
+                <span>{decisionError}</span>
               </div>
             </div>
           )}
@@ -103,14 +177,16 @@ export function ApprovalView({
             <div className="form-actions stacked">
               <button
                 className="btn success"
-                onClick={() => onDecide('approved')}
+                disabled={isSubmitting}
+                onClick={() => submitDecision('approved')}
                 type="button"
               >
                 <Check size={15} />
-                Approve request
+                {isSubmitting ? 'Approving...' : 'Approve request'}
               </button>
               <button
                 className="btn danger"
+                disabled={isSubmitting}
                 onClick={() => setShowRejectDialog(true)}
                 type="button"
               >
@@ -149,6 +225,7 @@ export function ApprovalView({
               <div className="modal-actions">
                 <button
                   className="btn"
+                  disabled={isSubmitting}
                   onClick={() => setShowRejectDialog(false)}
                   type="button"
                 >
@@ -156,20 +233,16 @@ export function ApprovalView({
                 </button>
                 <button
                   className="btn danger"
-                  onClick={() => {
-                    onDecide('rejected', rejectReason, false)
-                    setShowRejectDialog(false)
-                  }}
+                  disabled={isSubmitting}
+                  onClick={() => submitDecision('rejected', rejectReason, false)}
                   type="button"
                 >
-                  Reject
+                  {isSubmitting ? 'Rejecting...' : 'Reject'}
                 </button>
                 <button
                   className="btn danger solid"
-                  onClick={() => {
-                    onDecide('rejected', rejectReason, true)
-                    setShowRejectDialog(false)
-                  }}
+                  disabled={isSubmitting}
+                  onClick={() => submitDecision('rejected', rejectReason, true)}
                   type="button"
                 >
                   Final reject
@@ -179,6 +252,7 @@ export function ApprovalView({
           </div>
         )}
       </section>
+      )}
     </>
   )
 }

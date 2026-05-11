@@ -1,6 +1,12 @@
 export type Status = 'New' | 'Resubmitted' | 'Approved' | 'Rejected'
 
-export type Screen = 'requests' | 'create' | 'detail' | 'edit' | 'approval'
+export type Screen =
+  | 'requests'
+  | 'create'
+  | 'detail'
+  | 'edit'
+  | 'approval'
+  | 'profile'
 
 export type LineItem = {
   name: string

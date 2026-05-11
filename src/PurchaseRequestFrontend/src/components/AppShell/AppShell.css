@@ -1,4 +1,5 @@
 .app-page {
+  --sidebar-width: 280px;
   min-height: 100vh;
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
@@ -6,10 +7,9 @@
 }
 
 .app-shell {
-  display: flex;
   width: 100%;
   max-width: 100%;
-  min-height: 1000px;
+  min-height: 100vh;
   margin: 0 auto;
   overflow: hidden;
   background: var(--panel);
@@ -17,8 +17,13 @@
 
 .sidebar {
   display: flex;
-  flex: 0 0 280px;
+  width: var(--sidebar-width);
   flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
   border-right: 1px solid var(--border);
   background: #fff;
 }
@@ -27,12 +32,26 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   height: 83px;
   padding: 24px;
   border-bottom: 1px solid var(--border);
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
   color: var(--ink);
   font-size: 16px;
   font-weight: 700;
+  text-align: left;
+}
+
+.brand-link {
+  background: #fff;
+}
+
+.brand-link:hover {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .brand-mark {
@@ -50,7 +69,9 @@
   flex: 1;
   flex-direction: column;
   gap: 3px;
+  min-height: 0;
   padding: 34px 14px;
+  overflow-y: auto;
 }
 
 .nav-kicker {
@@ -99,8 +120,17 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 20px 14px;
+  border: 0;
   border-top: 1px solid var(--border);
+  background: #fff;
+  text-align: left;
+}
+
+.profile-link:hover,
+.profile-link.active {
+  background: var(--blue-soft);
 }
 
 .avatar {
@@ -127,8 +157,9 @@
 
 .main {
   display: flex;
-  flex: 1;
-  min-width: 0;
+  width: calc(100% - var(--sidebar-width));
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
   flex-direction: column;
   background: var(--soft);
 }
@@ -145,5 +176,10 @@
 
   .sidebar {
     display: none;
+  }
+
+  .main {
+    width: 100%;
+    margin-left: 0;
   }
 }

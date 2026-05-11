@@ -44,11 +44,74 @@ function mapBackendStatus(status: string): Status {
 function mapApiItems(items: RequestItemApiDto[]) {
   return items.map((item) => ({
     name: item.name,
-    category: item.unitsOfMeasure,
-    quantity: item.quantity,
-    unitPrice: item.unitPrice,
-    productId: item.productId,
+    category: item.description,
+    quantity: item.amount,
+    unitPrice: item.price,
+    productId: item.id,
   }))
+}
+
+function mapItemsToProductAmounts(items: RequestRecord['items']) {
+  return items.reduce<Record<string, number>>((amounts, item) => {
+    if (item.productId && item.quantity > 0) {
+      amounts[item.productId] = (amounts[item.productId] ?? 0) + item.quantity
+    }
+
+    return amounts
+  }, {})
+}
+
+function parseApiDate(value: string | undefined) {
+  return value ? new Date(value) : new Date()
+}
+
+function validateRequestForm(
+  name: string,
+  requestTypeId: string,
+  items: RequestRecord['items'],
+  products: ProductOption[],
+) {
+  if (!name.trim()) {
+    return 'Please enter a request name.'
+  }
+
+  if (!requestTypeId) {
+    return 'Please select a request type before submitting.'
+  }
+
+  const selectedItems = items.filter((item) => item.productId)
+
+  if (selectedItems.length === 0) {
+    return 'Please add at least one product to the request.'
+  }
+
+  const invalidProduct = selectedItems.find((item) => {
+    const product = products.find((option) => option.id === item.productId)
+
+    return !product || !product.requestTypeIds.includes(requestTypeId)
+  })
+
+  if (invalidProduct) {
+    return 'One or more selected products are not available for this request type.'
+  }
+
+  const invalidQuantity = selectedItems.find(
+    (item) => !Number.isFinite(item.quantity) || item.quantity < 1,
+  )
+
+  if (invalidQuantity) {
+    return 'Product quantity must be at least 1.'
+  }
+
+  const invalidPrice = selectedItems.find(
+    (item) => !Number.isFinite(item.unitPrice) || item.unitPrice < 0,
+  )
+
+  if (invalidPrice) {
+    return 'Product price cannot be negative.'
+  }
+
+  return ''
 }
 
 type RequestFormProps = {
@@ -231,8 +294,15 @@ export function RequestForm({
   }
 
   async function handleSubmit() {
-    if (!selectedRequestTypeId) {
-      setSubmitError('Please select a request type before submitting.')
+    const validationError = validateRequestForm(
+      name,
+      selectedRequestTypeId,
+      items,
+      products,
+    )
+
+    if (validationError) {
+      setSubmitError(validationError)
       return
     }
 
@@ -241,15 +311,10 @@ export function RequestForm({
         setSubmitError('')
         setIsSubmitting(true)
         const result = await createRequestApi({
-          title: name,
-          description,
+          title: name.trim(),
+          description: description.trim(),
           requestTypeId: selectedRequestTypeId,
-          items: items
-            .filter((item) => item.productId)
-            .map((item) => ({
-              productId: item.productId!,
-              quantity: item.quantity,
-            })),
+          productIdAmount: mapItemsToProductAmounts(items),
         })
 
         if (!result.isSuccess || !result.data) {
@@ -258,20 +323,27 @@ export function RequestForm({
           return
         }
 
-        // Map API response to RequestRecord
+        const apiItems = result.data.products?.length
+          ? mapApiItems(result.data.products)
+          : items
+        const apiTotal = apiItems.reduce(
+          (sum, item) => sum + item.quantity * item.unitPrice,
+          0,
+        )
+
         const createdRequest: RequestRecord = {
           id: result.data.id,
           name: result.data.title,
           type: result.data.requestType.name,
           status: mapBackendStatus(result.data.status),
-          total,
+          total: apiTotal,
           creator: 'Current user', // TODO: get from auth
           initials: 'CU',
           updated: 'Just now',
-          submitted: formatSubmittedDate(new Date(result.data.createdAt)),
+          submitted: formatSubmittedDate(parseApiDate(result.data.createdAt)),
           approver: 'Sarah Chen', // TODO: get from somewhere
-          description: result.data.description,
-          items: result.data.items?.length ? mapApiItems(result.data.items) : items,
+          description: result.data.description ?? description,
+          items: apiItems,
         }
 
         await onSubmit(createdRequest)
@@ -290,15 +362,10 @@ export function RequestForm({
         setIsSubmitting(true)
         const result = await updateRequestApi({
           id: request.id,
-          title: name,
-          description,
+          title: name.trim(),
+          description: description.trim(),
           requestTypeId: selectedRequestTypeId,
-          items: items
-            .filter((item) => item.productId)
-            .map((item) => ({
-              productId: item.productId!,
-              quantity: item.quantity,
-            })),
+          productIdAmount: mapItemsToProductAmounts(items),
         })
 
         if (!result.isSuccess || !result.data) {
@@ -307,19 +374,27 @@ export function RequestForm({
           return
         }
 
+        const apiItems = result.data.products?.length
+          ? mapApiItems(result.data.products)
+          : items
+        const apiTotal = apiItems.reduce(
+          (sum, item) => sum + item.quantity * item.unitPrice,
+          0,
+        )
+
         const updatedRequest: RequestRecord = {
           id: result.data.id,
           name: result.data.title,
           type: result.data.requestType.name,
           status: mapBackendStatus(result.data.status),
-          total,
+          total: apiTotal,
           creator: request.creator,
           initials: request.initials,
           updated: 'Just now',
           submitted: request.submitted,
           approver: request.approver,
-          description: result.data.description,
-          items: result.data.items?.length ? mapApiItems(result.data.items) : items,
+          description: result.data.description ?? description,
+          items: apiItems,
           reason: request.reason,
           finalRejected: request.finalRejected,
         }

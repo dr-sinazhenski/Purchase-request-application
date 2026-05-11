@@ -26,21 +26,21 @@ export type RegionOption = {
 export type RequestDetailsApiDto = {
   id: string
   title: string
-  description: string
+  description?: string
   requestType: RequestTypeOption
   status: string
   rejectionCommentText?: string
-  createdAt: string
-  updatedAt: string
-  items: RequestItemApiDto[]
+  createdAt?: string
+  updatedAt?: string
+  products?: RequestItemApiDto[]
 }
 
 export type RequestItemApiDto = {
-  productId: string
+  id: string
   name: string
-  quantity: number
-  unitPrice: number
-  unitsOfMeasure: string
+  description: string
+  amount: number
+  price: number
 }
 
 export type ApiResult<T> = {
@@ -55,16 +55,17 @@ export type CreateRequestApiDto = {
   title: string
   description: string
   requestTypeId: string
-  items: CreateRequestItemApiDto[]
+  productIdAmount: Record<string, number>
 }
 
 export type UpdateRequestApiDto = CreateRequestApiDto & {
   id: string
 }
 
-export type CreateRequestItemApiDto = {
-  productId: string
-  quantity: number
+export type RejectRequestApiDto = {
+  id: string
+  reason: string
+  isFinal: boolean
 }
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
@@ -73,7 +74,8 @@ async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> 
   const url = typeof input === 'string' && input.startsWith('http') ? input : `${apiBase}${input}`
 
   const response = await fetch(url, init)
-  const payload = await response.json()
+  const text = await response.text()
+  const payload = text ? JSON.parse(text) : { isSuccess: response.ok }
 
   if (!response.ok) {
     throw new Error(payload?.error?.message ?? response.statusText)
@@ -96,6 +98,16 @@ export async function loadPrices(): Promise<ApiResult<PriceOption[]>> {
 
 export async function loadRegions(): Promise<ApiResult<RegionOption[]>> {
   return fetchJson<ApiResult<RegionOption[]>>('/Region')
+}
+
+export async function loadRequests(): Promise<ApiResult<RequestDetailsApiDto[]>> {
+  return fetchJson<ApiResult<RequestDetailsApiDto[]>>('/Request')
+}
+
+export async function loadRequestDetails(
+  id: string,
+): Promise<ApiResult<RequestDetailsApiDto>> {
+  return fetchJson<ApiResult<RequestDetailsApiDto>>(`/Request/${id}`)
 }
 
 export async function createRequestApi(
@@ -125,5 +137,23 @@ export async function updateRequestApi(
 export async function deleteRequestApi(id: string): Promise<ApiResult<void>> {
   return fetchJson<ApiResult<void>>(`/Request/${id}`, {
     method: 'DELETE',
+  })
+}
+
+export async function approveRequestApi(id: string): Promise<ApiResult<void>> {
+  return fetchJson<ApiResult<void>>(`/Approve/${id}`, {
+    method: 'PUT',
+  })
+}
+
+export async function rejectRequestApi(
+  dto: RejectRequestApiDto,
+): Promise<ApiResult<void>> {
+  return fetchJson<ApiResult<void>>('/Reject/', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
   })
 }
