@@ -13,6 +13,7 @@ type AppShellProps = {
   children: ReactNode
   onApprovalQueue: () => void
   onCreate: () => void
+  onProfile: () => void
   onRequests: () => void
   reviewCount: number
   screen: Screen
@@ -22,6 +23,7 @@ export function AppShell({
   children,
   onApprovalQueue,
   onCreate,
+  onProfile,
   onRequests,
   reviewCount,
   screen,
@@ -70,13 +72,21 @@ export function AppShell({
             </button>
           </nav>
 
-          <div className="sidebar-footer">
+          <button
+            className={
+              screen === 'profile'
+                ? 'sidebar-footer profile-link active'
+                : 'sidebar-footer profile-link'
+            }
+            onClick={onProfile}
+            type="button"
+          >
             <div className="avatar">SC</div>
             <div>
               <strong>Sarah Chen</strong>
               <span>Approver · Acme Corp</span>
             </div>
-          </div>
+          </button>
         </aside>
 
         <main className="main">{children}</main>

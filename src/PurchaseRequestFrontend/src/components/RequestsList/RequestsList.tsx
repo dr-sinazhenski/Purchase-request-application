@@ -13,8 +13,10 @@ type RequestsListProps = {
   onCreate: () => void
   onFilter: (filter: 'All' | Status) => void
   onOpen: (request: RequestRecord, target?: Screen) => void
+  onSearch: (value: string) => void
   onShowMore: () => void
   onTypeFilter: (type: string) => void
+  searchQuery: string
   totalFiltered: number
   totalRequests: number
   typeFilter: string
@@ -28,8 +30,10 @@ export function RequestsList({
   onCreate,
   onFilter,
   onOpen,
+  onSearch,
   onShowMore,
   onTypeFilter,
+  searchQuery,
   totalFiltered,
   totalRequests,
   typeFilter,
@@ -41,8 +45,11 @@ export function RequestsList({
       <Topbar
         count={`${totalFiltered} shown of ${totalRequests}`}
         primaryAction="+ New Request"
+        searchPlaceholder="Search requests"
+        searchValue={searchQuery}
         title="All Requests"
         onPrimary={onCreate}
+        onSearch={onSearch}
       />
 
       <section className="filter-bar">
@@ -99,6 +106,13 @@ export function RequestsList({
               </tr>
             </thead>
             <tbody>
+              {filteredRequests.length === 0 && (
+                <tr>
+                  <td className="empty-table-cell" colSpan={7}>
+                    No requests match your search or filters.
+                  </td>
+                </tr>
+              )}
               {filteredRequests.map((request) => (
                 <tr key={request.id}>
                   <td>

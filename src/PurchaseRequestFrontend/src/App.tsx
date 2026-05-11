@@ -6,6 +6,7 @@ import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
+import { Topbar } from './components/Topbar/Topbar'
 import {
   approveRequestApi,
   deleteRequestApi,
@@ -103,6 +104,7 @@ function App() {
   )
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
   const [filter, setFilter] = useState<'All' | Status>('All')
+  const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<DecisionState>('idle')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -214,11 +216,32 @@ function App() {
   const selectedApprovalRequest = selectedId
     ? requestRecords.find((request) => request.id === selectedId)
     : undefined
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase()
   const allFilteredRequests = requestRecords.filter((request) => {
     const matchesStatus = filter === 'All' || request.status === filter
     const matchesType = typeFilter === 'All' || request.type === typeFilter
+    const searchableText = [
+      request.id,
+      request.name,
+      request.type,
+      request.status,
+      request.creator,
+      request.description,
+      request.total.toString(),
+      ...request.items.flatMap((item) => [
+        item.name,
+        item.category,
+        item.quantity.toString(),
+        item.unitPrice.toString(),
+      ]),
+    ]
+      .join(' ')
+      .toLowerCase()
+    const matchesSearch =
+      normalizedSearchQuery === '' ||
+      searchableText.includes(normalizedSearchQuery)
 
-    return matchesStatus && matchesType
+    return matchesStatus && matchesType && matchesSearch
   })
   const filteredRequests = allFilteredRequests.slice(0, visibleCount)
   const reviewCount = requestRecords.filter((request) =>
@@ -315,6 +338,7 @@ function App() {
     <AppShell
       onApprovalQueue={() => navigate({ screen: 'approval' })}
       onCreate={() => navigate({ screen: 'create' })}
+      onProfile={() => navigate({ screen: 'profile' })}
       onRequests={() => navigate({ screen: 'requests' })}
       reviewCount={reviewCount}
       screen={screen}
@@ -329,11 +353,16 @@ function App() {
             setVisibleCount(6)
           }}
           onOpen={openRequest}
+          onSearch={(nextSearchQuery) => {
+            setSearchQuery(nextSearchQuery)
+            setVisibleCount(6)
+          }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
+          searchQuery={searchQuery}
           totalFiltered={allFilteredRequests.length}
           totalRequests={requestRecords.length}
           typeFilter={typeFilter}
@@ -387,6 +416,13 @@ function App() {
           request={selectedApprovalRequest}
           requests={approvalQueueRequests}
         />
+      )}
+
+      {screen === 'profile' && (
+        <>
+          <Topbar title="Profile" />
+          <section className="content-area" />
+        </>
       )}
     </AppShell>
   )

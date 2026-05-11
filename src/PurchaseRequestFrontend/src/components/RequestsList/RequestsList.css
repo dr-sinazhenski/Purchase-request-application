@@ -107,6 +107,12 @@ td {
   font-size: 15px;
 }
 
+.empty-table-cell {
+  color: rgba(0, 0, 0, 0.46);
+  font-weight: 700;
+  text-align: center;
+}
+
 .name-button {
   border: 0;
   background: transparent;
