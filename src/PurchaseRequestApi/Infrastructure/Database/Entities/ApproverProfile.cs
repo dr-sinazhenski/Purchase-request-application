@@ -8,6 +8,6 @@ namespace Infrastructure.Database.Entities
         public decimal MinAmount { get; set; }
         public decimal MaxAmount { get; set; }
 
-        required public ICollection<Account> Accounts { get; set; }
+        public ICollection<Account> Accounts { get; set; }
     }
 }

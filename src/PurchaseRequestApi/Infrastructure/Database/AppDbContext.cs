@@ -59,10 +59,10 @@ namespace Infrastructure.Database
                 .WithMany(rt => rt.Requests)
                 .HasForeignKey(r => r.RequestTypeId);
 
-            /*modelBuilder.Entity<Request>()
+            modelBuilder.Entity<Request>()
                 .HasOne(r => r.Requester)
                 .WithMany(a => a.Requests)
-                .HasForeignKey(r => r.RequesterId);*/
+                .HasForeignKey(r => r.RequesterId);
 
             modelBuilder.Entity<RequesterProduct>(builder =>
             {
@@ -187,6 +187,127 @@ namespace Infrastructure.Database
                 new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Amount = 80.00m,   UnitsOfMeasure = "license" },
                 new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), Amount = 75.00m,   UnitsOfMeasure = "license" },
                 new Price { ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), RegionId = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), Amount = 70.00m,   UnitsOfMeasure = "license" }
+            );
+            modelBuilder.Entity<ApproverProfile>().HasData(
+                new ApproverProfile { Id = Guid.Parse("aaaaaaaa-1111-1111-1111-111111111111"), Name = "Junior Approver",  MinAmount = 0m,       MaxAmount = 500m    },
+                new ApproverProfile { Id = Guid.Parse("bbbbbbbb-1111-1111-1111-111111111111"), Name = "Senior Approver",  MinAmount = 500m,     MaxAmount = 2000m   },
+                new ApproverProfile { Id = Guid.Parse("cccccccc-1111-1111-1111-111111111111"), Name = "Executive Approver", MinAmount = 2000m,  MaxAmount = 999999m }
+            );
+
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = Guid.Parse("aaaaaaaa-2222-2222-2222-222222222222"), Name = "Requester" },
+                new Role { Id = Guid.Parse("bbbbbbbb-2222-2222-2222-222222222222"), Name = "Approver"  },
+                new Role { Id = Guid.Parse("cccccccc-2222-2222-2222-222222222222"), Name = "Admin"     }
+            );
+
+            modelBuilder.Entity<Account>().HasData(
+                new Account
+                {
+                    Id                = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"),
+                    Login             = "john.doe",
+                    Password          = "hashed_password_1",
+                    Name              = "John Doe",
+                    RegionId          = Guid.Parse("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), // North America
+                    ApproverProfileId = null
+                },
+                new Account
+                {
+                    Id                = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"),
+                    Login             = "jane.smith",
+                    Password          = "hashed_password_2",
+                    Name              = "Jane Smith",
+                    RegionId          = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), // Europe
+                    ApproverProfileId = Guid.Parse("bbbbbbbb-1111-1111-1111-111111111111")  // Senior Approver
+                },
+                new Account
+                {
+                    Id                = Guid.Parse("cccccccc-3333-3333-3333-333333333333"),
+                    Login             = "peter.jones",
+                    Password          = "hashed_password_3",
+                    Name              = "Peter Jones",
+                    RegionId          = Guid.Parse("cccccccc-dddd-dddd-dddd-dddddddddddd"), // Lithuania
+                    ApproverProfileId = Guid.Parse("aaaaaaaa-1111-1111-1111-111111111111")  // Junior Approver
+                },
+                new Account
+                {
+                    Id                = Guid.Parse("dddddddd-3333-3333-3333-333333333333"),
+                    Login             = "admin",
+                    Password          = "hashed_password_4",
+                    Name              = "System Admin",
+                    RegionId          = Guid.Parse("bbbbbbbb-cccc-cccc-cccc-cccccccccccc"), // Europe
+                    ApproverProfileId = Guid.Parse("cccccccc-1111-1111-1111-111111111111")  // Executive Approver
+                }
+            );
+
+            // AccountRole join table seed
+            modelBuilder.Entity("AccountRole").HasData(
+                new { AccountId = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"), RoleId = Guid.Parse("aaaaaaaa-2222-2222-2222-222222222222") }, // John -> Requester
+                new { AccountId = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), RoleId = Guid.Parse("aaaaaaaa-2222-2222-2222-222222222222") }, // Jane -> Requester
+                new { AccountId = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), RoleId = Guid.Parse("bbbbbbbb-2222-2222-2222-222222222222") }, // Jane -> Approver
+                new { AccountId = Guid.Parse("cccccccc-3333-3333-3333-333333333333"), RoleId = Guid.Parse("bbbbbbbb-2222-2222-2222-222222222222") }, // Peter -> Approver
+                new { AccountId = Guid.Parse("dddddddd-3333-3333-3333-333333333333"), RoleId = Guid.Parse("cccccccc-2222-2222-2222-222222222222") }  // Admin -> Admin
+            );
+
+            modelBuilder.Entity<Request>().HasData(
+                new Request
+                {
+                    Id            = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"),
+                    Title         = "New Laptop for Development",
+                    Description   = "Requesting a new laptop for the development team",
+                    Status        = RequestStatus.Submited,
+                    CreatedAt     = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Utc),
+                    UpdatedAt     = new DateTime(2025, 1, 10, 9, 0, 0, DateTimeKind.Utc),
+                    RequesterId   = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"),
+                    RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") // IT Products
+                },
+                new Request
+                {
+                    Id            = Guid.Parse("bbbbbbbb-4444-4444-4444-444444444444"),
+                    Title         = "Office Supplies Restock",
+                    Description   = "Monthly office supplies restock for the Vilnius office",
+                    Status        = RequestStatus.Approved,
+                    CreatedAt     = new DateTime(2025, 1, 15, 10, 0, 0, DateTimeKind.Utc),
+                    UpdatedAt     = new DateTime(2025, 1, 16, 14, 0, 0, DateTimeKind.Utc),
+                    RequesterId   = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"),
+                    RequestTypeId = Guid.Parse("22222222-2222-2222-2222-222222222222") // Office Supplies
+                },
+                new Request
+                {
+                    Id            = Guid.Parse("cccccccc-4444-4444-4444-444444444444"),
+                    Title         = "Software Licenses Q1",
+                    Description   = "Annual software license renewal for Q1",
+                    Status        = RequestStatus.Rejected,
+                    CreatedAt     = new DateTime(2025, 1, 20, 8, 0, 0, DateTimeKind.Utc),
+                    UpdatedAt     = new DateTime(2025, 1, 22, 11, 0, 0, DateTimeKind.Utc),
+                    RequesterId   = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"),
+                    RequestTypeId = Guid.Parse("33333333-3333-3333-3333-333333333333") // Software & Licenses
+                },
+                new Request
+                {
+                    Id            = Guid.Parse("dddddddd-4444-4444-4444-444444444444"),
+                    Title         = "Monitor Upgrade",
+                    Description   = "Requesting monitor upgrades for the design team",
+                    Status        = RequestStatus.Resubmited,
+                    CreatedAt     = new DateTime(2025, 2, 1, 9, 0, 0, DateTimeKind.Utc),
+                    UpdatedAt     = new DateTime(2025, 2, 3, 16, 0, 0, DateTimeKind.Utc),
+                    RequesterId   = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"),
+                    RequestTypeId = Guid.Parse("11111111-1111-1111-1111-111111111111") // IT Products
+                }
+            );
+
+            modelBuilder.Entity<RequesterProduct>().HasData(
+                // Request 1 - Laptop x1, Keyboard x1, Mouse x1
+                new { RequestId = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"), ProductId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Quantity = 1 },
+                new { RequestId = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"), ProductId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), Quantity = 1 },
+                new { RequestId = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"), ProductId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"), Quantity = 1 },
+                // Request 2 - Notebook x5, Pen Set x3
+                new { RequestId = Guid.Parse("bbbbbbbb-4444-4444-4444-444444444444"), ProductId = Guid.Parse("11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Quantity = 5 },
+                new { RequestId = Guid.Parse("bbbbbbbb-4444-4444-4444-444444444444"), ProductId = Guid.Parse("22222222-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Quantity = 3 },
+                // Request 3 - Microsoft 365 x3, Antivirus x3
+                new { RequestId = Guid.Parse("cccccccc-4444-4444-4444-444444444444"), ProductId = Guid.Parse("33333333-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Quantity = 3 },
+                new { RequestId = Guid.Parse("cccccccc-4444-4444-4444-444444444444"), ProductId = Guid.Parse("55555555-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), Quantity = 3 },
+                // Request 4 - Monitor x2
+                new { RequestId = Guid.Parse("dddddddd-4444-4444-4444-444444444444"), ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Quantity = 2 }
             );
         }
     }

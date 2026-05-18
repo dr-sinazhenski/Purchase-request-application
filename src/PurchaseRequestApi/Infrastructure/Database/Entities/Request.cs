@@ -12,7 +12,7 @@ namespace Infrastructure.Database.Entities
         public Guid? RequesterId { get; set; }
         public Account? Requester { get; set; }
         required public Guid RequestTypeId { get; set; }
-        required public RequestType RequestType { get; set; }
+        public RequestType RequestType { get; set; }
         public Guid? RejectionCommentId { get; set; }
         public Comment? RejectionComment { get; set; }
         
