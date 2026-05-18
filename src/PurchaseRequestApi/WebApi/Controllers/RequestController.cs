@@ -10,6 +10,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application.BusinessLogic.RequestLogic.ApproveRequest;
 using Application.BusinessLogic.RequestLogic.RejectRequest;
+using Application.BusinessLogic.RequestLogic.GetRequestsFiltered;
+
 
 namespace WebApi.Controllers
 {
@@ -123,6 +125,23 @@ namespace WebApi.Controllers
             }
 
             _logger.LogInformation("Request {Id} reject", dto.Id);
+            return Ok(result);
+        }
+        
+        [HttpGet("filtered")]
+        public async Task<IActionResult> GetFiltered(
+            [FromQuery] Guid? requestTypeId,
+            [FromQuery] string? status,
+            [FromQuery] Guid? regionId)
+        {
+            var result = await _mediator.Send(new GetRequestsFilteredCommand(requestTypeId, status, regionId));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to fetch filtered requests");
+                return BadRequest(result);
+            }
+
             return Ok(result);
         }
     }
