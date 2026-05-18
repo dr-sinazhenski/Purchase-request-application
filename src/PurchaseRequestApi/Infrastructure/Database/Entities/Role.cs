@@ -6,6 +6,6 @@ namespace Infrastructure.Database.Entities
     {
         required public string Name { get; set; }
 
-        required public ICollection<Account> Account { get; set; }
+        public ICollection<Account> Account { get; set; }
     }
 }
