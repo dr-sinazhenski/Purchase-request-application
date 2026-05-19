@@ -98,7 +98,13 @@ export function ApprovalView({
           </div>
         </section>
       ) : (
-        <section className="content-area approval-layout">
+        <section
+          className={
+            showRejectDialog
+              ? 'content-area approval-layout approval-layout-modal-open'
+              : 'content-area approval-layout'
+          }
+        >
           <div className="panel detail-panel">
           <button className="back-button" onClick={onBack} type="button">
             ← Approval queue

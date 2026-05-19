@@ -183,7 +183,7 @@ export function RequestForm({
         if (initialType) {
           setSelectedRequestTypeId(initialType.id)
         }
-      } catch (error) {
+      } catch {
         setRequestTypeError('Unable to load request types from API.')
       } finally {
         if (mounted) {
@@ -206,7 +206,7 @@ export function RequestForm({
         }
 
         setProducts(result.data)
-      } catch (error) {
+      } catch {
         setProductError('Unable to load products from API.')
       } finally {
         if (mounted) {
@@ -247,7 +247,7 @@ export function RequestForm({
         if (initialRegion) {
           setSelectedRegionId(initialRegion.id)
         }
-      } catch (error) {
+      } catch {
         setPriceError('Unable to load prices from API.')
       } finally {
         if (mounted) {
@@ -682,23 +682,22 @@ export function RequestForm({
             <span>Price region</span>
             <strong>{selectedRegion?.name ?? 'Not selected'}</strong>
           </div>
-          <div className="form-actions">
-            <button className="btn" onClick={onCancel} type="button">
-              Cancel
-            </button>
-            <button
-              className="btn primary"
-              onClick={handleSubmit}
-              type="button"
-              disabled={isSubmitting || isLoadingRequestTypes}
-            >
-              {isEdit ? 'Save changes' : isSubmitting ? 'Submitting...' : 'Submit request'}
-              <Send size={14} />
-            </button>
-          </div>
         </aside>
+        <div className="form-actions request-form-actions">
+          <button className="btn" onClick={onCancel} type="button">
+            Cancel
+          </button>
+          <button
+            className="btn primary"
+            disabled={isSubmitting || isLoadingRequestTypes}
+            onClick={handleSubmit}
+            type="button"
+          >
+            {isEdit ? 'Save changes' : isSubmitting ? 'Submitting...' : 'Submit request'}
+            <Send size={14} />
+          </button>
+        </div>
       </section>
     </>
   )
 }
-

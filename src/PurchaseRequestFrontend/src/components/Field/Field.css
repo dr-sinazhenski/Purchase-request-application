@@ -22,3 +22,19 @@
 .field textarea {
   resize: vertical;
 }
+
+@media (max-width: 760px) {
+  .field {
+    gap: 7px;
+    font-size: 12.5px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+}

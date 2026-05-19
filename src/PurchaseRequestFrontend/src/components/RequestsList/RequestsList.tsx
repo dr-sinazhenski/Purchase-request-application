@@ -91,6 +91,59 @@ export function RequestsList({
         </button>
       </section>
 
+      <section className="mobile-filter-drawers" aria-label="Request filters">
+        <details className="mobile-filter-drawer">
+          <summary>
+            <span>Status</span>
+            <strong>{filter}</strong>
+          </summary>
+          <div className="mobile-filter-options">
+            {statusFilters.map((item) => (
+              <button
+                className={
+                  filter === item
+                    ? 'mobile-filter-option active'
+                    : 'mobile-filter-option'
+                }
+                key={item}
+                onClick={() => onFilter(item)}
+                type="button"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </details>
+
+        <details className="mobile-filter-drawer">
+          <summary>
+            <span>Type</span>
+            <strong>{typeFilter}</strong>
+          </summary>
+          <div className="mobile-filter-options">
+            {uniqueTypes.map((type) => (
+              <button
+                className={
+                  typeFilter === type
+                    ? 'mobile-filter-option active'
+                    : 'mobile-filter-option'
+                }
+                key={type}
+                onClick={() => onTypeFilter(type)}
+                type="button"
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </details>
+
+        <button className="mobile-sort-button" type="button">
+          <SlidersHorizontal size={14} />
+          Sort: Newest first
+        </button>
+      </section>
+
       <section className="content-area">
         <div className="table-card">
           <table>

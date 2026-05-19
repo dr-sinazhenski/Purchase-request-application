@@ -164,6 +164,10 @@
   background: var(--soft);
 }
 
+.mobile-nav {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   .app-page {
     padding: 0;
@@ -181,5 +185,95 @@
   .main {
     width: 100%;
     margin-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-page {
+    background:
+      radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.12), transparent 34%),
+      linear-gradient(180deg, #f7f7f8 0%, #f2f2f4 100%);
+  }
+
+  .app-shell {
+    overflow: visible;
+    background: transparent;
+  }
+
+  .main {
+    min-height: 100dvh;
+    padding-bottom: 84px;
+    background: transparent;
+  }
+
+  .mobile-nav {
+    position: fixed;
+    z-index: 30;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 8px 8px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(16px);
+  }
+
+  .mobile-nav-item {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 4px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(0, 0, 0, 0.42);
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+
+  .mobile-nav-item.active {
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .mobile-nav-icon-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+
+  .mobile-nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -12px;
+    display: grid;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 5px;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  .mobile-avatar {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: 999px;
+    background: #f2f2f4;
+    color: #7c3aed;
+    font-size: 10px;
+    font-weight: 800;
   }
 }

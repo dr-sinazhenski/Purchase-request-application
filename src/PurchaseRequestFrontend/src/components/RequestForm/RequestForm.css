@@ -98,6 +98,11 @@ span{
   top: 24px;
 }
 
+.request-form-actions {
+  grid-column: 2;
+  margin-top: 0;
+}
+
 .summary-line {
   display: grid;
   gap: 6px;
@@ -118,7 +123,16 @@ span{
 }
 
 @media (max-width: 1100px) {
-  .form-layout,
+  .form-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -130,4 +144,141 @@ span{
   .summary-panel {
     position: static;
   }
+
+  .form-layout > .panel.form-panel,
+  .form-layout > .panel.summary-panel {
+    width: 100%;
+  }
+
+  .request-form-actions {
+    position: fixed;
+    display: flex;
+    z-index: 40;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    left: 50%;
+    gap: 10px;
+    width: min(560px, calc(100vw - 24px));
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: none;
+    backdrop-filter: blur(16px);
+  }
+
+  .request-form-actions .btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .form-layout {
+    gap: 10px;
+    max-width: 560px;
+    padding-bottom: 122px;
+  }
+
+  .form-layout > .panel.form-panel,
+  .form-layout > .panel.summary-panel {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .panel-heading {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .form-panel h2,
+  .summary-panel h2 {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+  }
+
+  .panel-heading span {
+    font-size: 12.5px;
+  }
+
+  .form-grid {
+    gap: 12px;
+  }
+
+  .items-list {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .item-row {
+    display: grid;
+    grid-template-columns: 1fr 84px;
+    gap: 8px;
+    padding: 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+  }
+
+  .item-row-head {
+    display: none;
+  }
+
+  .item-row select,
+  .item-row input {
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .item-row select,
+  .item-row input[aria-label="Unit of measure"] {
+    grid-column: 1 / -1;
+  }
+
+  .item-row strong {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .item-row strong::before {
+    content: "Line total";
+    color: rgba(0, 0, 0, 0.42);
+    font-family: "DM Sans", system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .summary-panel {
+    width: 100%;
+  }
+
+  .summary-line {
+    padding: 12px 0;
+  }
+
+  .summary-line span {
+    font-size: 11px;
+  }
+
+  .summary-line strong {
+    font-size: 14px;
+  }
+
 }

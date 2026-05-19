@@ -87,3 +87,65 @@
     position: static;
   }
 }
+
+@media (max-width: 760px) {
+  .detail-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .back-button {
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+
+  .detail-title {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .detail-title h2,
+  .timeline-panel h2 {
+    font-size: 21px;
+    line-height: 1.15;
+    letter-spacing: -0.35px;
+  }
+
+  .detail-title p,
+  .line-item span {
+    font-size: 12.5px;
+  }
+
+  .description-block {
+    margin-top: 10px;
+  }
+
+  .description-block strong {
+    font-size: 12px;
+  }
+
+  .line-items {
+    gap: 8px;
+  }
+
+  .line-item {
+    align-items: flex-start;
+    padding: 13px;
+    border-radius: 12px;
+  }
+
+  .line-item > strong {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .timeline-panel {
+    width: 100%;
+  }
+
+  .timeline-panel .form-actions {
+    flex-direction: column;
+  }
+}
