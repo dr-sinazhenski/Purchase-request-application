@@ -90,6 +90,44 @@ export function AppShell({
         </aside>
 
         <main className="main">{children}</main>
+
+        <nav className="mobile-nav" aria-label="Mobile navigation">
+          <button
+            className={screen === 'requests' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+            onClick={onRequests}
+            type="button"
+          >
+            <Grid2X2 size={20} />
+            <span>Requests</span>
+          </button>
+          <button
+            className={screen === 'approval' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+            onClick={onApprovalQueue}
+            type="button"
+          >
+            <span className="mobile-nav-icon-wrap">
+              <ClipboardCheck size={20} />
+              {reviewCount > 0 && <span className="mobile-nav-badge">{reviewCount}</span>}
+            </span>
+            <span>Queue</span>
+          </button>
+          <button
+            className={screen === 'create' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+            onClick={onCreate}
+            type="button"
+          >
+            <FilePenLine size={20} />
+            <span>New</span>
+          </button>
+          <button
+            className={screen === 'profile' ? 'mobile-nav-item active' : 'mobile-nav-item'}
+            onClick={onProfile}
+            type="button"
+          >
+            <span className="mobile-avatar">SC</span>
+            <span>Profile</span>
+          </button>
+        </nav>
       </div>
     </div>
   )

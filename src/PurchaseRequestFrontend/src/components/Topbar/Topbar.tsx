@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react'
+import { PackagePlus, Search } from 'lucide-react'
 import './Topbar.css'
 
 type TopbarProps = {
@@ -22,9 +22,15 @@ export function Topbar({
 }: TopbarProps) {
   return (
     <header className="topbar">
+      <button className="mobile-topbar-brand" type="button">
+        <span className="mobile-topbar-brand-mark">
+          <PackagePlus size={15} strokeWidth={2.4} />
+        </span>
+      </button>
       <div>
+        <span className="mobile-brand-text">ProcureFlow</span>
         <h1>{title}</h1>
-        {count && <span>· {count}</span>}
+        {count && <span className="topbar-count">· {count}</span>}
       </div>
       <div className="topbar-actions">
         {onSearch && (

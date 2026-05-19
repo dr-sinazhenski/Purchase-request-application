@@ -11,6 +11,10 @@
   font-weight: 700;
 }
 
+.mobile-filter-drawers {
+  display: none;
+}
+
 .chip,
 .sort-button {
   display: inline-flex;
@@ -172,5 +176,237 @@ td {
 
   table {
     min-width: 960px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .filter-bar {
+    display: none;
+  }
+
+  .mobile-filter-drawers {
+    display: grid;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+  }
+
+  .mobile-filter-drawer {
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+
+  .mobile-filter-drawer summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    padding: 10px 13px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-filter-drawer summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-filter-drawer summary::after {
+    width: 8px;
+    height: 8px;
+    margin-left: auto;
+    border-right: 2px solid rgba(0, 0, 0, 0.36);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.36);
+    content: "";
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 160ms ease;
+  }
+
+  .mobile-filter-drawer[open] summary::after {
+    transform: rotate(225deg) translateY(-2px);
+  }
+
+  .mobile-filter-drawer summary span {
+    color: rgba(0, 0, 0, 0.46);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .mobile-filter-drawer summary strong {
+    max-width: 54%;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-filter-options {
+    display: grid;
+    gap: 8px;
+    padding: 0 10px 10px;
+  }
+
+  .mobile-filter-option {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    color: rgba(0, 0, 0, 0.48);
+    font-size: 12.5px;
+    font-weight: 800;
+  }
+
+  .mobile-filter-option.active {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .mobile-sort-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 9px 13px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #fff;
+    color: rgba(0, 0, 0, 0.48);
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+
+  .table-card {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  table {
+    min-width: 0;
+    border-collapse: separate;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  tr {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  }
+
+  td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 0;
+    border-top: 0;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 13px;
+  }
+
+  td::before {
+    color: rgba(0, 0, 0, 0.42);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  td:nth-child(1) {
+    display: block;
+    padding-top: 0;
+  }
+
+  td:nth-child(1)::before {
+    display: none;
+  }
+
+  td:nth-child(2)::before {
+    content: "Type";
+  }
+
+  td:nth-child(3)::before {
+    content: "Status";
+  }
+
+  td:nth-child(4)::before {
+    content: "Total";
+  }
+
+  td:nth-child(5)::before {
+    content: "Creator";
+  }
+
+  td:nth-child(6)::before {
+    content: "Updated";
+  }
+
+  td:nth-child(7) {
+    padding-bottom: 0;
+  }
+
+  td:nth-child(7)::before {
+    display: none;
+  }
+
+  td:nth-child(7) .btn {
+    width: 100%;
+  }
+
+  .name-button {
+    width: 100%;
+    font-size: 15px;
+    line-height: 1.25;
+  }
+
+  .creator {
+    justify-content: flex-end;
+  }
+
+  .table-footer {
+    gap: 10px;
+    padding: 14px 2px 0;
+    font-size: 12px;
+  }
+
+  .table-footer .btn {
+    width: 100%;
+  }
+
+  .empty-table-cell {
+    display: block;
+    text-align: left;
   }
 }
