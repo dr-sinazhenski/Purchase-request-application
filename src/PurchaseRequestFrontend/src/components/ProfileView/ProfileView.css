@@ -153,7 +153,8 @@
   font-weight: 700;
 }
 
-.profile-field input {
+.profile-field input,
+.profile-field select {
   width: 100%;
   min-height: 42px;
   padding: 10px 13px;
@@ -165,13 +166,15 @@
   font-size: 14px;
 }
 
-.profile-field input:focus {
+.profile-field input:focus,
+.profile-field select:focus {
   border-color: var(--blue);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.profile-field input:disabled {
+.profile-field input:disabled,
+.profile-field select:disabled {
   color: rgba(0, 0, 0, 0.46);
   cursor: not-allowed;
 }
@@ -183,7 +186,33 @@
 }
 
 .profile-save-row {
+  flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.profile-check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-check-list label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.profile-check-list input {
+  width: auto;
+  min-height: auto;
 }
 
 @media (max-width: 900px) {

@@ -1,7 +1,17 @@
 import { Eye, PackagePlus } from 'lucide-react'
 import type { FormEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import {
+  createAccountApi,
+  loadAccounts,
+  loadRegions,
+  loadRoles,
+} from '../../api'
+import type {
+  AccountOption,
+  RegionOption,
+} from '../../api'
 import './AuthView.css'
 
 type AuthMode = 'signin' | 'signup'
@@ -9,7 +19,7 @@ type AuthMode = 'signin' | 'signup'
 type AuthViewProps = {
   mode: AuthMode
   onModeChange: (mode: AuthMode) => void
-  onSuccess: () => void
+  onSuccess: (account: AccountOption) => void
 }
 
 type AuthErrors = Partial<Record<string, string>>
@@ -17,22 +27,65 @@ type AuthErrors = Partial<Record<string, string>>
 export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
   const [firstName, setFirstName] = useState('Sarah')
   const [lastName, setLastName] = useState('Chen')
-  const [email, setEmail] = useState('sarah.chen@acme.com')
+  const [email, setEmail] = useState('admin')
   const [password, setPassword] = useState('password123')
   const [confirmPassword, setConfirmPassword] = useState('password123')
   const [rememberMe, setRememberMe] = useState(true)
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [errors, setErrors] = useState<AuthErrors>({})
+  const [regions, setRegions] = useState<RegionOption[]>([])
+  const [selectedRoleId, setSelectedRoleId] = useState('')
+  const [selectedRegionId, setSelectedRegionId] = useState('')
+  const [apiError, setApiError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isSignup = mode === 'signup'
+
+  useEffect(() => {
+    let mounted = true
+
+    async function loadAuthOptions() {
+      try {
+        const [rolesResult, regionsResult] = await Promise.all([
+          loadRoles(),
+          loadRegions(),
+        ])
+
+        if (!mounted) return
+
+        if (rolesResult.isSuccess && rolesResult.data) {
+          const requesterRole =
+            rolesResult.data.find((role) => role.name === 'Requester') ??
+            rolesResult.data[0]
+          setSelectedRoleId(requesterRole?.id ?? '')
+        }
+
+        if (regionsResult.isSuccess && regionsResult.data) {
+          setRegions(regionsResult.data)
+          const europeRegion =
+            regionsResult.data.find((region) => region.name === 'Europe') ??
+            regionsResult.data[0]
+          setSelectedRegionId(europeRegion?.id ?? '')
+        }
+      } catch (error) {
+        if (mounted) {
+          setApiError('Unable to load account options from API.')
+        }
+      }
+    }
+
+    loadAuthOptions()
+
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   function validate() {
     const nextErrors: AuthErrors = {}
 
     if (!email.trim()) {
       nextErrors.email = 'Email is required.'
-    } else if (!email.includes('@')) {
-      nextErrors.email = 'Enter a valid email address.'
     }
 
     if (!password) {
@@ -55,6 +108,14 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
       if (!acceptTerms) {
         nextErrors.terms = 'Accept the terms to continue.'
       }
+
+      if (!selectedRegionId) {
+        nextErrors.region = 'Region is required.'
+      }
+
+      if (!selectedRoleId) {
+        nextErrors.role = 'Role is required.'
+      }
     }
 
     setErrors(nextErrors)
@@ -62,11 +123,59 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
     return Object.keys(nextErrors).length === 0
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (validate()) {
-      onSuccess()
+    if (!validate()) {
+      return
+    }
+
+    try {
+      setApiError('')
+      setIsSubmitting(true)
+
+      if (isSignup) {
+        const result = await createAccountApi({
+          login: email.trim(),
+          password,
+          name: `${firstName.trim()} ${lastName.trim()}`.trim(),
+          regionId: selectedRegionId,
+          approverProfileId: null,
+          roleIds: [selectedRoleId],
+        })
+
+        if (!result.isSuccess || !result.data) {
+          setApiError('Unable to create account.')
+          return
+        }
+
+        onSuccess(result.data)
+        return
+      }
+
+      const result = await loadAccounts()
+
+      if (!result.isSuccess || !result.data) {
+        setApiError('Unable to load accounts from API.')
+        return
+      }
+
+      const account = result.data.find(
+        (option) => option.login.toLowerCase() === email.trim().toLowerCase(),
+      )
+
+      if (!account) {
+        setApiError('Account was not found. Create it first or use seeded login.')
+        return
+      }
+
+      onSuccess(account)
+    } catch (error) {
+      setApiError(
+        error instanceof Error ? error.message : 'Account request failed.',
+      )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -124,7 +233,6 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
             <input
               className={errors.email ? 'auth-input error' : 'auth-input'}
               onChange={(event) => setEmail(event.target.value)}
-              type="email"
               value={email}
             />
             {errors.email && <small>{errors.email}</small>}
@@ -167,6 +275,29 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
             )}
           </div>
 
+          {isSignup && (
+            <>
+              <label className="auth-field">
+                <span>
+                  Region <strong>*</strong>
+                </span>
+                <select
+                  className={errors.region ? 'auth-input error' : 'auth-input'}
+                  onChange={(event) => setSelectedRegionId(event.target.value)}
+                  value={selectedRegionId}
+                >
+                  {regions.map((region) => (
+                    <option key={region.id} value={region.id}>
+                      {region.name} ({region.currency})
+                    </option>
+                  ))}
+                </select>
+                {errors.region && <small>{errors.region}</small>}
+                <small>New accounts are created as Requester.</small>
+              </label>
+            </>
+          )}
+
           {!isSignup ? (
             <div className="auth-check-row auth-split-row">
               <label>
@@ -195,8 +326,22 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
             </>
           )}
 
-          <button className="auth-submit" type="submit">
-            {isSignup ? 'Create account' : 'Sign in'}
+          {apiError && <small className="auth-api-error">{apiError}</small>}
+
+          {!isSignup && (
+            <p className="auth-note">
+              The backend stores accounts but does not verify passwords yet.
+            </p>
+          )}
+
+          <button className="auth-submit" disabled={isSubmitting} type="submit">
+            {isSubmitting
+              ? isSignup
+                ? 'Creating...'
+                : 'Signing in...'
+              : isSignup
+                ? 'Create account'
+                : 'Sign in'}
           </button>
         </form>
 

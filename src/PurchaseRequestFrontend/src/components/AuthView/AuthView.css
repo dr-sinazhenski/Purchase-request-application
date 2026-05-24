@@ -94,6 +94,10 @@
   border-color: var(--danger);
 }
 
+.auth-field select.auth-input {
+  appearance: auto;
+}
+
 .auth-input-wrap {
   position: relative;
   display: block;
@@ -112,8 +116,21 @@
 }
 
 .auth-field small,
-.auth-terms-error {
+.auth-terms-error,
+.auth-api-error {
   color: var(--danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-api-error {
+  display: block;
+  margin: 0 0 12px;
+}
+
+.auth-note {
+  margin: 0 0 12px;
+  color: rgba(0, 0, 0, 0.46);
   font-size: 12px;
   font-weight: 700;
 }
