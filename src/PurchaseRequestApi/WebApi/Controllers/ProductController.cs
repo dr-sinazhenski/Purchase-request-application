@@ -9,6 +9,7 @@ using Application.BusinessLogic.RegionLogic.GetAllRegions;
 using Application.BusinessLogic.ProductLogic.GetProductsFiltered;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -25,6 +26,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -39,6 +41,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -53,6 +56,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         { 
@@ -68,6 +72,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CreateProductDto dto)
         {
@@ -83,6 +88,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -97,6 +103,8 @@ namespace WebApi.Controllers
             _logger.LogInformation("Product deletion succeeded");
             return Ok(result);
         }
+        
+        [Authorize]
         [HttpGet("filtered")]
         public async Task<IActionResult> GetFiltered(
             [FromQuery] Guid? regionId,

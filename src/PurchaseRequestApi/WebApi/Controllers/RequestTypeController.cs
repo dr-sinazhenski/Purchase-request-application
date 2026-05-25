@@ -2,6 +2,7 @@ using Application.BusinessLogic.RequestTypeLogic.Dto;
 using Application.BusinessLogic.RequestTypeLogic.GetAllRequestTypes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -18,6 +19,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
