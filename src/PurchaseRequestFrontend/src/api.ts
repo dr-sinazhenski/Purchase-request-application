@@ -23,6 +23,30 @@ export type RegionOption = {
   currency: string
 }
 
+export type RoleOption = {
+  id: string
+  name: string
+}
+
+export type ApproverProfileOption = {
+  id: string
+  name: string
+  minAmount: number
+  maxAmount: number
+}
+
+export type AccountOption = {
+  id: string
+  login: string
+  name: string
+  regionId: string
+  regionName: string
+  approverProfileId?: string
+  approverProfileName?: string
+  roleIds: string[]
+  roleNames: string[]
+}
+
 export type RequestDetailsApiDto = {
   id: string
   title: string
@@ -33,6 +57,16 @@ export type RequestDetailsApiDto = {
   createdAt?: string
   updatedAt?: string
   products?: RequestItemApiDto[]
+}
+
+export type FilteredRequestApiDto = {
+  id: string
+  title: string
+  requestType: string
+  status: string
+  totalPrice: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type RequestItemApiDto = {
@@ -68,6 +102,29 @@ export type RejectRequestApiDto = {
   isFinal: boolean
 }
 
+export type CreateAccountApiDto = {
+  login: string
+  password: string
+  name: string
+  regionId: string
+  approverProfileId?: string | null
+  roleIds: string[]
+}
+
+export type UpdateAccountApiDto = CreateAccountApiDto & {
+  id: string
+}
+
+export type CrudRoleApiDto = {
+  name: string
+}
+
+export type CrudApproverProfileApiDto = {
+  name: string
+  minAmount: number
+  maxAmount: number
+}
+
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
 
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
@@ -100,8 +157,143 @@ export async function loadRegions(): Promise<ApiResult<RegionOption[]>> {
   return fetchJson<ApiResult<RegionOption[]>>('/Region')
 }
 
+export async function loadRoles(): Promise<ApiResult<RoleOption[]>> {
+  return fetchJson<ApiResult<RoleOption[]>>('/Role')
+}
+
+export async function createRoleApi(
+  dto: CrudRoleApiDto,
+): Promise<ApiResult<RoleOption>> {
+  return fetchJson<ApiResult<RoleOption>>('/Role', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function updateRoleApi(
+  id: string,
+  dto: CrudRoleApiDto,
+): Promise<ApiResult<RoleOption>> {
+  return fetchJson<ApiResult<RoleOption>>(`/Role/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function deleteRoleApi(id: string): Promise<ApiResult<void>> {
+  return fetchJson<ApiResult<void>>(`/Role/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function loadApproverProfiles(): Promise<
+  ApiResult<ApproverProfileOption[]>
+> {
+  return fetchJson<ApiResult<ApproverProfileOption[]>>('/ApproverProfile')
+}
+
+export async function createApproverProfileApi(
+  dto: CrudApproverProfileApiDto,
+): Promise<ApiResult<ApproverProfileOption>> {
+  return fetchJson<ApiResult<ApproverProfileOption>>('/ApproverProfile', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function updateApproverProfileApi(
+  id: string,
+  dto: CrudApproverProfileApiDto,
+): Promise<ApiResult<ApproverProfileOption>> {
+  return fetchJson<ApiResult<ApproverProfileOption>>(
+    `/ApproverProfile/${id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(dto),
+    },
+  )
+}
+
+export async function deleteApproverProfileApi(
+  id: string,
+): Promise<ApiResult<void>> {
+  return fetchJson<ApiResult<void>>(`/ApproverProfile/${id}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function loadAccounts(): Promise<ApiResult<AccountOption[]>> {
+  return fetchJson<ApiResult<AccountOption[]>>('/Account')
+}
+
+export async function createAccountApi(
+  dto: CreateAccountApiDto,
+): Promise<ApiResult<AccountOption>> {
+  return fetchJson<ApiResult<AccountOption>>('/Account', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function updateAccountApi(
+  dto: UpdateAccountApiDto,
+): Promise<ApiResult<AccountOption>> {
+  return fetchJson<ApiResult<AccountOption>>('/Account', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
+  })
+}
+
+export async function deleteAccountApi(id: string): Promise<ApiResult<void>> {
+  return fetchJson<ApiResult<void>>(`/Account/${id}`, {
+    method: 'DELETE',
+  })
+}
+
 export async function loadRequests(): Promise<ApiResult<RequestDetailsApiDto[]>> {
   return fetchJson<ApiResult<RequestDetailsApiDto[]>>('/Request')
+}
+
+export async function loadRequestsFiltered(params: {
+  requestTypeId?: string
+  status?: string
+  regionId?: string
+}): Promise<ApiResult<FilteredRequestApiDto[]>> {
+  const query = new URLSearchParams()
+
+  if (params.requestTypeId) {
+    query.set('requestTypeId', params.requestTypeId)
+  }
+
+  if (params.status) {
+    query.set('status', params.status)
+  }
+
+  if (params.regionId) {
+    query.set('regionId', params.regionId)
+  }
+
+  return fetchJson<ApiResult<FilteredRequestApiDto[]>>(
+    `/Request/filtered${query.toString() ? `?${query.toString()}` : ''}`,
+  )
 }
 
 export async function loadRequestDetails(

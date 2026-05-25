@@ -17,7 +17,7 @@
   gap: 6px;
   padding: 18px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: #fff;
   text-align: center;
 }

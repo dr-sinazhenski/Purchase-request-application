@@ -10,6 +10,8 @@ import './RequestsList.css'
 type RequestsListProps = {
   filter: 'All' | Status
   filteredRequests: RequestRecord[]
+  canCreateRequests: boolean
+  canReviewRequests: boolean
   onCreate: () => void
   onFilter: (filter: 'All' | Status) => void
   onOpen: (request: RequestRecord, target?: Screen) => void
@@ -25,6 +27,8 @@ type RequestsListProps = {
 }
 
 export function RequestsList({
+  canCreateRequests,
+  canReviewRequests,
   filter,
   filteredRequests,
   onCreate,
@@ -44,7 +48,7 @@ export function RequestsList({
     <>
       <Topbar
         count={`${totalFiltered} shown of ${totalRequests}`}
-        primaryAction="+ New Request"
+        primaryAction={canCreateRequests ? '+ New Request' : undefined}
         searchPlaceholder="Search requests"
         searchValue={searchQuery}
         title="All Requests"
@@ -198,16 +202,18 @@ export function RequestsList({
                       onClick={() =>
                         onOpen(
                           request,
-                          request.status === 'New' ||
-                            request.status === 'Resubmitted'
+                          canReviewRequests &&
+                            (request.status === 'New' ||
+                              request.status === 'Resubmitted')
                             ? 'approval'
                             : 'detail',
                         )
                       }
                       type="button"
                     >
-                      {request.status === 'New' ||
-                      request.status === 'Resubmitted'
+                      {canReviewRequests &&
+                      (request.status === 'New' ||
+                        request.status === 'Resubmitted')
                         ? 'Review'
                         : 'View'}
                     </button>

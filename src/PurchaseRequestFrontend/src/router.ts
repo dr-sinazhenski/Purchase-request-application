@@ -6,12 +6,16 @@ export type AppRoute =
   | { screen: 'detail'; requestId: string }
   | { screen: 'edit'; requestId: string }
   | { screen: 'approval'; requestId?: string }
+  | { screen: 'admin' }
+  | { screen: 'adminUser'; userId: string }
   | { screen: 'profile' }
   | { screen: 'signin' }
   | { screen: 'signup' }
 
 export const appRoutes = {
   approval: '/approval',
+  admin: '/admin',
+  adminUser: '/admin/users/:id',
   create: '/requests/new',
   detail: '/requests/:id',
   edit: '/requests/:id/edit',
@@ -30,6 +34,14 @@ export function parseRoute(pathname: string): AppRoute {
 
   if (segments[0] === 'approval') {
     return { screen: 'approval' }
+  }
+
+  if (segments[0] === 'admin') {
+    if (segments[1] === 'users' && segments[2]) {
+      return { screen: 'adminUser', userId: segments[2] }
+    }
+
+    return { screen: 'admin' }
   }
 
   if (segments[0] === 'profile') {
@@ -83,6 +95,10 @@ export function routeToPath(route: AppRoute) {
       return route.requestId
         ? `/requests/${route.requestId}/approval`
         : appRoutes.approval
+    case 'admin':
+      return appRoutes.admin
+    case 'adminUser':
+      return `/admin/users/${route.userId}`
     case 'profile':
       return appRoutes.profile
     case 'signin':

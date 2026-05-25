@@ -6,6 +6,8 @@ export type Screen =
   | 'detail'
   | 'edit'
   | 'approval'
+  | 'admin'
+  | 'adminUser'
   | 'profile'
   | 'signin'
   | 'signup'
@@ -29,6 +31,7 @@ export type RequestRecord = {
   id: string
   name: string
   type: string
+  typeId?: string
   status: Status
   total: number
   creator: string
@@ -37,6 +40,7 @@ export type RequestRecord = {
   description: string
   approver: string
   submitted: string
+  ownerAccountId?: string
   reason?: string
   finalRejected?: boolean
   items: LineItem[]

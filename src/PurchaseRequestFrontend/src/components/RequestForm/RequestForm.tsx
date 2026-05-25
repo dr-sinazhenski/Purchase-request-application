@@ -1,4 +1,4 @@
-import { AlertTriangle, Layers3, Plus, Send } from 'lucide-react'
+import { AlertTriangle, Layers3, Plus, Send, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import type { RequestRecord, Status } from '../../types'
@@ -15,6 +15,7 @@ import {
   updateRequestApi,
 } from '../../api'
 import type {
+  AccountOption,
   PriceOption,
   ProductOption,
   RegionOption,
@@ -63,6 +64,16 @@ function mapItemsToProductAmounts(items: RequestRecord['items']) {
 
 function parseApiDate(value: string | undefined) {
   return value ? new Date(value) : new Date()
+}
+
+function createBlankItem(): RequestRecord['items'][number] {
+  return {
+    name: '',
+    category: '',
+    quantity: 1,
+    unitPrice: 0,
+    productId: undefined,
+  }
 }
 
 function validateRequestForm(
@@ -115,6 +126,7 @@ function validateRequestForm(
 }
 
 type RequestFormProps = {
+  currentAccount?: AccountOption
   mode: 'create' | 'edit'
   request: RequestRecord
   onCancel: () => void
@@ -122,6 +134,7 @@ type RequestFormProps = {
 }
 
 export function RequestForm({
+  currentAccount,
   mode,
   onCancel,
   onSubmit,
@@ -335,13 +348,21 @@ export function RequestForm({
           id: result.data.id,
           name: result.data.title,
           type: result.data.requestType.name,
+          typeId: result.data.requestType.id,
           status: mapBackendStatus(result.data.status),
           total: apiTotal,
-          creator: 'Current user', // TODO: get from auth
-          initials: 'CU',
+          creator: currentAccount?.name ?? 'Current user',
+          initials:
+            currentAccount?.name
+              .split(' ')
+              .filter(Boolean)
+              .map((part) => part[0])
+              .join('')
+              .slice(0, 2)
+              .toUpperCase() || 'CU',
           updated: 'Just now',
           submitted: formatSubmittedDate(parseApiDate(result.data.createdAt)),
-          approver: 'Sarah Chen', // TODO: get from somewhere
+          approver: currentAccount?.approverProfileName ?? 'Approval queue',
           description: result.data.description ?? description,
           items: apiItems,
         }
@@ -386,6 +407,7 @@ export function RequestForm({
           id: result.data.id,
           name: result.data.title,
           type: result.data.requestType.name,
+          typeId: result.data.requestType.id,
           status: mapBackendStatus(result.data.status),
           total: apiTotal,
           creator: request.creator,
@@ -523,13 +545,7 @@ export function RequestForm({
               onClick={() =>
                 setItems((currentItems) => [
                   ...currentItems,
-                  {
-                    name: '',
-                    category: '',
-                    quantity: 1,
-                    unitPrice: 0,
-                    productId: undefined,
-                  },
+                  createBlankItem(),
                 ])
               }
               type="button"
@@ -545,6 +561,7 @@ export function RequestForm({
               <span>Qty</span>
               <span>Price</span>
               <span>Total</span>
+              <span />
             </div>
             {items.map((item, index) => {
               const availableProducts = products.filter((product) =>
@@ -650,6 +667,25 @@ export function RequestForm({
                 <strong>
                   {formatMoney(item.quantity * item.unitPrice, currency)}
                 </strong>
+                <button
+                  aria-label={`Remove product ${index + 1}`}
+                  className="remove-item-button"
+                  onClick={() =>
+                    setItems((currentItems) =>
+                      currentItems.length === 1
+                        ? [createBlankItem()]
+                        : currentItems.filter(
+                            (_currentItem, currentIndex) =>
+                              currentIndex !== index,
+                          ),
+                    )
+                  }
+                  title="Remove product"
+                  type="button"
+                >
+                  <Trash2 size={15} />
+                  Delete
+                </button>
               </div>
             ) })}
           </div>

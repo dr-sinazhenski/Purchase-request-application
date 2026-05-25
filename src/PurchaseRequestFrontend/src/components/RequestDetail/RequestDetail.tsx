@@ -15,9 +15,15 @@ type RequestDetailProps = {
   onBack: () => void
   onDelete: (id: string) => Promise<void>
   onEdit: () => void
+  canDelete: boolean
+  canEdit: boolean
+  canReview: boolean
 }
 
 export function RequestDetail({
+  canDelete,
+  canEdit,
+  canReview,
   onApprove,
   onBack,
   onDelete,
@@ -152,7 +158,7 @@ export function RequestDetail({
             />
           </div>
           <div className="form-actions">
-            {request.status === 'Rejected' && !request.finalRejected ? (
+            {canEdit && request.status === 'Rejected' && !request.finalRejected ? (
               <button className="btn primary" onClick={onEdit} type="button">
                 Edit request
               </button>
@@ -160,25 +166,35 @@ export function RequestDetail({
               <button className="btn" disabled type="button">
                 Final decision recorded
               </button>
-            ) : (
+            ) : canEdit || canReview ? (
               <>
-                <button className="btn" onClick={onEdit} type="button">
-                  Edit
-                </button>
-                <button className="btn primary" onClick={onApprove} type="button">
-                  Review
-                </button>
+                {canEdit && (
+                  <button className="btn" onClick={onEdit} type="button">
+                    Edit
+                  </button>
+                )}
+                {canReview && (
+                  <button className="btn primary" onClick={onApprove} type="button">
+                    Review
+                  </button>
+                )}
               </>
+            ) : (
+              <button className="btn" disabled type="button">
+                View only
+              </button>
             )}
-            <button
-              className="btn danger"
-              disabled={isDeleting}
-              onClick={handleDelete}
-              type="button"
-            >
-              <Trash2 size={14} />
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
+            {canDelete && (
+              <button
+                className="btn danger"
+                disabled={isDeleting}
+                onClick={handleDelete}
+                type="button"
+              >
+                <Trash2 size={14} />
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            )}
           </div>
         </aside>
       </section>

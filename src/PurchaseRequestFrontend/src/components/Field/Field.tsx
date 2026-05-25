@@ -8,9 +8,9 @@ type FieldProps = {
 
 export function Field({ children, label }: FieldProps) {
   return (
-    <label className="field">
-      <span>{label}</span>
+    <div className="field">
+      <span className="field-label">{label}</span>
       {children}
-    </label>
+    </div>
   )
 }

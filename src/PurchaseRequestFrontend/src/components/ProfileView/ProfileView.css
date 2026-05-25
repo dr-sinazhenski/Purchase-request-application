@@ -1,8 +1,7 @@
 .profile-page {
   flex: 1;
-  max-width: 1100px;
   width: 100%;
-  padding: 30px;
+  padding: 0;
 }
 
 .profile-header {
@@ -10,7 +9,11 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  min-height: var(--app-header-height);
+  margin-bottom: 0;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  background: #fff;
 }
 
 .profile-header h1 {
@@ -18,7 +21,7 @@
   color: var(--ink);
   font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.2px;
+  letter-spacing: 0;
 }
 
 .profile-header p {
@@ -31,14 +34,15 @@
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 20px;
+  padding: var(--page-padding);
 }
 
 .profile-nav-card,
 .profile-card {
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: #fff;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow: var(--panel-shadow);
 }
 
 .profile-nav-card {
@@ -84,7 +88,7 @@
 }
 
 .profile-card {
-  padding: 28px;
+  padding: 24px;
 }
 
 .profile-card h2 {
@@ -153,25 +157,28 @@
   font-weight: 700;
 }
 
-.profile-field input {
+.profile-field input,
+.profile-field select {
   width: 100%;
   min-height: 42px;
   padding: 10px 13px;
   border: 1px solid var(--border);
   border-radius: 10px;
   outline: none;
-  background: #f9fafb;
+  background: #fff;
   color: var(--ink);
   font-size: 14px;
 }
 
-.profile-field input:focus {
+.profile-field input:focus,
+.profile-field select:focus {
   border-color: var(--blue);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.profile-field input:disabled {
+.profile-field input:disabled,
+.profile-field select:disabled {
   color: rgba(0, 0, 0, 0.46);
   cursor: not-allowed;
 }
@@ -183,12 +190,54 @@
 }
 
 .profile-save-row {
+  flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.profile-check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-check-list label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.profile-check-list input {
+  width: auto;
+  min-height: auto;
 }
 
 @media (max-width: 900px) {
   .profile-layout,
   .profile-form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .profile-header {
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .profile-header h1 {
+    font-size: 18px;
+  }
+
+  .profile-layout {
+    gap: 12px;
+    padding: 12px;
   }
 }

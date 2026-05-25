@@ -41,6 +41,21 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/Role': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/Account': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/ApproverProfile': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })
