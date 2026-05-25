@@ -309,6 +309,88 @@ namespace Infrastructure.Database
                 // Request 4 - Monitor x2
                 new { RequestId = Guid.Parse("dddddddd-4444-4444-4444-444444444444"), ProductId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), Quantity = 2 }
             );
+
+            modelBuilder.Entity<Comment>().HasData(
+                // Request 1 - New Laptop for Development (Submitted)
+                new Comment
+                {
+                    Id           = Guid.Parse("aaaaaaaa-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"), // John (requester)
+                    Text         = "Requesting a high-performance laptop for running multiple development environments.",
+                    CreationTime = new DateTime(2025, 1, 10, 9, 5, 0, DateTimeKind.Utc)
+                },
+                new Comment
+                {
+                    Id           = Guid.Parse("bbbbbbbb-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("aaaaaaaa-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), // Jane (approver)
+                    Text         = "Please specify the required RAM and storage capacity.",
+                    CreationTime = new DateTime(2025, 1, 11, 10, 0, 0, DateTimeKind.Utc)
+                },
+
+                // Request 2 - Office Supplies Restock (Approved)
+                new Comment
+                {
+                    Id           = Guid.Parse("cccccccc-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("bbbbbbbb-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), // Jane (requester)
+                    Text         = "Monthly restock as usual, same quantities as last month.",
+                    CreationTime = new DateTime(2025, 1, 15, 10, 5, 0, DateTimeKind.Utc)
+                },
+                new Comment
+                {
+                    Id           = Guid.Parse("dddddddd-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("bbbbbbbb-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("cccccccc-3333-3333-3333-333333333333"), // Peter (approver)
+                    Text         = "Approved. Supplies will be delivered by end of week.",
+                    CreationTime = new DateTime(2025, 1, 16, 14, 0, 0, DateTimeKind.Utc)
+                },
+
+                // Request 3 - Software Licenses Q1 (Rejected)
+                new Comment
+                {
+                    Id           = Guid.Parse("eeeeeeee-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("cccccccc-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"), // John (requester)
+                    Text         = "We need these licenses renewed before the end of January to avoid service interruptions.",
+                    CreationTime = new DateTime(2025, 1, 20, 8, 5, 0, DateTimeKind.Utc)
+                },
+                new Comment
+                {
+                    Id           = Guid.Parse("ffffffff-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("cccccccc-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), // Jane (approver)
+                    Text         = "Rejected. Budget for software licenses has been frozen for Q1. Please resubmit in Q2.",
+                    CreationTime = new DateTime(2025, 1, 22, 11, 0, 0, DateTimeKind.Utc)
+                },
+
+                // Request 4 - Monitor Upgrade (Resubmitted)
+                new Comment
+                {
+                    Id           = Guid.Parse("11111111-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("dddddddd-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), // Jane (requester)
+                    Text         = "The design team currently uses outdated monitors which are affecting productivity.",
+                    CreationTime = new DateTime(2025, 2, 1, 9, 5, 0, DateTimeKind.Utc)
+                },
+                new Comment
+                {
+                    Id           = Guid.Parse("22222222-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("dddddddd-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("cccccccc-3333-3333-3333-333333333333"), // Peter (approver)
+                    Text         = "Please provide model specifications and price quotes before we can proceed.",
+                    CreationTime = new DateTime(2025, 2, 2, 11, 0, 0, DateTimeKind.Utc)
+                },
+                new Comment
+                {
+                    Id           = Guid.Parse("33333333-5555-5555-5555-555555555555"),
+                    RequestId    = Guid.Parse("dddddddd-4444-4444-4444-444444444444"),
+                    AccountId    = Guid.Parse("bbbbbbbb-3333-3333-3333-333333333333"), // Jane (requester)
+                    Text         = "Resubmitted with full specifications attached. Requesting Dell 27\" 4K monitors.",
+                    CreationTime = new DateTime(2025, 2, 3, 16, 0, 0, DateTimeKind.Utc)
+                }
+            );
         }
     }
 }

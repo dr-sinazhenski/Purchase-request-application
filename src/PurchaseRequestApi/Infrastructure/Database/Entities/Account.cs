@@ -11,7 +11,7 @@ namespace Infrastructure.Database.Entities
         public Region Region { get; set; }
         public ApproverProfile ApproverProfile { get; set; }
         public ICollection<Role> Role { get; set; }
-        //public ICollection<Comment> Comments { get; set; }
+        public ICollection<Comment> Comments { get; set; }
         public ICollection<Request> Requests { get; set; }
     }
 }
