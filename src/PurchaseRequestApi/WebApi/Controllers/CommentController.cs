@@ -2,6 +2,7 @@ using Application.BusinessLogic.CommentLogic.CreateComment;
 using Application.BusinessLogic.CommentLogic.DeleteComment;
 using Application.BusinessLogic.CommentLogic.Dto;
 using Application.BusinessLogic.CommentLogic.GetAllComments;
+using Application.BusinessLogic.CommentLogic.GetAllRequestComments;
 using Application.BusinessLogic.CommentLogic.GetComment;
 using Application.BusinessLogic.CommentLogic.UpdateComment;
 using MediatR;
@@ -58,6 +59,20 @@ namespace WebApi.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError("Comment {Id} not found", id);
+                return NotFound(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("request/{id}")]
+        public async Task<IActionResult> GetByRequestId(Guid id)
+        {
+            var result = await _mediator.Send(new GetAllRequestCommentsCommand(id));
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Comments for request with {Id} not found", id);
                 return NotFound(result);
             }
 
