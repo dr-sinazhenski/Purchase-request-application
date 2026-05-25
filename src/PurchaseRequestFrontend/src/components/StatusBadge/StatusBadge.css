@@ -1,14 +1,22 @@
 .status {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
+  justify-content: center;
   gap: 5px;
+  width: max-content;
+  min-width: max-content;
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap !important;
 }
 
 .status::before {
+  display: inline-block;
+  flex: 0 0 6px;
   width: 6px;
   height: 6px;
   border-radius: 999px;

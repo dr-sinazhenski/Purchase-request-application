@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 72px;
-  padding: 18px 30px;
+  min-height: 64px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--border);
   background: #fff;
   color: rgba(0, 0, 0, 0.46);
@@ -83,9 +83,9 @@
 .table-card {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   background: #fff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  box-shadow: var(--panel-shadow);
 }
 
 table {
@@ -94,7 +94,7 @@ table {
 }
 
 th {
-  padding: 18px 20px;
+  padding: 14px 18px;
   background: #f2f2f4;
   color: rgba(0, 0, 0, 0.46);
   font-size: 12px;
@@ -105,10 +105,27 @@ th {
 }
 
 td {
-  padding: 18px 20px;
+  padding: 16px 18px;
   border-top: 1px solid var(--border);
   color: rgba(0, 0, 0, 0.46);
   font-size: 15px;
+}
+
+td .status {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: max-content;
+}
+
+td:nth-child(3) {
+  text-align: center;
+}
+
+td:nth-child(3) .status {
+  margin-inline: auto;
 }
 
 .empty-table-cell {
@@ -359,6 +376,16 @@ td {
 
   td:nth-child(3)::before {
     content: "Status";
+  }
+
+  td:nth-child(3) {
+    align-items: center;
+    justify-content: center;
+  }
+
+  td:nth-child(3) .status {
+    flex: 0 0 auto;
+    margin-inline: auto;
   }
 
   td:nth-child(4)::before {

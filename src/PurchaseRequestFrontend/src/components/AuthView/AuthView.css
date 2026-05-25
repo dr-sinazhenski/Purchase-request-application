@@ -3,16 +3,16 @@
   min-height: 100vh;
   place-items: center;
   padding: 48px 20px;
-  background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+  background: var(--soft);
 }
 
 .auth-card {
   width: min(420px, 100%);
-  padding: 40px;
+  padding: 36px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--radius);
   background: #fff;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--panel-shadow);
 }
 
 .auth-card-wide {

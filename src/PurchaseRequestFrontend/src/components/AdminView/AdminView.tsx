@@ -60,8 +60,9 @@ export function AdminView({
   const [error, setError] = useState('')
 
   const selectedAccount = accounts.find((account) => account.id === selectedUserId)
-  const editableRoles = roles.filter((role) =>
-    editableRoleNames.includes(role.name),
+  const editableRoles = useMemo(
+    () => roles.filter((role) => editableRoleNames.includes(role.name)),
+    [roles],
   )
   const selectedRole = editableRoles.find((role) => role.id === selectedRoleId)
   const shouldShowApproverProfile = selectedRole?.name === 'Approver'
@@ -178,8 +179,8 @@ export function AdminView({
       return
     }
 
-    if (!password) {
-      setError('Password is required because the backend account update needs it.')
+    if (!password.trim()) {
+      setError('Enter a new password for this user to save account changes.')
       return
     }
 
@@ -190,7 +191,7 @@ export function AdminView({
       const result = await updateAccountApi({
         id: selectedAccount.id,
         login: selectedAccount.login,
-        password,
+        password: password.trim(),
         name: selectedAccount.name,
         regionId: selectedRegionId,
         approverProfileId: shouldShowApproverProfile
@@ -319,10 +320,10 @@ export function AdminView({
                   </Field>
                 )}
 
-                <Field label="Password">
+                <Field label="New password">
                   <input
                     onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Required by backend account update"
+                    placeholder="Sets this user's password"
                     type="password"
                     value={password}
                   />

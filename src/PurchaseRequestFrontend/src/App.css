@@ -11,6 +11,10 @@
   --orange: #d97706;
   --orange-soft: #fff7ed;
   --panel: #ffffff;
+  --panel-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --radius: 12px;
+  --app-header-height: 84px;
+  --page-padding: 24px;
   --soft: #f9fafb;
 }
 
@@ -22,7 +26,7 @@
   min-height: 40px;
   padding: 9px 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: #fff;
   color: rgba(0, 0, 0, 0.46);
   font-size: 14px;
@@ -71,13 +75,16 @@
 
 .content-area {
   flex: 1;
-  padding: 30px;
+  padding: var(--page-padding);
 }
 
 .panel {
   overflow: hidden;
-  padding: 28px;
-
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--panel-shadow);
 }
 
 .section-title {
@@ -116,7 +123,7 @@
   gap: 12px;
   margin: 20px 0 24px;
   padding: 18px;
-  border-radius: 14px;
+  border-radius: var(--radius);
 }
 
 .notice strong {
@@ -156,7 +163,7 @@
 
   .panel {
     padding: 16px;
-
+    border-radius: 12px;
   }
 
   .btn {
