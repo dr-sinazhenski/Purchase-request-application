@@ -23,7 +23,6 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -53,7 +52,6 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
