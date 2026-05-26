@@ -30,14 +30,15 @@ builder.Services.AddSwaggerGen(c =>
     Version = "v1" 
   });
   c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-    In = ParameterLocation.Header, 
-    Description = "Please insert JWT with Bearer into field",
+    Description = "Paste the JWT access token. Swagger will send it as Bearer token.",
     Name = "Authorization",
-    Type = SecuritySchemeType.ApiKey 
+    Type = SecuritySchemeType.Http,
+    Scheme = "bearer",
+    BearerFormat = "JWT"
   });
   c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 });
 
@@ -57,6 +58,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

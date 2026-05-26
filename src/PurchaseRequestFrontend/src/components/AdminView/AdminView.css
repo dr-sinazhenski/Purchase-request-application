@@ -1,6 +1,10 @@
 .admin-layout {
   display: grid;
-  gap: 16px;
+  gap: 5px;
+}
+
+.admin-user-profile-layout {
+  padding-top: 0px;
 }
 
 .admin-users-panel,
@@ -23,7 +27,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .admin-users-header p,
@@ -31,7 +35,7 @@
   margin: 4px 0 0;
   color: rgba(0, 0, 0, 0.46);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .admin-search {
@@ -83,7 +87,7 @@
   min-width: 0;
   color: rgba(0, 0, 0, 0.62);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .admin-user-row strong {
@@ -100,7 +104,7 @@
   overflow: hidden;
   color: rgba(0, 0, 0, 0.46);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 550;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -115,7 +119,7 @@
   background: var(--blue-soft);
   color: var(--blue);
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 550;
 }
 
 .admin-avatar.small {
@@ -128,7 +132,7 @@
   margin: 0;
   color: rgba(0, 0, 0, 0.46);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .admin-back-button {
@@ -143,7 +147,7 @@
   background: transparent;
   color: var(--blue);
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 550;
   letter-spacing: 0;
 }
 
@@ -182,14 +186,14 @@
   background: #fff;
   color: var(--ink);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .admin-meta-list strong {
   color: rgba(0, 0, 0, 0.46);
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.05em;
+  font-weight: 550;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 

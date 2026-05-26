@@ -18,7 +18,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 550;
   letter-spacing: 0;
 }
 
@@ -37,11 +37,19 @@
 .description-block strong {
   color: var(--ink);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .description-block p {
   margin: 0;
+  line-height: 1.45;
+}
+
+.reject-reason-block {
+  margin-bottom: 18px;
+}
+
+.reject-reason-block span {
   line-height: 1.45;
 }
 
@@ -51,7 +59,7 @@
   background: transparent;
   color: var(--blue);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .line-items {
@@ -111,7 +119,7 @@
   .timeline-panel h2 {
     font-size: 21px;
     line-height: 1.15;
-    letter-spacing: -0.35px;
+    letter-spacing: 0;
   }
 
   .detail-title p,

@@ -343,6 +343,7 @@ export function RequestForm({
           (sum, item) => sum + item.quantity * item.unitPrice,
           0,
         )
+        const creatorName = currentAccount?.name ?? 'Current user'
 
         const createdRequest: RequestRecord = {
           id: result.data.id,
@@ -351,9 +352,9 @@ export function RequestForm({
           typeId: result.data.requestType.id,
           status: mapBackendStatus(result.data.status),
           total: apiTotal,
-          creator: currentAccount?.name ?? 'Current user',
+          creator: creatorName,
           initials:
-            currentAccount?.name
+            creatorName
               .split(' ')
               .filter(Boolean)
               .map((part) => part[0])
@@ -365,6 +366,7 @@ export function RequestForm({
           approver: currentAccount?.approverProfileName ?? 'Approval queue',
           description: result.data.description ?? description,
           items: apiItems,
+          ownerAccountId: currentAccount?.id,
         }
 
         await onSubmit(createdRequest)

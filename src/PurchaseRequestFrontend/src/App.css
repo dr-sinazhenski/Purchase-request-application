@@ -30,7 +30,7 @@
   background: #fff;
   color: rgba(0, 0, 0, 0.46);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .btn:hover {
@@ -95,7 +95,7 @@
   margin: 30px 0 14px;
   color: var(--ink);
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .section-title span {
@@ -148,7 +148,7 @@
 
 .money {
   color: var(--ink);
-  font-family: "DM Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: "Finlandica Headline", "Aptos", "Segoe UI", sans-serif;
   white-space: nowrap;
 }
 

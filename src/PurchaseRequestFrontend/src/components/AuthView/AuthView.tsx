@@ -1,12 +1,14 @@
-import { Eye, PackagePlus } from 'lucide-react'
+import { Eye, EyeOff, PackagePlus } from 'lucide-react'
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 
 import {
   createAccountApi,
+  loginAccountApi,
   loadAccounts,
   loadRegions,
   loadRoles,
+  setAuthToken,
 } from '../../api'
 import type {
   AccountOption,
@@ -24,12 +26,36 @@ type AuthViewProps = {
 
 type AuthErrors = Partial<Record<string, string>>
 
+function decodeJwtPayload(token: string) {
+  try {
+    const payload = token.split('.')[1]
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const paddedPayload = normalizedPayload.padEnd(
+      normalizedPayload.length + ((4 - (normalizedPayload.length % 4)) % 4),
+      '=',
+    )
+    const json = window.atob(paddedPayload)
+
+    return JSON.parse(json) as Record<string, string | string[]>
+  } catch {
+    return {}
+  }
+}
+
+function getClaim(payload: Record<string, string | string[]>, claim: string) {
+  const value = payload[claim]
+
+  return Array.isArray(value) ? value[0] : value
+}
+
 export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
-  const [firstName, setFirstName] = useState('Sarah')
-  const [lastName, setLastName] = useState('Chen')
-  const [email, setEmail] = useState('admin')
-  const [password, setPassword] = useState('password123')
-  const [confirmPassword, setConfirmPassword] = useState('password123')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [errors, setErrors] = useState<AuthErrors>({})
@@ -37,6 +63,7 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
   const [selectedRoleId, setSelectedRoleId] = useState('')
   const [selectedRegionId, setSelectedRegionId] = useState('')
   const [apiError, setApiError] = useState('')
+  const [isLoadingAuthOptions, setIsLoadingAuthOptions] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isSignup = mode === 'signup'
@@ -45,7 +72,13 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
     let mounted = true
 
     async function loadAuthOptions() {
+      if (!isSignup) {
+        return
+      }
+
       try {
+        setIsLoadingAuthOptions(true)
+        setApiError('')
         const [rolesResult, regionsResult] = await Promise.all([
           loadRoles(),
           loadRegions(),
@@ -69,7 +102,16 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
         }
       } catch (error) {
         if (mounted) {
-          setApiError('Unable to load account options from API.')
+          setRegions([])
+          setSelectedRegionId('')
+          setSelectedRoleId('')
+          setApiError(
+            'Unable to load signup options from API.',
+          )
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingAuthOptions(false)
         }
       }
     }
@@ -79,7 +121,7 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [isSignup])
 
   function validate() {
     const nextErrors: AuthErrors = {}
@@ -135,6 +177,13 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
       setIsSubmitting(true)
 
       if (isSignup) {
+        if (!selectedRegionId || !selectedRoleId) {
+          setApiError(
+            'Account creation needs region and requester role data from the backend.',
+          )
+          return
+        }
+
         const result = await createAccountApi({
           login: email.trim(),
           password,
@@ -153,23 +202,55 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
         return
       }
 
-      const result = await loadAccounts()
+      const result = await loginAccountApi({
+        login: email.trim(),
+        password,
+      })
 
       if (!result.isSuccess || !result.data) {
-        setApiError('Unable to load accounts from API.')
+        setApiError('Invalid login or password.')
         return
       }
 
-      const account = result.data.find(
-        (option) => option.login.toLowerCase() === email.trim().toLowerCase(),
-      )
+      const { token } = result.data
+      const tokenPayload = decodeJwtPayload(token)
+      const accountId =
+        getClaim(
+          tokenPayload,
+          'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier',
+        ) ?? ''
 
-      if (!account) {
-        setApiError('Account was not found. Create it first or use seeded login.')
-        return
+      setAuthToken(token)
+
+      const signedInAccount: AccountOption = {
+        id: accountId,
+        login: email.trim(),
+        name: result.data.name,
+        regionId: '',
+        regionName: '',
+        approverProfileId: undefined,
+        approverProfileName: undefined,
+        roleIds: [],
+        roleNames: result.data.roles,
+        token,
       }
 
-      onSuccess(account)
+      if (result.data.roles.includes('Admin')) {
+        try {
+          const accountsResult = await loadAccounts()
+          const fullAccount = accountsResult.data?.find(
+            (option) => option.id === accountId,
+          )
+
+          onSuccess(fullAccount ? { ...fullAccount, token } : signedInAccount)
+          return
+        } catch {
+          onSuccess(signedInAccount)
+          return
+        }
+      }
+
+      onSuccess(signedInAccount)
     } catch (error) {
       setApiError(
         error instanceof Error ? error.message : 'Account request failed.',
@@ -206,6 +287,7 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
                 <input
                   className={errors.firstName ? 'auth-input error' : 'auth-input'}
                   onChange={(event) => setFirstName(event.target.value)}
+                  placeholder="First name"
                   value={firstName}
                 />
                 {errors.firstName && <small>{errors.firstName}</small>}
@@ -218,6 +300,7 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
                 <input
                   className={errors.lastName ? 'auth-input error' : 'auth-input'}
                   onChange={(event) => setLastName(event.target.value)}
+                  placeholder="Last name"
                   value={lastName}
                 />
                 {errors.lastName && <small>{errors.lastName}</small>}
@@ -227,12 +310,13 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
 
           <label className="auth-field">
             <span>
-              {isSignup ? 'Work email' : 'Email address'}{' '}
+              {isSignup ? 'Work email' : 'Login'}{' '}
               {isSignup && <strong>*</strong>}
             </span>
             <input
               className={errors.email ? 'auth-input error' : 'auth-input'}
               onChange={(event) => setEmail(event.target.value)}
+              placeholder={isSignup ? 'Work email' : 'Login'}
               value={email}
             />
             {errors.email && <small>{errors.email}</small>}
@@ -247,10 +331,19 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
                 <input
                   className={errors.password ? 'auth-input error' : 'auth-input'}
                   onChange={(event) => setPassword(event.target.value)}
-                  type="password"
+                  placeholder="Password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                 />
-                {!isSignup && <Eye size={16} />}
+                <button
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="auth-password-toggle"
+                  onClick={() => setShowPassword((isVisible) => !isVisible)}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  type="button"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </span>
               {errors.password && <small>{errors.password}</small>}
             </label>
@@ -260,14 +353,40 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
                 <span>
                   Confirm password <strong>*</strong>
                 </span>
-                <input
-                  className={
-                    errors.confirmPassword ? 'auth-input error' : 'auth-input'
-                  }
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  type="password"
-                  value={confirmPassword}
-                />
+                <span className="auth-input-wrap">
+                  <input
+                    className={
+                      errors.confirmPassword ? 'auth-input error' : 'auth-input'
+                    }
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    placeholder="Confirm password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                  />
+                  <button
+                    aria-label={
+                      showConfirmPassword
+                        ? 'Hide confirm password'
+                        : 'Show confirm password'
+                    }
+                    className="auth-password-toggle"
+                    onClick={() =>
+                      setShowConfirmPassword((isVisible) => !isVisible)
+                    }
+                    title={
+                      showConfirmPassword
+                        ? 'Hide confirm password'
+                        : 'Show confirm password'
+                    }
+                    type="button"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </span>
                 {errors.confirmPassword && (
                   <small>{errors.confirmPassword}</small>
                 )}
@@ -276,26 +395,31 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
           </div>
 
           {isSignup && (
-            <>
-              <label className="auth-field">
-                <span>
-                  Region <strong>*</strong>
-                </span>
-                <select
-                  className={errors.region ? 'auth-input error' : 'auth-input'}
-                  onChange={(event) => setSelectedRegionId(event.target.value)}
-                  value={selectedRegionId}
-                >
-                  {regions.map((region) => (
-                    <option key={region.id} value={region.id}>
-                      {region.name} ({region.currency})
-                    </option>
-                  ))}
-                </select>
-                {errors.region && <small>{errors.region}</small>}
-                <small>New accounts are created as Requester.</small>
-              </label>
-            </>
+            <label className="auth-field">
+              <span>
+                Region <strong>*</strong>
+              </span>
+              <select
+                className={errors.region ? 'auth-input error' : 'auth-input'}
+                disabled={isLoadingAuthOptions || regions.length === 0}
+                onChange={(event) => setSelectedRegionId(event.target.value)}
+                value={selectedRegionId}
+              >
+                {isLoadingAuthOptions && (
+                  <option value="">Loading regions from API...</option>
+                )}
+                {!isLoadingAuthOptions && regions.length === 0 && (
+                  <option value="">No regions returned from API</option>
+                )}
+                {regions.map((region) => (
+                  <option key={region.id} value={region.id}>
+                    {region.name} ({region.currency})
+                  </option>
+                ))}
+              </select>
+              {errors.region && <small>{errors.region}</small>}
+              <small>New accounts are created as Requester.</small>
+            </label>
           )}
 
           {!isSignup ? (
@@ -330,7 +454,8 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
 
           {!isSignup && (
             <p className="auth-note">
-              The backend stores accounts but does not verify passwords yet.
+              Seeded accounts use logins like admin and passwords like
+              hashed_password_4.
             </p>
           )}
 
