@@ -22,7 +22,6 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
