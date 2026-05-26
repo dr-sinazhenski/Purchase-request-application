@@ -105,7 +105,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Approver")]
         [HttpPut("/Approve/{id}")]
         public async Task<IActionResult> Approve(Guid id)
         {
@@ -121,7 +121,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Approver")]
         [HttpPut("/Reject/")]
         public async Task<IActionResult> Reject([FromBody] RejectRequestDto dto)
         {
