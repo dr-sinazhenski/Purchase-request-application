@@ -82,16 +82,10 @@ export function RequestDetail({
           </div>
 
           {request.reason && (
-            <div className="notice danger">
+            <div className="notice danger reject-reason-block">
               <AlertTriangle size={18} />
               <div>
-                <strong>
-                  {request.status === 'Approved'
-                    ? `Previous rejection reason from ${request.approver}`
-                    : request.finalRejected
-                      ? `Final rejection by ${request.approver}`
-                      : `Rejected by ${request.approver}`}
-                </strong>
+                <strong>Reject reason</strong>
                 <span>{request.reason}</span>
               </div>
             </div>

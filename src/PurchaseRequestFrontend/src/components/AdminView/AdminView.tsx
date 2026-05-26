@@ -225,7 +225,7 @@ export function AdminView({
     return (
       <>
         <Topbar title="User profile" />
-        <section className="content-area admin-layout">
+        <section className="content-area admin-layout admin-user-profile-layout">
           <button
             className="admin-back-button"
             onClick={onBackToUsers}

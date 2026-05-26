@@ -45,6 +45,7 @@ export type AccountOption = {
   approverProfileName?: string
   roleIds: string[]
   roleNames: string[]
+  token?: string
 }
 
 export type RequestDetailsApiDto = {
@@ -115,6 +116,17 @@ export type UpdateAccountApiDto = CreateAccountApiDto & {
   id: string
 }
 
+export type LoginAccountApiDto = {
+  login: string
+  password: string
+}
+
+export type LoginAccountApiResponse = {
+  token: string
+  name: string
+  roles: string[]
+}
+
 export type CrudRoleApiDto = {
   name: string
 }
@@ -126,11 +138,51 @@ export type CrudApproverProfileApiDto = {
 }
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? ''
+const authTokenStorageKey = 'procureflow.authToken'
+const accountStorageKey = 'procureflow.account'
+
+export function setAuthToken(token: string) {
+  window.localStorage.setItem(authTokenStorageKey, token)
+}
+
+export function clearAuthToken() {
+  window.localStorage.removeItem(authTokenStorageKey)
+}
+
+function getAuthToken() {
+  const storedToken = window.localStorage.getItem(authTokenStorageKey)
+
+  if (storedToken) {
+    return storedToken
+  }
+
+  const storedAccount = window.localStorage.getItem(accountStorageKey)
+
+  if (!storedAccount) {
+    return ''
+  }
+
+  try {
+    return (JSON.parse(storedAccount) as AccountOption).token ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function hasStoredAuthToken() {
+  return Boolean(getAuthToken())
+}
 
 async function fetchJson<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const url = typeof input === 'string' && input.startsWith('http') ? input : `${apiBase}${input}`
+  const token = getAuthToken()
+  const headers = new Headers(init?.headers)
 
-  const response = await fetch(url, init)
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`)
+  }
+
+  const response = await fetch(url, { ...init, headers })
   const text = await response.text()
   const payload = text ? JSON.parse(text) : { isSuccess: response.ok }
 
@@ -265,6 +317,18 @@ export async function updateAccountApi(
 export async function deleteAccountApi(id: string): Promise<ApiResult<void>> {
   return fetchJson<ApiResult<void>>(`/Account/${id}`, {
     method: 'DELETE',
+  })
+}
+
+export async function loginAccountApi(
+  dto: LoginAccountApiDto,
+): Promise<ApiResult<LoginAccountApiResponse>> {
+  return fetchJson<ApiResult<LoginAccountApiResponse>>('/Account/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(dto),
   })
 }
 

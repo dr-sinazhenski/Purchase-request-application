@@ -10,7 +10,7 @@
 }
 
 .queue-panel {
-  max-width: 960px;
+  max-width: 1100px;
 }
 
 .queue-panel-wide {
@@ -96,7 +96,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 550;
   letter-spacing: 0;
 }
 
@@ -112,7 +112,7 @@
   background: transparent;
   color: var(--blue);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .line-items {
@@ -144,7 +144,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 550;
   letter-spacing: 0;
 }
 
@@ -282,7 +282,7 @@
   .approval-panel h2 {
     font-size: 21px;
     line-height: 1.15;
-    letter-spacing: -0.35px;
+    letter-spacing: 0;
   }
 
   .detail-title p,

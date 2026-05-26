@@ -11,6 +11,7 @@ import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
 import {
   approveRequestApi,
+  clearAuthToken,
   deleteRequestApi,
   loadAccounts,
   loadRequestDetails,
@@ -134,7 +135,7 @@ function mapApiRequest(
   const items = mapApiItems(dto.products)
   const createdAt = dto.createdAt ? new Date(dto.createdAt) : new Date()
   const updatedAt = dto.updatedAt ? new Date(dto.updatedAt) : createdAt
-  const creator = metadata.creatorName ?? 'Backend request'
+  const creator = metadata.creatorName ?? 'Unknown requester'
 
   return {
     id: dto.id,
@@ -206,7 +207,7 @@ function App() {
     typeFilter === 'All' ? undefined : requestTypeIdsByName[typeFilter]
 
   useEffect(() => {
-    if (!currentAccount?.id) {
+    if (!currentAccount?.id || !canManageAdmin) {
       return
     }
 
@@ -233,27 +234,7 @@ function App() {
     }
 
     refreshCurrentAccount()
-  }, [currentAccount?.id])
-
-  useEffect(() => {
-    if (currentAccount || screen === 'signin' || screen === 'signup') {
-      return
-    }
-
-    async function loadKnownAccounts() {
-      try {
-        const result = await loadAccounts()
-
-        if (result.isSuccess && result.data) {
-          setAccounts(result.data)
-        }
-      } catch (error) {
-        console.error('Failed to load accounts:', error)
-      }
-    }
-
-    loadKnownAccounts()
-  }, [currentAccount, screen])
+  }, [canManageAdmin, currentAccount?.id])
 
   useEffect(() => {
     if (screen === 'signin' || screen === 'signup') {
@@ -300,9 +281,10 @@ function App() {
           setRequestRecords(
             details.map((detail) => {
               const ownerAccountId = requestOwners[detail.id]
-              const ownerAccount = accounts.find(
-                (account) => account.id === ownerAccountId,
-              )
+              const ownerAccount =
+                ownerAccountId === currentAccount?.id
+                  ? currentAccount
+                  : accounts.find((account) => account.id === ownerAccountId)
               const request = mapApiRequest(detail, {
                 approverName:
                   currentAccount?.approverProfileName ?? 'Approval queue',
@@ -357,9 +339,10 @@ function App() {
 
         if (result.isSuccess && result.data) {
           const ownerAccountId = requestOwners[result.data.id]
-          const ownerAccount = accounts.find(
-            (account) => account.id === ownerAccountId,
-          )
+          const ownerAccount =
+            ownerAccountId === currentAccount?.id
+              ? currentAccount
+              : accounts.find((account) => account.id === ownerAccountId)
           const request = mapApiRequest(result.data, {
             approverName: currentAccount?.approverProfileName ?? 'Approval queue',
             creatorName: ownerAccount?.name,
@@ -551,6 +534,7 @@ function App() {
 
   function logout() {
     setCurrentAccount(undefined)
+    clearAuthToken()
     window.localStorage.removeItem(accountStorageKey)
     navigate({ screen: 'signin' })
   }
@@ -621,10 +605,10 @@ function App() {
     setDecision(decisionResult)
   }
 
-  if (screen === 'signin' || screen === 'signup') {
+  if (!currentAccount || screen === 'signin' || screen === 'signup') {
     return (
       <AuthView
-        mode={screen}
+        mode={screen === 'signup' ? 'signup' : 'signin'}
         onModeChange={(nextMode) => navigate({ screen: nextMode })}
         onSuccess={completeAuth}
       />
