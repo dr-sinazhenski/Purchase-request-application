@@ -1,8 +1,7 @@
-import { SlidersHorizontal } from 'lucide-react'
-
 import { statusFilters } from '../../data/requests'
-import type { RequestRecord, Screen, Status } from '../../types'
+import type { RequestRecord, RequestSort, Screen, Status } from '../../types'
 import { formatMoney } from '../../utils/format'
+import { SortMenu } from '../SortMenu/SortMenu'
 import { StatusBadge } from '../StatusBadge/StatusBadge'
 import { Topbar } from '../Topbar/Topbar'
 import './RequestsList.css'
@@ -17,8 +16,10 @@ type RequestsListProps = {
   onOpen: (request: RequestRecord, target?: Screen) => void
   onSearch: (value: string) => void
   onShowMore: () => void
+  onSort: (sort: RequestSort) => void
   onTypeFilter: (type: string) => void
   searchQuery: string
+  sort: RequestSort
   totalFiltered: number
   totalRequests: number
   typeFilter: string
@@ -36,8 +37,10 @@ export function RequestsList({
   onOpen,
   onSearch,
   onShowMore,
+  onSort,
   onTypeFilter,
   searchQuery,
+  sort,
   totalFiltered,
   totalRequests,
   typeFilter,
@@ -47,7 +50,6 @@ export function RequestsList({
   return (
     <>
       <Topbar
-        count={`${totalFiltered} shown of ${totalRequests}`}
         primaryAction={canCreateRequests ? '+ New Request' : undefined}
         searchPlaceholder="Search requests"
         searchValue={searchQuery}
@@ -89,10 +91,8 @@ export function RequestsList({
           ))}
         </div>
 
-        <button className="sort-button" type="button">
-          <SlidersHorizontal size={14} />
-          Sort: Newest first
-        </button>
+        <span className="divider" />
+        <SortMenu onChange={onSort} value={sort} />
       </section>
 
       <section className="mobile-filter-drawers" aria-label="Request filters">
@@ -142,10 +142,7 @@ export function RequestsList({
           </div>
         </details>
 
-        <button className="mobile-sort-button" type="button">
-          <SlidersHorizontal size={14} />
-          Sort: Newest first
-        </button>
+        <SortMenu onChange={onSort} value={sort} />
       </section>
 
       <section className="content-area">

@@ -32,6 +32,8 @@ export function RequestDetail({
 }: RequestDetailProps) {
   const [deleteError, setDeleteError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
+  const hasFinalDecision =
+    request.status === 'Approved' || Boolean(request.finalRejected)
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -152,13 +154,13 @@ export function RequestDetail({
             />
           </div>
           <div className="form-actions">
-            {canEdit && request.status === 'Rejected' && !request.finalRejected ? (
+            {hasFinalDecision ? (
+              <button className="btn" disabled type="button">
+                Final decision was made
+              </button>
+            ) : canEdit && request.status === 'Rejected' ? (
               <button className="btn primary" onClick={onEdit} type="button">
                 Edit request
-              </button>
-            ) : request.status === 'Rejected' && request.finalRejected ? (
-              <button className="btn" disabled type="button">
-                Final decision recorded
               </button>
             ) : canEdit || canReview ? (
               <>
@@ -178,7 +180,7 @@ export function RequestDetail({
                 View only
               </button>
             )}
-            {canDelete && (
+            {canDelete && !hasFinalDecision && (
               <button
                 className="btn danger"
                 disabled={isDeleting}

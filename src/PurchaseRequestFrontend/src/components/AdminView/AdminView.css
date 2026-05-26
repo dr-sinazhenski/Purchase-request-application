@@ -1,6 +1,6 @@
 .admin-layout {
   display: grid;
-  gap: 5px;
+  align-content: start;
 }
 
 .admin-user-profile-layout {
@@ -139,7 +139,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 5px;
   width: fit-content;
   min-height: 34px;
   padding: 0;
@@ -149,6 +149,8 @@
   font-size: 24px;
   font-weight: 550;
   letter-spacing: 0;
+  padding: 15px 0;
+
 }
 
 .admin-back-button:hover {

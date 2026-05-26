@@ -41,6 +41,20 @@
   font-size: 14px;
 }
 
+.queue-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.queue-controls > span {
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 13px;
+  font-weight: 550;
+}
+
 .queue-list {
   display: grid;
   gap: 10px;
@@ -251,6 +265,16 @@
 
   .queue-header {
     margin-bottom: 14px;
+  }
+
+  .queue-controls {
+    align-items: stretch;
+    flex-direction: column;
+    margin-bottom: 14px;
+  }
+
+  .queue-controls .sort-menu {
+    width: 100%;
   }
 
   .queue-list {

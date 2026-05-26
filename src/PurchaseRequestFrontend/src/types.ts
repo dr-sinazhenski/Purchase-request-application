@@ -1,5 +1,7 @@
 export type Status = 'New' | 'Resubmitted' | 'Approved' | 'Rejected'
 
+export type RequestSort = 'newest' | 'oldest' | 'priceHigh' | 'priceLow'
+
 export type Screen =
   | 'requests'
   | 'create'

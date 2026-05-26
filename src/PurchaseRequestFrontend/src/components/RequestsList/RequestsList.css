@@ -16,7 +16,7 @@
 }
 
 .chip,
-.sort-button {
+.filter-bar .sort-menu summary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,7 @@
 }
 
 .chip:hover,
-.sort-button:hover {
+.filter-bar .sort-menu summary:hover {
   border-color: #c7c7ce;
   color: var(--ink);
 }
@@ -73,11 +73,6 @@
 
 .type-filter .chip {
   flex: 0 0 auto;
-}
-
-.sort-button {
-  margin-left: auto;
-  border-radius: 10px;
 }
 
 .table-card {
@@ -286,22 +281,6 @@ td:nth-child(3) .status {
     border-color: var(--blue);
     background: var(--blue);
     color: #fff;
-  }
-
-  .mobile-sort-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 42px;
-    padding: 9px 13px;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    background: #fff;
-    color: rgba(0, 0, 0, 0.48);
-    font-size: 13px;
-    font-weight: 550;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   }
 
   .table-card {

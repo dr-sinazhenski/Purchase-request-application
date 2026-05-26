@@ -26,7 +26,14 @@ import {
   routeToPath,
   type AppRoute,
 } from './router'
-import type { DecisionState, RequestRecord, Screen, Status } from './types'
+import type {
+  DecisionState,
+  RequestRecord,
+  RequestSort,
+  Screen,
+  Status,
+} from './types'
+import { getSortableDate } from './utils/format'
 import { hasRole } from './utils/roles'
 
 const blankRequest: RequestRecord = {
@@ -190,6 +197,7 @@ function App() {
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
   const [filter, setFilter] = useState<'All' | Status>('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sort, setSort] = useState<RequestSort>('newest')
   const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<DecisionState>('idle')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -439,7 +447,19 @@ function App() {
 
     return matchesStatus && matchesType && matchesSearch
   })
-  const filteredRequests = allFilteredRequests.slice(0, visibleCount)
+  const sortedRequests = [...allFilteredRequests].sort((first, second) => {
+    switch (sort) {
+      case 'oldest':
+        return getSortableDate(first.submitted) - getSortableDate(second.submitted)
+      case 'priceHigh':
+        return second.total - first.total
+      case 'priceLow':
+        return first.total - second.total
+      default:
+        return getSortableDate(second.submitted) - getSortableDate(first.submitted)
+    }
+  })
+  const filteredRequests = sortedRequests.slice(0, visibleCount)
   const approvalQueueRequests = canReviewRequests
     ? requestRecords.filter((request) =>
         ['New', 'Resubmitted'].includes(request.status),
@@ -646,11 +666,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}
@@ -685,11 +710,16 @@ function App() {
               setVisibleCount(6)
             }}
             onShowMore={() => setVisibleCount((count) => count + 6)}
+            onSort={(nextSort) => {
+              setSort(nextSort)
+              setVisibleCount(6)
+            }}
             onTypeFilter={(nextTypeFilter) => {
               setTypeFilter(nextTypeFilter)
               setVisibleCount(6)
             }}
             searchQuery={searchQuery}
+            sort={sort}
             totalFiltered={allFilteredRequests.length}
             totalRequests={roleVisibleRequests.length}
             typeFilter={typeFilter}
@@ -764,11 +794,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}
@@ -811,11 +846,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}
