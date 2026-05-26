@@ -6,6 +6,7 @@ using Application.BusinessLogic.PriceLogic.UpdatePrice;
 using Application.BusinessLogic.PriceLogic.GetAllPrices;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -22,6 +23,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -36,6 +38,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CrudPriceDto dto)
         {
@@ -50,6 +53,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("{productId}/{regionId}")]
         public async Task<IActionResult> GetById(Guid productId, Guid regionId)
         {
@@ -64,6 +68,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CrudPriceDto dto)
         {
@@ -78,6 +83,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{productId}/{regionId}")]
         public async Task<IActionResult> Delete(Guid productId, Guid regionId)
         {

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.BusinessLogic.RequestLogic.ApproveRequest;
 using Application.BusinessLogic.RequestLogic.RejectRequest;
 using Application.BusinessLogic.RequestLogic.GetRequestsFiltered;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace WebApi.Controllers
@@ -28,6 +29,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRequestDto dto)
         {
@@ -42,6 +44,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -56,6 +59,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -70,6 +74,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CreateRequestDto dto)
         {
@@ -83,6 +88,8 @@ namespace WebApi.Controllers
 
             return Ok(result);
         }
+
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -98,6 +105,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("/Approve/{id}")]
         public async Task<IActionResult> Approve(Guid id)
         {
@@ -113,6 +121,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("/Reject/")]
         public async Task<IActionResult> Reject([FromBody] RejectRequestDto dto)
         {
@@ -128,6 +137,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
         
+        [Authorize]
         [HttpGet("filtered")]
         public async Task<IActionResult> GetFiltered(
             [FromQuery] Guid? requestTypeId,
