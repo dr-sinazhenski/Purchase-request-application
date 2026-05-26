@@ -18,3 +18,22 @@ export function formatSubmittedDate(date: Date) {
     year: 'numeric',
   }).format(date)
 }
+
+export function getSortableDate(value: string) {
+  if (value === 'Just now') {
+    return Date.now()
+  }
+
+  const parsedDate = Date.parse(value)
+  if (Number.isFinite(parsedDate)) {
+    return parsedDate
+  }
+
+  const dateParts = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+  if (dateParts) {
+    const [, day, month, year] = dateParts
+    return new Date(Number(year), Number(month) - 1, Number(day)).getTime()
+  }
+
+  return 0
+}
