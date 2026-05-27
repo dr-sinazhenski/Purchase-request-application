@@ -1,10 +1,9 @@
 using Application;
 using Infrastructure;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.OpenApi;
 using Serilog;
 using WebApi;
 using WebApi.Middleware;
+using Microsoft.OpenApi;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,10 +49,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
@@ -62,6 +58,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
