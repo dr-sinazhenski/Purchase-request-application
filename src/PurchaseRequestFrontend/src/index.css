@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Finlandica+Headline:wght@400..900&display=swap');
+
 :root {
-  font-family: "DM Sans", "Aptos", "Segoe UI", sans-serif;
+  font-family: "Finlandica Headline", "Aptos", "Segoe UI", sans-serif;
   color: #18181b;
   background: #f4f4f5;
+  letter-spacing: 0;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

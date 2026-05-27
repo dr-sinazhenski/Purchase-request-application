@@ -5,6 +5,7 @@ using Application.BusinessLogic.ApproverProfileLogic.GetAllApproverProfiles;
 using Application.BusinessLogic.ApproverProfileLogic.UpdateApproverProfile;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -35,6 +36,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CrudApproverProfileDto dto)
         {
@@ -50,6 +52,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] CrudApproverProfileDto dto)
         {
@@ -65,6 +68,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

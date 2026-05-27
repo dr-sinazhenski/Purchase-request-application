@@ -11,6 +11,7 @@ import { RequestForm } from './components/RequestForm/RequestForm'
 import { RequestsList } from './components/RequestsList/RequestsList'
 import {
   approveRequestApi,
+  clearAuthToken,
   deleteRequestApi,
   loadAccounts,
   loadRequestDetails,
@@ -25,7 +26,14 @@ import {
   routeToPath,
   type AppRoute,
 } from './router'
-import type { DecisionState, RequestRecord, Screen, Status } from './types'
+import type {
+  DecisionState,
+  RequestRecord,
+  RequestSort,
+  Screen,
+  Status,
+} from './types'
+import { getSortableDate } from './utils/format'
 import { hasRole } from './utils/roles'
 
 const blankRequest: RequestRecord = {
@@ -134,7 +142,7 @@ function mapApiRequest(
   const items = mapApiItems(dto.products)
   const createdAt = dto.createdAt ? new Date(dto.createdAt) : new Date()
   const updatedAt = dto.updatedAt ? new Date(dto.updatedAt) : createdAt
-  const creator = metadata.creatorName ?? 'Backend request'
+  const creator = metadata.creatorName ?? 'Unknown requester'
 
   return {
     id: dto.id,
@@ -189,6 +197,7 @@ function App() {
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
   const [filter, setFilter] = useState<'All' | Status>('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sort, setSort] = useState<RequestSort>('newest')
   const [typeFilter, setTypeFilter] = useState<string>('All')
   const [decision, setDecision] = useState<DecisionState>('idle')
   const [visibleCount, setVisibleCount] = useState(6)
@@ -206,7 +215,7 @@ function App() {
     typeFilter === 'All' ? undefined : requestTypeIdsByName[typeFilter]
 
   useEffect(() => {
-    if (!currentAccount?.id) {
+    if (!currentAccount?.id || !canManageAdmin) {
       return
     }
 
@@ -233,27 +242,7 @@ function App() {
     }
 
     refreshCurrentAccount()
-  }, [currentAccount?.id])
-
-  useEffect(() => {
-    if (currentAccount || screen === 'signin' || screen === 'signup') {
-      return
-    }
-
-    async function loadKnownAccounts() {
-      try {
-        const result = await loadAccounts()
-
-        if (result.isSuccess && result.data) {
-          setAccounts(result.data)
-        }
-      } catch (error) {
-        console.error('Failed to load accounts:', error)
-      }
-    }
-
-    loadKnownAccounts()
-  }, [currentAccount, screen])
+  }, [canManageAdmin, currentAccount?.id])
 
   useEffect(() => {
     if (screen === 'signin' || screen === 'signup') {
@@ -300,9 +289,10 @@ function App() {
           setRequestRecords(
             details.map((detail) => {
               const ownerAccountId = requestOwners[detail.id]
-              const ownerAccount = accounts.find(
-                (account) => account.id === ownerAccountId,
-              )
+              const ownerAccount =
+                ownerAccountId === currentAccount?.id
+                  ? currentAccount
+                  : accounts.find((account) => account.id === ownerAccountId)
               const request = mapApiRequest(detail, {
                 approverName:
                   currentAccount?.approverProfileName ?? 'Approval queue',
@@ -357,9 +347,10 @@ function App() {
 
         if (result.isSuccess && result.data) {
           const ownerAccountId = requestOwners[result.data.id]
-          const ownerAccount = accounts.find(
-            (account) => account.id === ownerAccountId,
-          )
+          const ownerAccount =
+            ownerAccountId === currentAccount?.id
+              ? currentAccount
+              : accounts.find((account) => account.id === ownerAccountId)
           const request = mapApiRequest(result.data, {
             approverName: currentAccount?.approverProfileName ?? 'Approval queue',
             creatorName: ownerAccount?.name,
@@ -456,7 +447,19 @@ function App() {
 
     return matchesStatus && matchesType && matchesSearch
   })
-  const filteredRequests = allFilteredRequests.slice(0, visibleCount)
+  const sortedRequests = [...allFilteredRequests].sort((first, second) => {
+    switch (sort) {
+      case 'oldest':
+        return getSortableDate(first.submitted) - getSortableDate(second.submitted)
+      case 'priceHigh':
+        return second.total - first.total
+      case 'priceLow':
+        return first.total - second.total
+      default:
+        return getSortableDate(second.submitted) - getSortableDate(first.submitted)
+    }
+  })
+  const filteredRequests = sortedRequests.slice(0, visibleCount)
   const approvalQueueRequests = canReviewRequests
     ? requestRecords.filter((request) =>
         ['New', 'Resubmitted'].includes(request.status),
@@ -551,6 +554,7 @@ function App() {
 
   function logout() {
     setCurrentAccount(undefined)
+    clearAuthToken()
     window.localStorage.removeItem(accountStorageKey)
     navigate({ screen: 'signin' })
   }
@@ -621,10 +625,10 @@ function App() {
     setDecision(decisionResult)
   }
 
-  if (screen === 'signin' || screen === 'signup') {
+  if (!currentAccount || screen === 'signin' || screen === 'signup') {
     return (
       <AuthView
-        mode={screen}
+        mode={screen === 'signup' ? 'signup' : 'signin'}
         onModeChange={(nextMode) => navigate({ screen: nextMode })}
         onSuccess={completeAuth}
       />
@@ -662,11 +666,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}
@@ -701,11 +710,16 @@ function App() {
               setVisibleCount(6)
             }}
             onShowMore={() => setVisibleCount((count) => count + 6)}
+            onSort={(nextSort) => {
+              setSort(nextSort)
+              setVisibleCount(6)
+            }}
             onTypeFilter={(nextTypeFilter) => {
               setTypeFilter(nextTypeFilter)
               setVisibleCount(6)
             }}
             searchQuery={searchQuery}
+            sort={sort}
             totalFiltered={allFilteredRequests.length}
             totalRequests={roleVisibleRequests.length}
             typeFilter={typeFilter}
@@ -780,11 +794,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}
@@ -827,11 +846,16 @@ function App() {
             setVisibleCount(6)
           }}
           onShowMore={() => setVisibleCount((count) => count + 6)}
+          onSort={(nextSort) => {
+            setSort(nextSort)
+            setVisibleCount(6)
+          }}
           onTypeFilter={(nextTypeFilter) => {
             setTypeFilter(nextTypeFilter)
             setVisibleCount(6)
           }}
           searchQuery={searchQuery}
+          sort={sort}
           totalFiltered={allFilteredRequests.length}
           totalRequests={roleVisibleRequests.length}
           typeFilter={typeFilter}

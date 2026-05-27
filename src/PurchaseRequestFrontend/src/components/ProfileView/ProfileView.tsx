@@ -1,4 +1,4 @@
-import { LogOut, User } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import {
@@ -238,14 +238,7 @@ export function ProfileView({
           <h1>Profile & Settings</h1>
           <p>Manage your account and preferences</p>
         </div>
-      </header>
-
-      <div className="profile-layout">
-        <aside className="profile-nav-card">
-          <button className="profile-nav-item active" type="button">
-            <User size={15} />
-            Profile
-          </button>
+        <nav className="profile-topbar-nav" aria-label="Profile actions">
           <button
             className="profile-nav-item danger"
             onClick={onLogout}
@@ -254,8 +247,10 @@ export function ProfileView({
             <LogOut size={15} />
             Log out
           </button>
-        </aside>
+        </nav>
+      </header>
 
+      <div className="profile-layout">
         <div className="profile-content">
           <div className="profile-card">
             <div className="avatar-upload">

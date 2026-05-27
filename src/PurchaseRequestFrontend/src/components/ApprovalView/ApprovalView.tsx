@@ -1,10 +1,16 @@
-import { AlertTriangle, Check, ShieldCheck, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  Check,
+  ShieldCheck,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 
-import type { DecisionState, RequestRecord } from '../../types'
-import { formatMoney } from '../../utils/format'
+import type { DecisionState, RequestRecord, RequestSort } from '../../types'
+import { formatMoney, getSortableDate } from '../../utils/format'
 import { Field } from '../Field/Field'
 import { Metric } from '../Metric/Metric'
+import { SortMenu } from '../SortMenu/SortMenu'
 import { StatusBadge } from '../StatusBadge/StatusBadge'
 import { Topbar } from '../Topbar/Topbar'
 import './ApprovalView.css'
@@ -34,8 +40,48 @@ export function ApprovalView({
   const [rejectReason, setRejectReason] = useState('')
   const [decisionError, setDecisionError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [queueSearch, setQueueSearch] = useState('')
+  const [queueSort, setQueueSort] = useState<RequestSort>('newest')
   const isDecided =
     request?.status === 'Approved' || request?.status === 'Rejected'
+  const normalizedQueueSearch = queueSearch.trim().toLowerCase()
+  const visibleRequests = requests
+    .filter((queuedRequest) => {
+      if (!normalizedQueueSearch) {
+        return true
+      }
+
+      return [
+        queuedRequest.id,
+        queuedRequest.name,
+        queuedRequest.type,
+        queuedRequest.status,
+        queuedRequest.creator,
+        queuedRequest.description,
+        queuedRequest.total.toString(),
+        ...queuedRequest.items.flatMap((item) => [
+          item.name,
+          item.category,
+          item.quantity.toString(),
+          item.unitPrice.toString(),
+        ]),
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedQueueSearch)
+    })
+    .sort((first, second) => {
+      switch (queueSort) {
+        case 'oldest':
+          return getSortableDate(first.submitted) - getSortableDate(second.submitted)
+        case 'priceHigh':
+          return second.total - first.total
+        case 'priceLow':
+          return first.total - second.total
+        default:
+          return getSortableDate(second.submitted) - getSortableDate(first.submitted)
+      }
+    })
 
   async function submitDecision(
     nextDecision: 'approved' | 'rejected',
@@ -61,20 +107,36 @@ export function ApprovalView({
 
   return (
     <>
-      <Topbar title="Approval Queue" />
+      <Topbar
+        searchPlaceholder="Search approval queue"
+        searchValue={queueSearch}
+        title="Approval Queue"
+        onSearch={!request ? setQueueSearch : undefined}
+      />
       {!request ? (
         <section className="content-area approval-list-layout">
           <div className="panel queue-panel queue-panel-wide">
             <div className="queue-header">
               <p className="eyebrow">Waiting for review</p>
-              <strong>{requests.length}</strong>
+              <strong>{visibleRequests.length}</strong>
             </div>
 
-            {requests.length === 0 ? (
-              <p className="queue-empty">No requests are waiting for approval.</p>
+            <div className="queue-controls">
+              <span>
+                Showing {visibleRequests.length} of {requests.length}
+              </span>
+              <SortMenu onChange={setQueueSort} value={queueSort} />
+            </div>
+
+            {visibleRequests.length === 0 ? (
+              <p className="queue-empty">
+                {requests.length === 0
+                  ? 'No requests are waiting for approval.'
+                  : 'No requests match your search.'}
+              </p>
             ) : (
               <div className="queue-list">
-                {requests.map((queuedRequest) => (
+                {visibleRequests.map((queuedRequest) => (
                   <button
                     className="queue-item"
                     key={queuedRequest.id}

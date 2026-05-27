@@ -7,6 +7,7 @@ using Application.BusinessLogic.CommentLogic.GetComment;
 using Application.BusinessLogic.CommentLogic.UpdateComment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -23,6 +24,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CrudCommentDto dto)
         {
@@ -37,6 +39,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -51,6 +54,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -65,6 +69,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("request/{id}")]
         public async Task<IActionResult> GetByRequestId(Guid id)
         {
@@ -79,6 +84,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] CrudCommentDto dto)
         {
@@ -93,6 +99,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

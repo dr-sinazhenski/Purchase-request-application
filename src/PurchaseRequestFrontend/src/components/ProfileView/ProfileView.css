@@ -20,7 +20,7 @@
   margin: 0;
   color: var(--ink);
   font-size: 24px;
-  font-weight: 800;
+  font-weight: 550;
   letter-spacing: 0;
 }
 
@@ -31,13 +31,10 @@
 }
 
 .profile-layout {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 20px;
+  display: block;
   padding: var(--page-padding);
 }
 
-.profile-nav-card,
 .profile-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -45,12 +42,10 @@
   box-shadow: var(--panel-shadow);
 }
 
-.profile-nav-card {
-  display: grid;
-  align-content: start;
-  gap: 4px;
-  height: fit-content;
-  padding: 16px 12px;
+.profile-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .profile-nav-item {
@@ -64,7 +59,7 @@
   background: transparent;
   color: rgba(0, 0, 0, 0.46);
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 550;
   text-align: left;
 }
 
@@ -83,8 +78,7 @@
 }
 
 .profile-content {
-  display: grid;
-  gap: 16px;
+  width: 100%;
 }
 
 .profile-card {
@@ -95,7 +89,7 @@
   margin: 0 0 16px;
   color: var(--ink);
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .avatar-upload {
@@ -117,14 +111,14 @@
   background: var(--blue-soft);
   color: var(--blue);
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .avatar-upload strong {
   display: block;
   color: var(--ink);
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .avatar-upload p {
@@ -154,7 +148,7 @@
 .profile-field span {
   color: rgba(0, 0, 0, 0.68);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .profile-field input,
@@ -186,7 +180,7 @@
 .profile-field small {
   color: rgba(0, 0, 0, 0.36);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .profile-save-row {
@@ -211,7 +205,7 @@
   background: #fff;
   color: var(--ink);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .profile-check-list input {
@@ -220,7 +214,6 @@
 }
 
 @media (max-width: 900px) {
-  .profile-layout,
   .profile-form-row {
     grid-template-columns: 1fr;
   }
@@ -228,8 +221,19 @@
 
 @media (max-width: 760px) {
   .profile-header {
+    align-items: stretch;
+    flex-direction: column;
     min-height: auto;
     padding: 16px;
+  }
+
+  .profile-topbar-nav {
+    width: 100%;
+  }
+
+  .profile-nav-item {
+    flex: 1;
+    justify-content: center;
   }
 
   .profile-header h1 {
@@ -237,7 +241,6 @@
   }
 
   .profile-layout {
-    gap: 12px;
     padding: 12px;
   }
 }

@@ -8,7 +8,7 @@
   background: #fff;
   color: rgba(0, 0, 0, 0.46);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 550;
 }
 
 .mobile-filter-drawers {
@@ -16,7 +16,7 @@
 }
 
 .chip,
-.sort-button {
+.filter-bar .sort-menu summary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -28,11 +28,11 @@
   background: #fff;
   color: rgba(0, 0, 0, 0.46);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .chip:hover,
-.sort-button:hover {
+.filter-bar .sort-menu summary:hover {
   border-color: #c7c7ce;
   color: var(--ink);
 }
@@ -75,11 +75,6 @@
   flex: 0 0 auto;
 }
 
-.sort-button {
-  margin-left: auto;
-  border-radius: 10px;
-}
-
 .table-card {
   overflow: hidden;
   border: 1px solid var(--border);
@@ -98,8 +93,8 @@ th {
   background: #f2f2f4;
   color: rgba(0, 0, 0, 0.46);
   font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  font-weight: 550;
+  letter-spacing: 0;
   text-align: left;
   text-transform: uppercase;
 }
@@ -130,7 +125,7 @@ td:nth-child(3) .status {
 
 .empty-table-cell {
   color: rgba(0, 0, 0, 0.46);
-  font-weight: 700;
+  font-weight: 550;
   text-align: center;
 }
 
@@ -138,7 +133,7 @@ td:nth-child(3) .status {
   border: 0;
   background: transparent;
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 550;
   text-align: left;
 }
 
@@ -162,7 +157,7 @@ td:nth-child(3) .status {
   background: #f2f2f4;
   color: #7c3aed;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 550;
 }
 
 .table-footer {
@@ -249,8 +244,8 @@ td:nth-child(3) .status {
   .mobile-filter-drawer summary span {
     color: rgba(0, 0, 0, 0.46);
     font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
+    font-weight: 550;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
@@ -259,7 +254,7 @@ td:nth-child(3) .status {
     overflow: hidden;
     color: var(--ink);
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 550;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -279,29 +274,13 @@ td:nth-child(3) .status {
     background: #fff;
     color: rgba(0, 0, 0, 0.48);
     font-size: 12.5px;
-    font-weight: 800;
+    font-weight: 550;
   }
 
   .mobile-filter-option.active {
     border-color: var(--blue);
     background: var(--blue);
     color: #fff;
-  }
-
-  .mobile-sort-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 42px;
-    padding: 9px 13px;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    background: #fff;
-    color: rgba(0, 0, 0, 0.48);
-    font-size: 13px;
-    font-weight: 800;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   }
 
   .table-card {
@@ -356,8 +335,8 @@ td:nth-child(3) .status {
   td::before {
     color: rgba(0, 0, 0, 0.42);
     font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
+    font-weight: 550;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
 
