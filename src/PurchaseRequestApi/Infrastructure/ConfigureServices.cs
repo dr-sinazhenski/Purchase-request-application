@@ -20,6 +20,8 @@ namespace Infrastructure
             services.AddDbContext<AppDbContext>(opt =>
                 opt.UseNpgsql(connectionString));
 
+            serviceProvider.GetService<AppDbContext>().Database.Migrate();
+
             return services;
         }
     }

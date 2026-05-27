@@ -431,3 +431,4 @@ src/PurchaseRequestApi/WebApi/appsettings.json
 src/PurchaseRequestApi/WebApi/appsettings.json
 src/PurchaseRequestApi/WebApi/appsettings.json
 /src/PurchaseRequestApi/WebApi/appsettings.Development.json
+/src/PurchaseRequestApi/WebApi/appsettings.Production.json
