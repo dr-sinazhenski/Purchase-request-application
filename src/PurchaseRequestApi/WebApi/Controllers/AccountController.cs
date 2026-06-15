@@ -23,6 +23,14 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize]
+        [HttpGet("debug-claims")]
+        public IActionResult DebugClaims()
+        {
+            var claims = User.Claims.Select(c => new { c.Type, c.Value });
+            return Ok(claims);
+        }
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -38,6 +46,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAccountDto dto)
         {
@@ -84,6 +93,8 @@ namespace WebApi.Controllers
             _logger.LogInformation("Account deletion succeeded for Id={Id}", id);
             return Ok(result);
         }
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
