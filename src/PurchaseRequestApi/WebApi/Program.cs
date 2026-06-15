@@ -1,12 +1,17 @@
 using Application;
 using Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Serilog;
+using System.Text;
 using WebApi;
 using WebApi.Middleware;
-using Microsoft.OpenApi;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.ConfigureProjectsOptions();
 
 using var log = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -22,26 +27,32 @@ builder.Host.UseSerilog(log);
 
 builder.Services.AddSingleton(log);
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+
+builder.Services.AddJwtAuth();
+builder.Services.AddAuthorization();
+
 builder.Services.AddSwaggerGen(c =>
 {
-  c.SwaggerDoc("v1", new OpenApiInfo { 
-    Title = "My API", 
-    Version = "v1" 
-  });
-  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-    In = ParameterLocation.Header, 
-    Description = "Please insert JWT with Bearer into field",
-    Name = "Authorization",
-    Type = SecuritySchemeType.ApiKey 
-  });
-  c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+        Title = "My API",
+        Version = "v1"
+    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token (without 'Bearer ' prefix)"
+    });
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 });
 
-builder.ConfigureProjectsOptions();
 builder.Services.AddDb();
 builder.Services.AddMediatr();
 
@@ -55,10 +66,15 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+        c.ConfigObject.AdditionalItems["persistAuthorization"] = true;
+    });
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

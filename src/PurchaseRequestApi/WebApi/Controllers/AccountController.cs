@@ -38,6 +38,7 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateAccountDto dto)
         {
@@ -84,6 +85,8 @@ namespace WebApi.Controllers
             _logger.LogInformation("Account deletion succeeded for Id={Id}", id);
             return Ok(result);
         }
+
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
