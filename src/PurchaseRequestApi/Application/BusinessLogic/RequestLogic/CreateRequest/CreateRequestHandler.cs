@@ -94,14 +94,17 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
 
             foreach (var product in products)
             {
-                reqDto.Products.Add(new ProductListItemDto
+                if (command.dto.ProductIdAmount[product.Id] > 0)
                 {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Amount = command.dto.ProductIdAmount[product.Id],
-                    Price = prices.First(p => p.ProductId == product.Id).Amount
-                });
+                    reqDto.Products.Add(new ProductListItemDto
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Amount = command.dto.ProductIdAmount[product.Id],
+                        Price = prices.First(p => p.ProductId == product.Id).Amount
+                    });
+                }
             }
 
             _logger.LogInformation($"Request created id= {reqDto.Id}");
