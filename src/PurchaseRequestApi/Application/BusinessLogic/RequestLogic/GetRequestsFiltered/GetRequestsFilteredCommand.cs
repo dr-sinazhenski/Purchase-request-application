@@ -7,6 +7,7 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestsFiltered
     public record GetRequestsFilteredCommand(
         Guid? RequestTypeId,
         string? Status,
-        Guid? RegionId
+        Guid? RegionId,
+        string RequiredCurrency
     ) : IRequest<Result<List<GetRequestsFilteredDto>>>;
 }

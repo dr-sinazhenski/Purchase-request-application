@@ -1,10 +1,8 @@
-﻿using Infrastructure.Database;
+﻿using Infrastructure.CurrencyRatesService;
+using Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Infrastructure
 {
@@ -21,6 +19,23 @@ namespace Infrastructure
                 opt.UseNpgsql(connectionString));
 
             
+
+            return services;
+        }
+
+      
+        public static IServiceCollection AddCurrencyRatesService(this IServiceCollection services)
+        {
+
+            services.AddHttpClient<CurrencyExchangeService>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.exchangeratesapi.io/v1/");
+                client.Timeout = TimeSpan.FromSeconds(15);
+            });
+
+            services.AddSingleton<CurrencyExchangeService>();
+            services.AddSingleton<ICurrencyExchangeService>(sp => sp.GetRequiredService<CurrencyExchangeService>());
+            services.AddHostedService(sp => sp.GetRequiredService<CurrencyExchangeService>());
 
             return services;
         }

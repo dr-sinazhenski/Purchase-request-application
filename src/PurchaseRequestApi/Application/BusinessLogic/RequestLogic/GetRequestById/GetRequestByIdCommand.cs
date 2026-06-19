@@ -4,5 +4,5 @@ using Shared;
 
 namespace Application.BusinessLogic.RequestLogic.GetRequestById
 {
-    public record GetRequestByIdCommand(Guid Id) : IRequest<Result<GetRequestDetailsResDto>>;
+    public record GetRequestByIdCommand(Guid Id, string RequiredCurrency) : IRequest<Result<GetRequestDetailsResDto>>;
 }

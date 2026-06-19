@@ -33,4 +33,46 @@ public class RequestTests : HandlerTestBase
         var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
         Assert.That(count, Is.EqualTo(1));
     }
+
+    [Test]
+    public async Task Add_adds_request_successfully2()
+    {
+
+        var type = await Database.RequestTypes.FirstOrDefaultAsync();
+        var dto = new CreateRequestDto
+        {
+            Title = "123",
+            Description = "456",
+            RequestTypeId = type.Id,
+        };
+
+        var responce = await Mediator.Send(new CreateRequestCommand(dto));
+
+        Assert.That(responce.IsSuccess, Is.EqualTo(true));
+
+        var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
+        Assert.That(count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public async Task Add_adds_request_successfully3()
+    {
+
+        var type = await Database.RequestTypes.FirstOrDefaultAsync();
+        var dto = new CreateRequestDto
+        {
+            Title = "123",
+            Description = "456",
+            RequestTypeId = type.Id,
+        };
+
+        var responce = await Mediator.Send(new CreateRequestCommand(dto));
+
+        Assert.That(responce.IsSuccess, Is.EqualTo(true));
+
+        var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
+        Assert.That(count, Is.EqualTo(1));
+    }
+
+
 }
