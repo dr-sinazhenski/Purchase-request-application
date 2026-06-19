@@ -276,7 +276,7 @@ namespace Infrastructure.Database
                     Id            = Guid.Parse("cccccccc-4444-4444-4444-444444444444"),
                     Title         = "Software Licenses Q1",
                     Description   = "Annual software license renewal for Q1",
-                    Status        = RequestStatus.Rejected,
+                    Status        = RequestStatus.ForRevision,
                     CreatedAt     = new DateTime(2025, 1, 20, 8, 0, 0, DateTimeKind.Utc),
                     UpdatedAt     = new DateTime(2025, 1, 22, 11, 0, 0, DateTimeKind.Utc),
                     RequesterId   = Guid.Parse("aaaaaaaa-3333-3333-3333-333333333333"),
