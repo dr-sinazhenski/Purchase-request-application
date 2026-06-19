@@ -320,47 +320,47 @@ namespace Testing.RequestTests
 
             Assert.That(result.Error!.ErrorCode, Is.EqualTo(404));
         }
-    }
+    
 
-    [Test]
-    public async Task Add_adds_request_successfully2()
-    {
-
-        var type = await Database.RequestTypes.FirstOrDefaultAsync();
-        var dto = new CreateRequestDto
+        [Test]
+        public async Task Add_adds_request_successfully2()
         {
-            Title = "123",
-            Description = "456",
-            RequestTypeId = type.Id,
-        };
 
-        var responce = await Mediator.Send(new CreateRequestCommand(dto));
+            var type = await Database.RequestTypes.FirstOrDefaultAsync();
+            var dto = new CreateRequestDto
+            {
+                Title = "123",
+                Description = "456",
+                RequestTypeId = type.Id,
+            };
 
-        Assert.That(responce.IsSuccess, Is.EqualTo(true));
+            var responce = await Mediator.Send(new CreateRequestCommand(dto));
 
-        var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
-        Assert.That(count, Is.EqualTo(1));
-    }
+            Assert.That(responce.IsSuccess, Is.EqualTo(true));
 
-    [Test]
-    public async Task Add_adds_request_successfully3()
-    {
+            var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
+            Assert.That(count, Is.EqualTo(1));
+        }
 
-        var type = await Database.RequestTypes.FirstOrDefaultAsync();
-        var dto = new CreateRequestDto
+        [Test]
+        public async Task Add_adds_request_successfully3()
         {
-            Title = "123",
-            Description = "456",
-            RequestTypeId = type.Id,
-        };
 
-        var responce = await Mediator.Send(new CreateRequestCommand(dto));
+            var type = await Database.RequestTypes.FirstOrDefaultAsync();
+            var dto = new CreateRequestDto
+            {
+                Title = "123",
+                Description = "456",
+                RequestTypeId = type.Id,
+            };
 
-        Assert.That(responce.IsSuccess, Is.EqualTo(true));
+            var responce = await Mediator.Send(new CreateRequestCommand(dto));
 
-        var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
-        Assert.That(count, Is.EqualTo(1));
+            Assert.That(responce.IsSuccess, Is.EqualTo(true));
+
+            var count = await Database.Requests.CountAsync(c => c.Title == dto.Title);
+            Assert.That(count, Is.EqualTo(1));
+        }
+
     }
-
-
 }
