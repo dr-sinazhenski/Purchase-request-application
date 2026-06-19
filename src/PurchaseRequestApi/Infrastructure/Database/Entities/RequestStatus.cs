@@ -9,7 +9,7 @@ namespace Infrastructure.Database.Entities
         Submited,
         Resubmited,
         Approved,
+        ForRevision,
         Rejected,
-        FinalReject,
     }
 }

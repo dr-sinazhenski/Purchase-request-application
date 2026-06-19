@@ -298,7 +298,7 @@ namespace Testing.RequestTests
         [Test]
         public async Task Handle_RejectedRequest_ReturnsFailure()
         {
-            var request = DBSeeder.SeedRequest(Database, _requestType, _account, status: RequestStatus.Rejected);
+            var request = DBSeeder.SeedRequest(Database, _requestType, _account, status: RequestStatus.ForRevision);
 
             var result = await Mediator.Send(new ApproveRequestCommand(request.Id));
 
