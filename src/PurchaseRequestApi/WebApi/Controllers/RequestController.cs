@@ -63,7 +63,8 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var result = await _mediator.Send(new GetRequestByIdCommand(id));
+            var currency = User.FindFirst("currency")?.Value ?? string.Empty;
+            var result = await _mediator.Send(new GetRequestByIdCommand(id, currency));
 
             if (!result.IsSuccess)
             {
@@ -144,7 +145,8 @@ namespace WebApi.Controllers
             [FromQuery] string? status,
             [FromQuery] Guid? regionId)
         {
-            var result = await _mediator.Send(new GetRequestsFilteredCommand(requestTypeId, status, regionId));
+            var currency = User.FindFirst("currency")?.Value ?? string.Empty;
+            var result = await _mediator.Send(new GetRequestsFilteredCommand(requestTypeId, status, regionId, currency));
 
             if (!result.IsSuccess)
             {

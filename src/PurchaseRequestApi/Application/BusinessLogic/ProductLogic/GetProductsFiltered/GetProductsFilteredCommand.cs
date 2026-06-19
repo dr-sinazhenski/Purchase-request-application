@@ -6,6 +6,7 @@ namespace Application.BusinessLogic.ProductLogic.GetProductsFiltered
 {
     public record GetProductsFilteredCommand(
         Guid? RegionId,
-        Guid? RequestTypeId
+        Guid? RequestTypeId, 
+        string RequiredCurrency
     ) : IRequest<Result<List<GetFilteredProductDto>>>;
 }

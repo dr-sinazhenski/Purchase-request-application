@@ -110,7 +110,8 @@ namespace WebApi.Controllers
             [FromQuery] Guid? regionId,
             [FromQuery] Guid? requestTypeId)
         {
-            var result = await _mediator.Send(new GetProductsFilteredCommand(regionId, requestTypeId));
+            var currency = User.FindFirst("currency")?.Value ?? string.Empty;
+            var result = await _mediator.Send(new GetProductsFilteredCommand(regionId, requestTypeId, currency));
 
             if (!result.IsSuccess)
             {

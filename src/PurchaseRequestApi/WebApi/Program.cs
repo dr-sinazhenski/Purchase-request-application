@@ -54,6 +54,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDb();
+builder.Services.AddCurrencyRatesService();
 builder.Services.AddMediatr();
 
 var app = builder.Build();
