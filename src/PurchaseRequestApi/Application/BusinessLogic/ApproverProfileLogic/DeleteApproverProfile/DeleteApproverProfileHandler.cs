@@ -18,17 +18,15 @@ namespace Application.BusinessLogic.ApproverProfileLogic.DeleteApproverProfile
 
         public async Task<Result<bool>> Handle(DeleteApproverProfileCommand request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Deleting approver profile with Id={Id}", request.Id);
-
-            var role = _dbContext.Roles.FirstOrDefault(r => r.Id == request.Id);
-            if (role is null)
+            var profile = _dbContext.ApproverProfiles.FirstOrDefault(p => p.Id == request.Id);
+            if (profile is null)
             {
                 var err = new Error(404, $"Approver profile with id={request.Id} not found");
                 _logger.LogError(err.ToString());
                 return Result<bool>.Failure(err);
             }
 
-            _dbContext.Roles.Remove(role);
+            _dbContext.ApproverProfiles.Remove(profile);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Approver profile deleted with Id={Id}", request.Id);
