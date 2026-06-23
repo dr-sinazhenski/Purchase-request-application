@@ -6,7 +6,9 @@ on:
       - main  # Change to your target branch if needed
 
 env:
-  AZURE_REPO_URL: "https://anything:${{ secrets.AZURE_PAT }}@dev.azure.com/TeamProjectT/PurchaseRequestApp/_git/PurchaseRequestApp"
+  AZURE_ORG: TeamProjectT
+  AZURE_PROJECT: PurchaseRequestApp
+  AZURE_REPO: PurchaseRequestApp
   AZURE_BRANCH: main
 
 jobs:
@@ -27,7 +29,8 @@ jobs:
       - name: Clone Azure DevOps repo
         run: |
           git clone --depth=1 --branch ${{ env.AZURE_BRANCH }} \
-            "${{ env.AZURE_REPO_URL }}" azure-repo
+            "https://anything:${{ secrets.AZURE_PAT }}@dev.azure.com/${{ env.AZURE_ORG }}/${{ env.AZURE_PROJECT }}/_git/${{ env.AZURE_REPO }}" \
+            azure-repo
 
       - name: Preserve Azure-only files
         run: |
