@@ -6,8 +6,8 @@ on:
       - main  # Change to your target branch if needed
 
 env:
-  AZURE_REPO_URL: https://${{ secrets.AZURE_PAT }}@dev.azure.com/TeamProjectT/PurchaseRequestApp/_git/PurchaseRequestApp
-  AZURE_BRANCH: main  # Branch in Azure DevOps to push to
+  AZURE_REPO_URL: "https://anything:${{ secrets.AZURE_PAT }}@dev.azure.com/TeamProjectT/PurchaseRequestApp/_git/PurchaseRequestApp"
+  AZURE_BRANCH: main
 
 jobs:
   sync:
