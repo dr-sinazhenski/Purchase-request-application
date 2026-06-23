@@ -42,12 +42,18 @@ namespace Application.BusinessLogic.AccountLogic.Login
             }
 
             var roles = account.Role.Select(r => r.Name).ToList();
+            var userNativeCurrency = _dbContext.Regions.FirstOrDefaultAsync(r => r.Id == account.RegionId).Result.Currency;
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
                 new Claim(ClaimTypes.Name, account.Name),
             };
+
+            if (userNativeCurrency != null)
+            {
+                claims.Add(new Claim("currency", userNativeCurrency));
+            }
 
             foreach (var role in roles)
                 claims.Add(new Claim(ClaimTypes.Role, role));

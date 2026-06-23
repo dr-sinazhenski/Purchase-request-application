@@ -117,27 +117,27 @@ export function AppShell({
               </button>
             )}
           </nav>
-
-          <button
-            className={
-              screen === 'profile'
-                ? 'sidebar-footer profile-link active'
-                : 'sidebar-footer profile-link'
-            }
-            onClick={onProfile}
-            type="button"
-          >
-            <div className="avatar">{getInitials(displayName)}</div>
-            <div>
-              <strong>{displayName}</strong>
-              <span>
-                {displayRole} - {account?.regionName ?? 'Acme Corp'}
-              </span>
-            </div>
-          </button>
         </aside>
 
         <main className="main">{children}</main>
+
+        {screen !== 'profile' && (
+          <button
+            aria-label={`Open profile for ${displayName}`}
+            className="app-profile-button"
+            onClick={onProfile}
+            title={`${displayName} - ${displayRole}`}
+            type="button"
+          >
+            <span className="avatar app-profile-avatar">
+              {getInitials(displayName)}
+            </span>
+            <span className="app-profile-details" role="tooltip">
+              <strong>{displayName}</strong>
+              <span>{displayRole}</span>
+            </span>
+          </button>
+        )}
 
         <nav className="mobile-nav" aria-label="Mobile navigation">
           <button
@@ -195,16 +195,6 @@ export function AppShell({
               <span>Admin</span>
             </button>
           )}
-          <button
-            className={
-              screen === 'profile' ? 'mobile-nav-item active' : 'mobile-nav-item'
-            }
-            onClick={onProfile}
-            type="button"
-          >
-            <span className="mobile-avatar">{getInitials(displayName)}</span>
-            <span>Profile</span>
-          </button>
         </nav>
       </div>
     </div>

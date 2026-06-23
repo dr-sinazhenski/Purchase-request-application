@@ -19,7 +19,6 @@ import type {
   PriceOption,
   ProductOption,
   RegionOption,
-  RequestItemApiDto,
   RequestTypeOption,
 } from '../../api'
 import { Field } from '../Field/Field'
@@ -42,16 +41,6 @@ function mapBackendStatus(status: string): Status {
   }
 }
 
-function mapApiItems(items: RequestItemApiDto[]) {
-  return items.map((item) => ({
-    name: item.name,
-    category: item.description,
-    quantity: item.amount,
-    unitPrice: item.price,
-    productId: item.id,
-  }))
-}
-
 function mapItemsToProductAmounts(items: RequestRecord['items']) {
   return items.reduce<Record<string, number>>((amounts, item) => {
     if (item.productId && item.quantity > 0) {
@@ -64,6 +53,24 @@ function mapItemsToProductAmounts(items: RequestRecord['items']) {
 
 function parseApiDate(value: string | undefined) {
   return value ? new Date(value) : new Date()
+}
+
+function getCurrencyFromToken(token?: string) {
+  if (!token) {
+    return undefined
+  }
+
+  try {
+    const payload = token.split('.')[1]
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const parsedPayload = JSON.parse(atob(normalizedPayload)) as {
+      currency?: string
+    }
+
+    return parsedPayload.currency
+  } catch {
+    return undefined
+  }
 }
 
 function createBlankItem(): RequestRecord['items'][number] {
@@ -154,19 +161,20 @@ export function RequestForm({
   const [prices, setPrices] = useState<PriceOption[]>([])
   const [regions, setRegions] = useState<RegionOption[]>([])
   const [selectedRegionId, setSelectedRegionId] = useState('')
-  const [isLoadingPrices, setIsLoadingPrices] = useState(false)
   const [priceError, setPriceError] = useState('')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const accountRegionId = currentAccount?.regionId ?? ''
+  const accountCurrency = getCurrencyFromToken(currentAccount?.token)
   const selectedRegion = regions.find((region) => region.id === selectedRegionId)
-  const currency = selectedRegion?.currency ?? 'EUR'
+  const currency = accountCurrency ?? selectedRegion?.currency ?? 'EUR'
   const total = items.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
   )
   const nextStatus: Status = isEdit
-    ? request.status === 'Rejected'
+    ? request.status === 'For Revision'
       ? 'Resubmitted'
       : request.status
     : 'New'
@@ -229,7 +237,6 @@ export function RequestForm({
     }
 
     async function loadPriceData() {
-      setIsLoadingPrices(true)
       setPriceError('')
 
       try {
@@ -252,20 +259,26 @@ export function RequestForm({
         setPrices(priceResult.data)
         setRegions(regionResult.data)
 
+        const accountRegion = regionResult.data.find(
+          (region) => region.id === accountRegionId,
+        )
+        const accountCurrencyRegion = regionResult.data.find(
+          (region) => region.currency === accountCurrency,
+        )
         const europeRegion = regionResult.data.find(
           (region) => region.name === 'Europe',
         )
-        const initialRegion = europeRegion ?? regionResult.data[0]
+        const initialRegion =
+          accountRegion ??
+          accountCurrencyRegion ??
+          europeRegion ??
+          regionResult.data[0]
 
         if (initialRegion) {
           setSelectedRegionId(initialRegion.id)
         }
       } catch {
         setPriceError('Unable to load prices from API.')
-      } finally {
-        if (mounted) {
-          setIsLoadingPrices(false)
-        }
       }
     }
 
@@ -276,7 +289,7 @@ export function RequestForm({
     return () => {
       mounted = false
     }
-  }, [request.type])
+  }, [accountCurrency, accountRegionId, request.type])
 
   function findPrice(productId: string, regionId = selectedRegionId) {
     return prices.find(
@@ -284,14 +297,18 @@ export function RequestForm({
     )
   }
 
-  function applyPricesForRegion(regionId: string) {
+  useEffect(() => {
+    if (!selectedRegionId || prices.length === 0) {
+      return
+    }
+
     setItems((currentItems) =>
       currentItems.map((currentItem) => {
         if (!currentItem.productId) {
           return currentItem
         }
 
-        const price = findPrice(currentItem.productId, regionId)
+        const price = findPrice(currentItem.productId)
 
         if (!price) {
           return currentItem
@@ -304,7 +321,7 @@ export function RequestForm({
         }
       }),
     )
-  }
+  }, [prices, selectedRegionId])
 
   async function handleSubmit() {
     const validationError = validateRequestForm(
@@ -336,10 +353,8 @@ export function RequestForm({
           return
         }
 
-        const apiItems = result.data.products?.length
-          ? mapApiItems(result.data.products)
-          : items
-        const apiTotal = apiItems.reduce(
+        const formItems = items.filter((item) => item.productId)
+        const formTotal = formItems.reduce(
           (sum, item) => sum + item.quantity * item.unitPrice,
           0,
         )
@@ -351,7 +366,7 @@ export function RequestForm({
           type: result.data.requestType.name,
           typeId: result.data.requestType.id,
           status: mapBackendStatus(result.data.status),
-          total: apiTotal,
+          total: formTotal,
           creator: creatorName,
           initials:
             creatorName
@@ -365,7 +380,7 @@ export function RequestForm({
           submitted: formatSubmittedDate(parseApiDate(result.data.createdAt)),
           approver: currentAccount?.approverProfileName ?? 'Approval queue',
           description: result.data.description ?? description,
-          items: apiItems,
+          items: formItems,
           ownerAccountId: currentAccount?.id,
         }
 
@@ -397,30 +412,31 @@ export function RequestForm({
           return
         }
 
-        const apiItems = result.data.products?.length
-          ? mapApiItems(result.data.products)
-          : items
-        const apiTotal = apiItems.reduce(
+        const formItems = items.filter((item) => item.productId)
+        const formTotal = formItems.reduce(
           (sum, item) => sum + item.quantity * item.unitPrice,
           0,
         )
+        const updatedStatus = mapBackendStatus(result.data.status)
 
         const updatedRequest: RequestRecord = {
           id: result.data.id,
           name: result.data.title,
           type: result.data.requestType.name,
           typeId: result.data.requestType.id,
-          status: mapBackendStatus(result.data.status),
-          total: apiTotal,
+          status: updatedStatus,
+          total: formTotal,
           creator: request.creator,
           initials: request.initials,
           updated: 'Just now',
           submitted: request.submitted,
           approver: request.approver,
           description: result.data.description ?? description,
-          items: apiItems,
-          reason: request.reason,
-          finalRejected: request.finalRejected,
+          items: formItems,
+          reason: updatedStatus === 'For Revision' ? request.reason : undefined,
+          finalRejected:
+            updatedStatus === 'Rejected' ? request.finalRejected : undefined,
+          ownerAccountId: request.ownerAccountId,
         }
 
         await onSubmit(updatedRequest)
@@ -454,22 +470,25 @@ export function RequestForm({
               <span>Fill in the details below. Required fields marked *</span>
             </div>
             {isEdit && (
-              <StatusBadge
-                finalRejected={request.finalRejected}
-                status={request.status}
-              />
+              <div className="request-form-status">
+                <StatusBadge
+                  finalRejected={request.finalRejected}
+                  status={request.status}
+                />
+                {request.reason && (
+                  <span
+                    className={
+                      request.status === 'Rejected'
+                        ? 'request-form-status-reason final'
+                        : 'request-form-status-reason returned'
+                    }
+                  >
+                    {request.reason}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-
-          {isEdit && request.status === 'Rejected' && (
-            <div className="notice danger">
-              <AlertTriangle size={18} />
-              <div>
-                <strong>Request was rejected</strong>
-                <span>{request.reason}</span>
-              </div>
-            </div>
-          )}
 
           {(requestTypeError || productError || priceError || submitError) && (
             <div className="notice danger">
@@ -508,29 +527,6 @@ export function RequestForm({
                 {requestTypes.map((option) => (
                   <option key={option.id} value={option.id}>
                     {option.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Price Region">
-              <select
-                disabled={isLoadingPrices}
-                onChange={(event) => {
-                  const nextRegionId = event.target.value
-                  setSelectedRegionId(nextRegionId)
-                  applyPricesForRegion(nextRegionId)
-                }}
-                value={selectedRegionId}
-              >
-                {isLoadingPrices && (
-                  <option value="">Loading regions...</option>
-                )}
-                {!isLoadingPrices && regions.length === 0 && (
-                  <option value="">No regions available</option>
-                )}
-                {regions.map((region) => (
-                  <option key={region.id} value={region.id}>
-                    {region.name} ({region.currency})
                   </option>
                 ))}
               </select>
@@ -714,11 +710,7 @@ export function RequestForm({
           </div>
           <div className="summary-line">
             <span>Currency</span>
-            <strong>{selectedRegion?.currency ?? 'EUR'}</strong>
-          </div>
-          <div className="summary-line">
-            <span>Price region</span>
-            <strong>{selectedRegion?.name ?? 'Not selected'}</strong>
+            <strong>{currency}</strong>
           </div>
         </aside>
         <div className="form-actions request-form-actions">

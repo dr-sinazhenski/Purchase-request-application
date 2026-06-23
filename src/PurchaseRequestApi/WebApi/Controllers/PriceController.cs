@@ -27,7 +27,8 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _mediator.Send(new GetAllPricesCommand());
+            var currency = User.FindFirst("currency")?.Value ?? string.Empty;
+            var result = await _mediator.Send(new GetAllPricesCommand(currency));
 
             if (!result.IsSuccess)
             {
@@ -57,7 +58,8 @@ namespace WebApi.Controllers
         [HttpGet("{productId}/{regionId}")]
         public async Task<IActionResult> GetById(Guid productId, Guid regionId)
         {
-            var result = await _mediator.Send(new GetPriceCommand(productId, regionId));
+            var currency = User.FindFirst("currency")?.Value ?? string.Empty;
+            var result = await _mediator.Send(new GetPriceCommand(productId, regionId, currency));
 
             if (!result.IsSuccess)
             {

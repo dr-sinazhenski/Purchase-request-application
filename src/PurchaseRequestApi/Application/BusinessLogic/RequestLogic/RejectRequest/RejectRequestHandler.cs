@@ -46,7 +46,7 @@ namespace Application.BusinessLogic.RequestLogic.RejectRequest
             };
             await _dbContext.Comments.AddAsync(comment);
 
-            request.Status = command.dto.IsFinal ? RequestStatus.FinalReject : RequestStatus.Rejected;
+            request.Status = command.dto.IsFinal ? RequestStatus.Rejected : RequestStatus.ForRevision;
             request.RejectionCommentId = comment.Id;
             request.RejectionComment = comment;
 

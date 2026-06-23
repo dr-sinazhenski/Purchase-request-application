@@ -6,8 +6,8 @@ type StatusBadgeProps = {
   status: Status
 }
 
-export function StatusBadge({ finalRejected = false, status }: StatusBadgeProps) {
-  const label = finalRejected && status === 'Rejected' ? 'Final rejected' : status
+export function StatusBadge({ status }: StatusBadgeProps) {
+  const statusClass = `status-${status.toLowerCase().replace(/\s+/g, '-')}`
 
-  return <span className={`status status-${status.toLowerCase()}`}>{label}</span>
+  return <span className={`status ${statusClass}`}>{status}</span>
 }

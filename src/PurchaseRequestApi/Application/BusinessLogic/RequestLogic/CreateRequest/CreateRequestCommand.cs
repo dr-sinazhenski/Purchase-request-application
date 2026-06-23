@@ -8,5 +8,5 @@ using System.Text;
 
 namespace Application.BusinessLogic.RequestLogic.CreateRequest
 {
-    public record CreateRequestCommand(CreateRequestDto dto) : IRequest<Result<GetRequestDetailsResDto>>;
+    public record CreateRequestCommand(CreateRequestDto dto, Guid RequesterId) : IRequest<Result<GetRequestDetailsResDto>>;
 }

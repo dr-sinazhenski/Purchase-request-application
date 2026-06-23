@@ -21,6 +21,7 @@ type AuthMode = 'signin' | 'signup'
 type AuthViewProps = {
   mode: AuthMode
   onModeChange: (mode: AuthMode) => void
+  onPrivacyPolicy: () => void
   onSuccess: (account: AccountOption) => void
 }
 
@@ -48,7 +49,12 @@ function getClaim(payload: Record<string, string | string[]>, claim: string) {
   return Array.isArray(value) ? value[0] : value
 }
 
-export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
+export function AuthView({
+  mode,
+  onModeChange,
+  onPrivacyPolicy,
+  onSuccess,
+}: AuthViewProps) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -438,14 +444,23 @@ export function AuthView({ mode, onModeChange, onSuccess }: AuthViewProps) {
             </div>
           ) : (
             <>
-              <label className="auth-check-row">
-                <input
-                  checked={acceptTerms}
-                  onChange={(event) => setAcceptTerms(event.target.checked)}
-                  type="checkbox"
-                />
-                I agree to the Terms and Privacy Policy
-              </label>
+              <div className="auth-check-row">
+                <label>
+                  <input
+                    checked={acceptTerms}
+                    onChange={(event) => setAcceptTerms(event.target.checked)}
+                    type="checkbox"
+                  />
+                  I agree to the Terms and
+                </label>
+                <button
+                  className="auth-link"
+                  onClick={onPrivacyPolicy}
+                  type="button"
+                >
+                  Privacy Policy
+                </button>
+              </div>
               {errors.terms && <small className="auth-terms-error">{errors.terms}</small>}
             </>
           )}

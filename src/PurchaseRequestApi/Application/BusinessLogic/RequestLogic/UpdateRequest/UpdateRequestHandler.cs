@@ -43,7 +43,7 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 return Result<GetRequestDetailsResDto>.Failure(null);
             }
 
-            if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.Rejected && request.Status != RequestStatus.Resubmited)
+            if (request.Status != RequestStatus.Submited && request.Status != RequestStatus.ForRevision && request.Status != RequestStatus.Resubmited)
             {
                 _logger.LogInformation("Reqest type incorrect");
                 return Result<GetRequestDetailsResDto>.Failure(null);
@@ -95,7 +95,7 @@ namespace Application.BusinessLogic.RequestLogic.UpdateRequest
                 }
             }
 
-            if (request.Status is RequestStatus.Rejected)
+            if (request.Status is RequestStatus.ForRevision)
             {
                 request.Status = RequestStatus.Resubmited;
             }

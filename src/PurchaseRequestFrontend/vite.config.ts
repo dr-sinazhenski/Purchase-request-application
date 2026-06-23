@@ -21,6 +21,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/Comment': {
+        target: 'http://localhost:5239',
+        changeOrigin: true,
+        secure: false,
+      },
       '/RequestType': {
         target: 'http://localhost:5239',
         changeOrigin: true,

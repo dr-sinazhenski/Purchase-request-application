@@ -20,3 +20,5 @@ It is especially useful for companies that require managerial approval and budge
 - Frontend: React
 - Database: PostgreSQL, EF core
 
+john.doe
+jane.smith
