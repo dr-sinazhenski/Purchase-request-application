@@ -209,8 +209,6 @@ public sealed class CurrencyExchangeService : ICurrencyExchangeService, IHostedS
 
     public async ValueTask DisposeAsync()
     {
-        _cts?.Cancel();
-
         if (_backgroundTimer is not null)
             await _backgroundTimer.DisposeAsync();
 
