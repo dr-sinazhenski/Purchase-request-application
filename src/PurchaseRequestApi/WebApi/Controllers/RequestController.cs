@@ -34,15 +34,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRequestDto dto)
         {
-            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(requesterId, out var accountId))
-            {
-                _logger.LogError("Failed to create request because requester id is missing from token");
-                return Unauthorized();
-            }
-
             var result = await _mediator.Send(new CreateRequestCommand(dto));
-
             if (!result.IsSuccess)
             {
                 _logger.LogError("Failed to create request");

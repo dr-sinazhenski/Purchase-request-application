@@ -339,6 +339,7 @@ namespace Testing.RequestTests
                 Title = "123",
                 Description = "456",
                 RequestTypeId = type.Id,
+                RequesterId = _account.Id, 
             };
 
             var responce = await Mediator.Send(new CreateRequestCommand(dto));
@@ -359,6 +360,7 @@ namespace Testing.RequestTests
                 Title = "123",
                 Description = "456",
                 RequestTypeId = type.Id,
+                RequesterId = _account.Id, 
             };
 
             var responce = await Mediator.Send(new CreateRequestCommand(dto));
