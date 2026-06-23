@@ -35,13 +35,6 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 return Result<GetRequestDetailsResDto>.Failure(new Error(404, $"Request type with id= {command.dto.RequestTypeId} not found"));
             }
 
-            var requester = await _dbContext.Accounts
-                .FirstOrDefaultAsync(x => x.Id == command.RequesterId, cancellationToken);
-            if (requester == null)
-            {
-                return Result<GetRequestDetailsResDto>.Failure(new Error(404, $"Requester with id= {command.RequesterId} not found"));
-            }
-
             var request = new Request
             {
                 Id = Guid.NewGuid(),
