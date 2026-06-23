@@ -1,0 +1,86 @@
+name: Sync to Azure DevOps
+
+on:
+  push:
+    branches:
+      - main  # Change to your target branch if needed
+
+env:
+  AZURE_REPO_URL: https://${{ secrets.AZURE_PAT }}@dev.azure.com/TeamProjectT/PurchaseRequestApp/_git/PurchaseRequestApp
+  AZURE_BRANCH: main  # Branch in Azure DevOps to push to
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for clean sync
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-sync-bot@example.com"
+          git config --global user.name "GitHub Sync Bot"
+
+      - name: Clone Azure DevOps repo
+        run: |
+          git clone --depth=1 --branch ${{ env.AZURE_BRANCH }} \
+            "${{ env.AZURE_REPO_URL }}" azure-repo
+.
+      - name: Preserve Azure-only files
+        run: |
+          mkdir -p preserved
+
+          APPSETTINGS_FILES=(
+            "src/PurchaseRequestApi/WebApi/appsettings.Production.json"
+          )
+          for f in "${APPSETTINGS_FILES[@]}"; do
+            if [ -f "azure-repo/$f" ]; then
+              mkdir -p "preserved/$(dirname $f)"
+              cp "azure-repo/$f" "preserved/$f"
+              echo "Preserved appsetting: $f"
+            fi
+          done
+
+
+          PIPELINE_FILES=(
+            "src/PurchaseRequestApi/azure-pipelines.yml"
+          )
+          for f in "${PIPELINE_FILES[@]}"; do
+            if [ -f "azure-repo/$f" ]; then
+              mkdir -p "preserved/$(dirname $f)"
+              cp "azure-repo/$f" "preserved/$f"
+              echo "Preserved pipeline: $f"
+            fi
+          done
+
+      - name: Sync app code into Azure repo
+        run: |
+          rsync -av --exclude='.git/' \
+            --exclude='azure-pipelines.yml' \
+            --exclude='.azure/' \
+            --exclude='src/MyApp/appsettings*.json' \
+            ./ azure-repo/
+
+      - name: Re-apply preserved Azure files
+        run: |
+          cp -r preserved/. azure-repo/ 2>/dev/null || true
+          echo "Preserved files restored."
+
+      - name: Commit and push to Azure DevOps
+        run: |
+          cd azure-repo
+
+          git add -A
+
+          # Only commit if there are actual changes
+          if git diff --cached --quiet; then
+            echo "No changes to sync. Skipping commit."
+          else
+            COMMIT_MSG="Sync from GitHub: $(git -C ../ log -1 --pretty='%h %s')"
+            git commit -m "$COMMIT_MSG"
+            git push origin ${{ env.AZURE_BRANCH }}
+            echo "Pushed changes to Azure DevOps."
+          fi
