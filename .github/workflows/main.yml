@@ -28,8 +28,10 @@ jobs:
 
       - name: Clone Azure DevOps repo
         run: |
+          git config --global credential.helper store
+          echo "https://anything:${{ secrets.AZURE_PAT }}@dev.azure.com" > ~/.git-credentials
           git clone --depth=1 --branch ${{ env.AZURE_BRANCH }} \
-            "https://${{ secrets.AZURE_PAT }}:${{ secrets.AZURE_PAT }}@dev.azure.com/${{ env.AZURE_ORG }}/${{ env.AZURE_PROJECT }}/_git/${{ env.AZURE_REPO }}" \
+            "https://dev.azure.com/${{ env.AZURE_ORG }}/${{ env.AZURE_PROJECT }}/_git/${{ env.AZURE_REPO }}" \
             azure-repo
 
       - name: Preserve Azure-only files
