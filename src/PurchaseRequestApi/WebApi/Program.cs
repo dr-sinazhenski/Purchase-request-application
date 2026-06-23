@@ -53,7 +53,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDb();
+builder.Services.AddDb(builder.Environment);
 builder.Services.AddCurrencyRatesService();
 builder.Services.AddMediatr();
 
