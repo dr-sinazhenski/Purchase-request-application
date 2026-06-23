@@ -28,7 +28,7 @@ jobs:
         run: |
           git clone --depth=1 --branch ${{ env.AZURE_BRANCH }} \
             "${{ env.AZURE_REPO_URL }}" azure-repo
-.
+
       - name: Preserve Azure-only files
         run: |
           mkdir -p preserved
