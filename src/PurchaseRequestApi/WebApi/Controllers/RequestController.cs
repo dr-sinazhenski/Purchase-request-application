@@ -41,7 +41,7 @@ namespace WebApi.Controllers
                 return Unauthorized();
             }
 
-            var result = await _mediator.Send(new CreateRequestCommand(dto, accountId));
+            var result = await _mediator.Send(new CreateRequestCommand(dto));
 
             if (!result.IsSuccess)
             {
