@@ -35,6 +35,7 @@ namespace Testing.RequestTests
                 Title = "My Request",
                 Description = "Need a laptop",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 2 } }
             };
 
@@ -56,6 +57,7 @@ namespace Testing.RequestTests
                 Title = "Persisted Request",
                 Description = "Should be in DB",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 1 } }
             };
 
@@ -73,6 +75,7 @@ namespace Testing.RequestTests
                 Title = "With Products",
                 Description = "desc",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 3 } }
             };
 
@@ -114,6 +117,7 @@ namespace Testing.RequestTests
                 Title = "Mixed Products",
                 Description = "desc",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int>
                 {
                     { _product.Id, 1 },
@@ -136,6 +140,7 @@ namespace Testing.RequestTests
                 Title = "Zero Qty",
                 Description = "desc",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 0 } }
             };
 
@@ -157,6 +162,7 @@ namespace Testing.RequestTests
                 Title = "No Products",
                 Description = "desc",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int>()
             };
 
@@ -174,6 +180,7 @@ namespace Testing.RequestTests
                 Title = "Status Check",
                 Description = "desc",
                 RequestTypeId = _requestType.Id,
+                RequesterId = _account.Id,
                 ProductIdAmount = new Dictionary<Guid, int>()
             };
 

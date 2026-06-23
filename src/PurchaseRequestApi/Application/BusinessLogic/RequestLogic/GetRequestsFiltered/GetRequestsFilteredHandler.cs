@@ -54,7 +54,8 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestsFiltered
                                 .FirstOrDefault() * rp.Quantity)
                         : 0,
                     CreatedAt = r.CreatedAt,
-                    UpdatedAt = r.UpdatedAt
+                    UpdatedAt = r.UpdatedAt,
+                    RequesterId = (Guid)r.RequesterId
                 })
                 .ToListAsync(cancellationToken);
 

@@ -37,7 +37,8 @@ namespace Application.BusinessLogic.RequestLogic.GetAllRequests
                     {
                         Id = r.RequestType.Id,
                         Name = r.RequestType.Name
-                    }
+                    },
+                    RequesterId = (Guid)r.RequesterId
                 })
                 .ToListAsync(cancellationToken);
 

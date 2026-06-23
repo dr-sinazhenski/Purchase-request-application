@@ -51,7 +51,8 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
                     Id = r.RequestType.Id,
                     Name = r.RequestType.Name
                 },
-                Products = new List<ProductListItemDto>()
+                Products = new List<ProductListItemDto>(),
+                RequesterId = (Guid)r.RequesterId
             };
 
             var productsIds = r.RequesterProducts.Select(x => x.ProductId).ToList();
