@@ -336,6 +336,13 @@ export function RequestForm({
       return
     }
 
+    const requesterId = currentAccount?.id ?? request.ownerAccountId ?? ''
+
+    if (!requesterId) {
+      setSubmitError('Unable to determine requester for this request.')
+      return
+    }
+
     if (!isEdit) {
       try {
         setSubmitError('')
@@ -344,6 +351,7 @@ export function RequestForm({
           title: name.trim(),
           description: description.trim(),
           requestTypeId: selectedRequestTypeId,
+          requesterId,
           productIdAmount: mapItemsToProductAmounts(items),
         })
 
@@ -403,6 +411,7 @@ export function RequestForm({
           title: name.trim(),
           description: description.trim(),
           requestTypeId: selectedRequestTypeId,
+          requesterId,
           productIdAmount: mapItemsToProductAmounts(items),
         })
 

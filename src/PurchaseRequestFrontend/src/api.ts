@@ -90,6 +90,7 @@ export type CreateRequestApiDto = {
   title: string
   description: string
   requestTypeId: string
+  requesterId: string
   productIdAmount: Record<string, number>
 }
 
