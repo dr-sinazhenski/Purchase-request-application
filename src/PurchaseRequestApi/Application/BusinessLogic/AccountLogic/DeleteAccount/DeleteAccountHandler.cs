@@ -20,15 +20,15 @@ namespace Application.BusinessLogic.AccountLogic.DeleteAccount
         {
             _logger.LogInformation("Deleting account with Id={Id}", request.Id);
 
-            var role = _dbContext.Roles.FirstOrDefault(r => r.Id == request.Id);
-            if (role is null)
+            var account = _dbContext.Accounts.FirstOrDefault(a => a.Id == request.Id);
+            if (account is null)
             {
                 var err = new Error(404, $"Account with id={request.Id} not found");
                 _logger.LogError(err.ToString());
                 return Result<bool>.Failure(err);
             }
 
-            _dbContext.Roles.Remove(role);
+            _dbContext.Accounts.Remove(account);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account deleted with Id={Id}", request.Id);
