@@ -45,12 +45,26 @@
   line-height: 1.45;
 }
 
-.reject-reason-block {
-  margin-bottom: 18px;
+.request-detail-status {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  max-width: 360px;
+  text-align: right;
 }
 
-.reject-reason-block span {
+.request-detail-status-reason {
+  font-size: 13px;
+  font-weight: 550;
   line-height: 1.45;
+}
+
+.request-detail-status-reason.returned {
+  color: #1e3a8a;
+}
+
+.request-detail-status-reason.final {
+  color: var(--danger);
 }
 
 .back-button {
@@ -113,6 +127,12 @@
     flex-direction: column;
     gap: 12px;
     margin-bottom: 16px;
+  }
+
+  .request-detail-status {
+    justify-items: start;
+    max-width: 100%;
+    text-align: left;
   }
 
   .detail-title h2,

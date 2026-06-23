@@ -45,7 +45,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Enter your JWT token (without 'Bearer ' prefix)"
+        Description = "Paste the JWT access token. Swagger will send it as Bearer token."
     });
     c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
@@ -61,9 +61,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-
-
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();

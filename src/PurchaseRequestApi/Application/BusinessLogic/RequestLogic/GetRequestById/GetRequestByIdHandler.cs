@@ -43,6 +43,13 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
                 return Result<GetRequestDetailsResDto>.Failure(err);
             }
 
+            if (r.Requester == null)
+            {
+                var err = new Error(400, $"Request with id= {request.Id} has no requester assigned");
+                _logger.LogError(err.ToString());
+                return Result<GetRequestDetailsResDto>.Failure(err);
+            }
+
             var data = new GetRequestDetailsResDto
             {
                 Id = r.Id,

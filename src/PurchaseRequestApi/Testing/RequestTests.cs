@@ -38,7 +38,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 2 } }
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data!.Title, Is.EqualTo("My Request"));
@@ -59,7 +59,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 1 } }
             };
 
-            await Mediator.Send(new CreateRequestCommand(dto));
+            await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             var count = await Database.Requests.CountAsync(r => r.Title == "Persisted Request");
             Assert.That(count, Is.EqualTo(1));
@@ -76,7 +76,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 3 } }
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             var rp = await Database.RequesterProducts
                 .FirstOrDefaultAsync(x => x.RequestId == result.Data!.Id && x.ProductId == _product.Id);
@@ -96,7 +96,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int>()
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.IsSuccess, Is.False);
         }
@@ -121,7 +121,7 @@ namespace Testing.RequestTests
                 }
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data!.Products, Has.Count.EqualTo(1));
@@ -139,7 +139,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int> { { _product.Id, 0 } }
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data!.Products, Is.Empty);
@@ -160,7 +160,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int>()
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data!.Products, Is.Empty);
@@ -177,7 +177,7 @@ namespace Testing.RequestTests
                 ProductIdAmount = new Dictionary<Guid, int>()
             };
 
-            var result = await Mediator.Send(new CreateRequestCommand(dto));
+            var result = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(result.Data!.Status, Is.EqualTo(RequestStatus.Submited.ToString()));
         }
@@ -334,7 +334,7 @@ namespace Testing.RequestTests
                 RequestTypeId = type.Id,
             };
 
-            var responce = await Mediator.Send(new CreateRequestCommand(dto));
+            var responce = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(responce.IsSuccess, Is.EqualTo(true));
 
@@ -354,7 +354,7 @@ namespace Testing.RequestTests
                 RequestTypeId = type.Id,
             };
 
-            var responce = await Mediator.Send(new CreateRequestCommand(dto));
+            var responce = await Mediator.Send(new CreateRequestCommand(dto, _account.Id));
 
             Assert.That(responce.IsSuccess, Is.EqualTo(true));
 

@@ -165,6 +165,12 @@
   accent-color: var(--blue);
 }
 
+.auth-check-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .auth-split-row {
   justify-content: space-between;
 }

@@ -50,6 +50,12 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestsFiltered
             List<GetRequestsFilteredDto> result = new List<GetRequestsFilteredDto>();
             foreach (var r in requests)
             {
+                if (r.Requester == null)
+                {
+                    _logger.LogWarning("Skipping request {Id} because requester is not assigned", r.Id);
+                    continue;
+                }
+
                 resReq = new GetRequestsFilteredDto
                 {
                     Id = r.Id,

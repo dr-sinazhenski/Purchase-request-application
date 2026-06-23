@@ -18,12 +18,14 @@ type RequestDetailProps = {
   canDelete: boolean
   canEdit: boolean
   canReview: boolean
+  currency: string
 }
 
 export function RequestDetail({
   canDelete,
   canEdit,
   canReview,
+  currency,
   onApprove,
   onBack,
   onDelete,
@@ -33,7 +35,7 @@ export function RequestDetail({
   const [deleteError, setDeleteError] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const hasFinalDecision =
-    request.status === 'Approved' || Boolean(request.finalRejected)
+    request.status === 'Approved' || request.status === 'Rejected'
 
   async function handleDelete() {
     const confirmed = window.confirm(
@@ -77,21 +79,24 @@ export function RequestDetail({
                 <p>{request.description}</p>
               </div>
             </div>
-            <StatusBadge
-              finalRejected={request.finalRejected}
-              status={request.status}
-            />
-          </div>
-
-          {request.reason && (
-            <div className="notice danger reject-reason-block">
-              <AlertTriangle size={18} />
-              <div>
-                <strong>Reject reason</strong>
-                <span>{request.reason}</span>
-              </div>
+            <div className="request-detail-status">
+              <StatusBadge
+                finalRejected={request.finalRejected}
+                status={request.status}
+              />
+              {request.reason && (
+                <span
+                  className={
+                    request.status === 'Rejected'
+                      ? 'request-detail-status-reason final'
+                      : 'request-detail-status-reason returned'
+                  }
+                >
+                  {request.reason}
+                </span>
+              )}
             </div>
-          )}
+          </div>
 
           {deleteError && (
             <div className="notice danger">
@@ -107,7 +112,10 @@ export function RequestDetail({
             <Metric label="Requester" value={request.creator} />
             <Metric label="Request Type" value={request.type} />
             <Metric label="Approver" value={request.approver} />
-            <Metric label="Total Amount" value={formatMoney(request.total)} />
+            <Metric
+              label="Total Amount"
+              value={formatMoney(request.total, currency)}
+            />
           </div>
 
           <div className="section-title">
@@ -123,7 +131,9 @@ export function RequestDetail({
                     {item.category} · Qty {item.quantity}
                   </span>
                 </div>
-                <strong>{formatMoney(item.quantity * item.unitPrice)}</strong>
+                <strong>
+                  {formatMoney(item.quantity * item.unitPrice, currency)}
+                </strong>
               </div>
             ))}
           </div>
@@ -141,12 +151,16 @@ export function RequestDetail({
             />
             <TimelineItem
               active={
-                request.status === 'Approved' || request.status === 'Rejected'
+                request.status === 'Approved' ||
+                request.status === 'For Revision' ||
+                request.status === 'Rejected'
               }
               label="Decision"
               text={
                 request.status === 'Approved'
                   ? 'Approved'
+                  : request.status === 'For Revision'
+                    ? 'Returned for revision'
                   : request.status === 'Rejected'
                     ? 'Rejected'
                     : 'Waiting for decision'
@@ -158,7 +172,7 @@ export function RequestDetail({
               <button className="btn" disabled type="button">
                 Final decision was made
               </button>
-            ) : canEdit && request.status === 'Rejected' ? (
+            ) : canEdit && request.status === 'For Revision' ? (
               <button className="btn primary" onClick={onEdit} type="button">
                 Edit request
               </button>

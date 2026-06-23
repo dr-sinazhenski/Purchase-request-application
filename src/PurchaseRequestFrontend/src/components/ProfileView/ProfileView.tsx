@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { LogOut, PackagePlus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import {
@@ -234,7 +234,13 @@ export function ProfileView({
   return (
     <section className="profile-page">
       <header className="profile-header">
-        <div>
+        <button className="profile-mobile-brand" type="button">
+          <span className="profile-mobile-brand-mark">
+            <PackagePlus size={15} strokeWidth={2.4} />
+          </span>
+        </button>
+        <div className="profile-heading">
+          <span className="profile-mobile-brand-text">ProcureFlow</span>
           <h1>Profile & Settings</h1>
           <p>Manage your account and preferences</p>
         </div>

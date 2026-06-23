@@ -5,6 +5,7 @@ export const statusFilters: Array<'All' | Status> = [
   'New',
   'Resubmitted',
   'Approved',
+  'For Revision',
   'Rejected',
 ]
 

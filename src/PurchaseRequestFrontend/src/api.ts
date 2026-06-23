@@ -103,6 +103,14 @@ export type RejectRequestApiDto = {
   isFinal: boolean
 }
 
+export type CommentApiDto = {
+  id: string
+  requestId: string
+  accountId?: string | null
+  text: string
+  creationTime?: string
+}
+
 export type CreateAccountApiDto = {
   login: string
   password: string
@@ -364,6 +372,12 @@ export async function loadRequestDetails(
   id: string,
 ): Promise<ApiResult<RequestDetailsApiDto>> {
   return fetchJson<ApiResult<RequestDetailsApiDto>>(`/Request/${id}`)
+}
+
+export async function loadRequestComments(
+  id: string,
+): Promise<ApiResult<CommentApiDto[]>> {
+  return fetchJson<ApiResult<CommentApiDto[]>>(`/Comment/request/${id}`)
 }
 
 export async function createRequestApi(

@@ -1,4 +1,9 @@
-export type Status = 'New' | 'Resubmitted' | 'Approved' | 'Rejected'
+export type Status =
+  | 'New'
+  | 'Resubmitted'
+  | 'Approved'
+  | 'For Revision'
+  | 'Rejected'
 
 export type RequestSort = 'newest' | 'oldest' | 'priceHigh' | 'priceLow'
 
@@ -11,6 +16,7 @@ export type Screen =
   | 'admin'
   | 'adminUser'
   | 'profile'
+  | 'privacy'
   | 'signin'
   | 'signup'
 
@@ -48,4 +54,4 @@ export type RequestRecord = {
   items: LineItem[]
 }
 
-export type DecisionState = 'idle' | 'approved' | 'rejected'
+export type DecisionState = 'idle' | 'approved' | 'returned' | 'rejected'

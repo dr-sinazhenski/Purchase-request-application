@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   Check,
   ShieldCheck,
+  Undo2,
   X,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -16,6 +17,7 @@ import { Topbar } from '../Topbar/Topbar'
 import './ApprovalView.css'
 
 type ApprovalViewProps = {
+  currency: string
   decision: DecisionState
   onBack: () => void
   onDecide: (
@@ -29,6 +31,7 @@ type ApprovalViewProps = {
 }
 
 export function ApprovalView({
+  currency,
   decision,
   onBack,
   onDecide,
@@ -36,6 +39,7 @@ export function ApprovalView({
   request,
   requests,
 }: ApprovalViewProps) {
+  const [showReturnDialog, setShowReturnDialog] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [rejectReason, setRejectReason] = useState('')
   const [decisionError, setDecisionError] = useState('')
@@ -43,7 +47,9 @@ export function ApprovalView({
   const [queueSearch, setQueueSearch] = useState('')
   const [queueSort, setQueueSort] = useState<RequestSort>('newest')
   const isDecided =
-    request?.status === 'Approved' || request?.status === 'Rejected'
+    request?.status === 'Approved' ||
+    request?.status === 'For Revision' ||
+    request?.status === 'Rejected'
   const normalizedQueueSearch = queueSearch.trim().toLowerCase()
   const visibleRequests = requests
     .filter((queuedRequest) => {
@@ -92,6 +98,7 @@ export function ApprovalView({
       setDecisionError('')
       setIsSubmitting(true)
       await onDecide(nextDecision, reason, finalRejected)
+      setShowReturnDialog(false)
       setShowRejectDialog(false)
       setRejectReason('')
     } catch (error) {
@@ -103,6 +110,12 @@ export function ApprovalView({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  function closeDecisionDialog() {
+    setShowReturnDialog(false)
+    setShowRejectDialog(false)
+    setRejectReason('')
   }
 
   return (
@@ -146,7 +159,8 @@ export function ApprovalView({
                     <span>
                       <strong>{queuedRequest.name}</strong>
                       <small>
-                        {queuedRequest.type} - {formatMoney(queuedRequest.total)}
+                        {queuedRequest.type} -{' '}
+                        {formatMoney(queuedRequest.total, currency)}
                       </small>
                     </span>
                     <StatusBadge
@@ -163,6 +177,7 @@ export function ApprovalView({
         <section
           className={
             showRejectDialog
+              || showReturnDialog
               ? 'content-area approval-layout approval-layout-modal-open'
               : 'content-area approval-layout'
           }
@@ -187,14 +202,29 @@ export function ApprovalView({
 
           {decision !== 'idle' && (
             <div
-              className={decision === 'approved' ? 'notice success' : 'notice danger'}
+              className={
+                decision === 'approved'
+                  ? 'notice success'
+                  : decision === 'returned'
+                    ? 'notice revision'
+                    : 'notice danger'
+              }
             >
-              {decision === 'approved' ? <Check size={18} /> : <X size={18} />}
+              {decision === 'approved' ? (
+                <Check size={18} />
+              ) : decision === 'returned' ? (
+                <Undo2 size={18} />
+              ) : (
+                <X size={18} />
+              )}
               <div>
                 <strong>
-                  Request {decision === 'approved' ? 'approved' : 'rejected'}
+                  {decision === 'approved'
+                    ? 'Request approved'
+                    : decision === 'returned'
+                      ? 'Request returned for revision'
+                      : 'Request rejected'}
                 </strong>
-                <span>The status is now reflected in All Requests.</span>
               </div>
             </div>
           )}
@@ -211,7 +241,10 @@ export function ApprovalView({
 
           <div className="meta-grid meta-grid-3">
             <Metric label="Requester" value={request.creator} />
-            <Metric label="Total Amount" value={formatMoney(request.total)} />
+            <Metric
+              label="Total Amount"
+              value={formatMoney(request.total, currency)}
+            />
             <Metric label="Submitted" value={request.submitted} />
           </div>
 
@@ -224,7 +257,9 @@ export function ApprovalView({
                     {item.category} · Qty {item.quantity}
                   </span>
                 </div>
-                <strong>{formatMoney(item.quantity * item.unitPrice)}</strong>
+                <strong>
+                  {formatMoney(item.quantity * item.unitPrice, currency)}
+                </strong>
               </div>
             ))}
           </div>
@@ -239,7 +274,7 @@ export function ApprovalView({
           <p className="approval-copy">
             {isDecided
               ? 'Decision recorded. You can return to the request list to see the updated status.'
-              : 'Approve immediately, reject for resubmission, or final reject the request.'}
+              : 'Approve immediately, return for revision, or reject the request.'}
           </p>
           {!isDecided && (
             <div className="form-actions stacked">
@@ -251,6 +286,15 @@ export function ApprovalView({
               >
                 <Check size={15} />
                 {isSubmitting ? 'Approving...' : 'Approve request'}
+              </button>
+              <button
+                className="btn revision"
+                disabled={isSubmitting}
+                onClick={() => setShowReturnDialog(true)}
+                type="button"
+              >
+                <Undo2 size={15} />
+                Return for revision
               </button>
               <button
                 className="btn danger"
@@ -265,6 +309,53 @@ export function ApprovalView({
           )}
         </aside>
 
+        {showReturnDialog && (
+          <div
+            aria-labelledby="return-title"
+            aria-modal="true"
+            className="modal-backdrop"
+            role="dialog"
+          >
+            <div className="modal">
+              <div className="modal-icon revision">
+                <Undo2 size={20} />
+              </div>
+              <h2 id="return-title">Return for revision</h2>
+              <p>
+                Enter the reason so the requester knows what to change before
+                resubmitting.
+              </p>
+              <Field label="Return reason">
+                <textarea
+                  autoFocus
+                  onChange={(event) => setRejectReason(event.target.value)}
+                  placeholder="Provide a reason for returning the request..."
+                  rows={5}
+                  value={rejectReason}
+                />
+              </Field>
+              <div className="modal-actions">
+                <button
+                  className="btn"
+                  disabled={isSubmitting}
+                  onClick={closeDecisionDialog}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn revision"
+                  disabled={isSubmitting}
+                  onClick={() => submitDecision('rejected', rejectReason, false)}
+                  type="button"
+                >
+                  {isSubmitting ? 'Returning...' : 'Return'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showRejectDialog && (
           <div
             aria-labelledby="reject-title"
@@ -278,8 +369,8 @@ export function ApprovalView({
               </div>
               <h2 id="reject-title">Reject request</h2>
               <p>
-                Use reject when the requester may edit and resubmit. Use final
-                reject when the decision should be closed.
+                Enter the rejection reason. This decision will close the
+                request.
               </p>
               <Field label="Rejection reason">
                 <textarea
@@ -294,7 +385,7 @@ export function ApprovalView({
                 <button
                   className="btn"
                   disabled={isSubmitting}
-                  onClick={() => setShowRejectDialog(false)}
+                  onClick={closeDecisionDialog}
                   type="button"
                 >
                   Cancel
@@ -302,18 +393,10 @@ export function ApprovalView({
                 <button
                   className="btn danger"
                   disabled={isSubmitting}
-                  onClick={() => submitDecision('rejected', rejectReason, false)}
-                  type="button"
-                >
-                  {isSubmitting ? 'Rejecting...' : 'Reject'}
-                </button>
-                <button
-                  className="btn danger solid"
-                  disabled={isSubmitting}
                   onClick={() => submitDecision('rejected', rejectReason, true)}
                   type="button"
                 >
-                  Final reject
+                  {isSubmitting ? 'Rejecting...' : 'Reject'}
                 </button>
               </div>
             </div>

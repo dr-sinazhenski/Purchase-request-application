@@ -114,23 +114,6 @@
   font-size: 12px;
 }
 
-.sidebar-footer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 20px 14px;
-  border: 0;
-  border-top: 1px solid var(--border);
-  background: #fff;
-  text-align: left;
-}
-
-.profile-link:hover,
-.profile-link.active {
-  background: var(--blue-soft);
-}
-
 .avatar {
   display: inline-grid;
   width: 38px;
@@ -141,16 +124,6 @@
   color: #7c3aed;
   font-size: 14px;
   font-weight: 550;
-}
-
-.sidebar-footer strong {
-  display: block;
-  font-size: 15px;
-}
-
-.sidebar-footer span {
-  color: rgba(0, 0, 0, 0.46);
-  font-size: 13px;
 }
 
 .main {
@@ -164,6 +137,74 @@
 
 .mobile-nav {
   display: none;
+}
+
+.app-profile-button {
+  position: fixed;
+  z-index: 35;
+  top: 22px;
+  right: 24px;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.app-profile-button:hover,
+.app-profile-button.active {
+  border-color: var(--border);
+  background: var(--blue-soft);
+}
+
+.app-profile-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.app-profile-details {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: none;
+  min-width: 150px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  text-align: left;
+}
+
+.app-profile-button:hover .app-profile-details,
+.app-profile-button:focus-visible .app-profile-details {
+  display: block;
+}
+
+.app-profile-details strong,
+.app-profile-details span {
+  display: block;
+  white-space: nowrap;
+}
+
+.app-profile-details strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.app-profile-details span {
+  margin-top: 2px;
+  color: rgba(0, 0, 0, 0.46);
+  font-size: 12px;
+}
+
+.topbar {
+  padding-right: 82px;
 }
 
 @media (max-width: 760px) {
@@ -188,20 +229,36 @@
 
 @media (max-width: 760px) {
   .app-page {
-    background:
-      radial-gradient(circle at 10% 0%, rgba(37, 99, 235, 0.12), transparent 34%),
-      linear-gradient(180deg, #f7f7f8 0%, #f2f2f4 100%);
+    background: var(--soft);
   }
 
   .app-shell {
     overflow: visible;
-    background: transparent;
+    background: var(--panel);
   }
 
   .main {
     min-height: 100dvh;
     padding-bottom: 84px;
-    background: transparent;
+    background: var(--soft);
+  }
+
+  .app-profile-button {
+    top: 12px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .app-profile-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .topbar,
+  .profile-header {
+    padding-right: 62px;
   }
 
   .mobile-nav {
