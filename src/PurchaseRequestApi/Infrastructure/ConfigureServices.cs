@@ -24,7 +24,7 @@ namespace Infrastructure
             services.AddDbContext<AppDbContext>(opt =>
                 opt.UseNpgsql(connectionString));
 
-            
+            Console.WriteLine($"[DB CONNSTR] {connectionString}");
 
             return services;
         }
