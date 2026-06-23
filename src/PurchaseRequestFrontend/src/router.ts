@@ -9,6 +9,7 @@ export type AppRoute =
   | { screen: 'admin' }
   | { screen: 'adminUser'; userId: string }
   | { screen: 'profile' }
+  | { screen: 'privacy' }
   | { screen: 'signin' }
   | { screen: 'signup' }
 
@@ -20,6 +21,7 @@ export const appRoutes = {
   detail: '/requests/:id',
   edit: '/requests/:id/edit',
   profile: '/profile',
+  privacy: '/privacy-policy',
   requests: '/requests',
   signin: '/sign-in',
   signup: '/sign-up',
@@ -46,6 +48,10 @@ export function parseRoute(pathname: string): AppRoute {
 
   if (segments[0] === 'profile') {
     return { screen: 'profile' }
+  }
+
+  if (segments[0] === 'privacy-policy') {
+    return { screen: 'privacy' }
   }
 
   if (segments[0] === 'sign-in') {
@@ -101,6 +107,8 @@ export function routeToPath(route: AppRoute) {
       return `/admin/users/${route.userId}`
     case 'profile':
       return appRoutes.profile
+    case 'privacy':
+      return appRoutes.privacy
     case 'signin':
       return appRoutes.signin
     case 'signup':

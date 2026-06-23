@@ -11,6 +11,7 @@ type RequestsListProps = {
   filteredRequests: RequestRecord[]
   canCreateRequests: boolean
   canReviewRequests: boolean
+  currency: string
   onCreate: () => void
   onFilter: (filter: 'All' | Status) => void
   onOpen: (request: RequestRecord, target?: Screen) => void
@@ -30,6 +31,7 @@ type RequestsListProps = {
 export function RequestsList({
   canCreateRequests,
   canReviewRequests,
+  currency,
   filter,
   filteredRequests,
   onCreate,
@@ -185,7 +187,9 @@ export function RequestsList({
                       status={request.status}
                     />
                   </td>
-                  <td className="money">{formatMoney(request.total)}</td>
+                  <td className="money">
+                    {formatMoney(request.total, currency)}
+                  </td>
                   <td>
                     <span className="creator">
                       <span className="creator-dot">{request.initials}</span>
@@ -224,7 +228,7 @@ export function RequestsList({
         <div className="table-footer">
           <span>
             Showing {filteredRequests.length} of {totalFiltered} filtered
-            requests
+            requests / {totalRequests} total
           </span>
           {visibleCount < totalFiltered && (
             <button className="btn compact" onClick={onShowMore} type="button">

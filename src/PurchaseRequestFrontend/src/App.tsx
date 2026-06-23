@@ -5,6 +5,7 @@ import { AdminView } from './components/AdminView/AdminView'
 import { AppShell } from './components/AppShell/AppShell'
 import { ApprovalView } from './components/ApprovalView/ApprovalView'
 import { AuthView } from './components/AuthView/AuthView'
+import { PrivacyPolicyView } from './components/PrivacyPolicyView/PrivacyPolicyView'
 import { ProfileView } from './components/ProfileView/ProfileView'
 import { RequestDetail } from './components/RequestDetail/RequestDetail'
 import { RequestForm } from './components/RequestForm/RequestForm'
@@ -14,12 +15,18 @@ import {
   clearAuthToken,
   deleteRequestApi,
   loadAccounts,
+  loadRegions,
+  loadRequestComments,
   loadRequestDetails,
-  loadRequests,
   loadRequestsFiltered,
   rejectRequestApi,
 } from './api'
-import type { AccountOption, RequestDetailsApiDto, RequestItemApiDto } from './api'
+import type {
+  AccountOption,
+  RegionOption,
+  RequestDetailsApiDto,
+  RequestItemApiDto,
+} from './api'
 import {
   getRouteScreen,
   parseRoute,
@@ -78,6 +85,24 @@ function getStoredRequestOwners() {
   }
 }
 
+function getCurrencyFromToken(token?: string) {
+  if (!token) {
+    return undefined
+  }
+
+  try {
+    const payload = token.split('.')[1]
+    const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const parsedPayload = JSON.parse(atob(normalizedPayload)) as {
+      currency?: string
+    }
+
+    return parsedPayload.currency
+  } catch {
+    return undefined
+  }
+}
+
 function normalizeStatus(status: string): Status {
   switch (status) {
     case 'Submited':
@@ -86,8 +111,9 @@ function normalizeStatus(status: string): Status {
       return 'Resubmitted'
     case 'Approved':
       return 'Approved'
+    case 'ForRevision':
+      return 'For Revision'
     case 'Rejected':
-    case 'FinalReject':
       return 'Rejected'
     default:
       return 'New'
@@ -102,6 +128,8 @@ function mapUiStatusToBackend(status: 'All' | Status) {
       return 'Resubmited'
     case 'Approved':
       return 'Approved'
+    case 'For Revision':
+      return 'ForRevision'
     case 'Rejected':
       return 'Rejected'
     default:
@@ -161,9 +189,44 @@ function mapApiRequest(
     approver: metadata.approverName ?? 'Approval queue',
     description: dto.description ?? '',
     reason: dto.rejectionCommentText,
-    finalRejected: dto.status === 'FinalReject',
+    finalRejected: false,
     items,
     ownerAccountId: metadata.ownerAccountId,
+  }
+}
+
+function isRejectedApiStatus(status: string) {
+  return status === 'ForRevision' || status === 'Rejected'
+}
+
+async function getRejectionReason(dto: RequestDetailsApiDto) {
+  if (dto.rejectionCommentText?.trim()) {
+    return dto.rejectionCommentText
+  }
+
+  if (!isRejectedApiStatus(dto.status)) {
+    return undefined
+  }
+
+  try {
+    const result = await loadRequestComments(dto.id)
+
+    if (!result.isSuccess || !result.data?.length) {
+      return undefined
+    }
+
+    const latestComment = [...result.data]
+      .filter((comment) => comment.text?.trim())
+      .sort(
+        (first, second) =>
+          new Date(second.creationTime ?? 0).getTime() -
+          new Date(first.creationTime ?? 0).getTime(),
+      )[0]
+
+    return latestComment?.text
+  } catch (error) {
+    console.error('Failed to load rejection reason:', error)
+    return undefined
   }
 }
 
@@ -195,6 +258,7 @@ function App() {
     Record<string, string>
   >({})
   const [requestRecords, setRequestRecords] = useState<RequestRecord[]>([])
+  const [regions, setRegions] = useState<RegionOption[]>([])
   const [filter, setFilter] = useState<'All' | Status>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sort, setSort] = useState<RequestSort>('newest')
@@ -211,8 +275,33 @@ function App() {
     !hasRole(currentAccount, 'Approver') &&
     !canManageAdmin
   const canCreateRequests = isRequester || canManageAdmin
+  const currentCurrency =
+    getCurrencyFromToken(currentAccount?.token) ??
+    regions.find((region) => region.id === currentAccount?.regionId)?.currency ??
+    'EUR'
   const selectedRequestTypeId =
     typeFilter === 'All' ? undefined : requestTypeIdsByName[typeFilter]
+
+  useEffect(() => {
+    if (!currentAccount) {
+      setRegions([])
+      return
+    }
+
+    async function fetchRegions() {
+      try {
+        const result = await loadRegions()
+
+        if (result.isSuccess && result.data) {
+          setRegions(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load regions:', error)
+      }
+    }
+
+    fetchRegions()
+  }, [currentAccount])
 
   useEffect(() => {
     if (!currentAccount?.id || !canManageAdmin) {
@@ -251,17 +340,15 @@ function App() {
 
     async function fetchRequests() {
       try {
-        const shouldUseBackendFilter =
-          filter !== 'All' || Boolean(selectedRequestTypeId)
-        const result = shouldUseBackendFilter
-          ? await loadRequestsFiltered({
-              regionId: currentAccount?.regionId,
-              requestTypeId: selectedRequestTypeId,
-              status: mapUiStatusToBackend(filter),
-            })
-          : await loadRequests()
+        const result = await loadRequestsFiltered({
+          requestTypeId: selectedRequestTypeId,
+          status: mapUiStatusToBackend(filter),
+        })
 
         if (result.isSuccess && result.data) {
+          const totalsByRequestId = new Map(
+            result.data.map((dto) => [dto.id, dto.totalPrice]),
+          )
           const detailResults = await Promise.all(
             result.data.map((dto) => loadRequestDetails(dto.id)),
           )
@@ -286,14 +373,18 @@ function App() {
             return nextTypes
           })
 
-          setRequestRecords(
-            details.map((detail) => {
+          const requestsWithReasons = await Promise.all(
+            details.map(async (detail) => {
               const ownerAccountId = requestOwners[detail.id]
               const ownerAccount =
                 ownerAccountId === currentAccount?.id
                   ? currentAccount
                   : accounts.find((account) => account.id === ownerAccountId)
-              const request = mapApiRequest(detail, {
+              const reason = await getRejectionReason(detail)
+              const request = mapApiRequest({
+                ...detail,
+                rejectionCommentText: reason,
+              }, {
                 approverName:
                   currentAccount?.approverProfileName ?? 'Approval queue',
                 creatorName: ownerAccount?.name,
@@ -302,9 +393,12 @@ function App() {
 
               return {
                 ...request,
+                total: totalsByRequestId.get(detail.id) ?? request.total,
               }
             }),
           )
+
+          setRequestRecords(requestsWithReasons)
         }
       } catch (error) {
         console.error('Failed to load requests:', error)
@@ -316,6 +410,7 @@ function App() {
     accounts,
     currentAccount?.approverProfileName,
     currentAccount?.regionId,
+    currentAccount?.token,
     filter,
     requestOwners,
     selectedRequestTypeId,
@@ -351,7 +446,11 @@ function App() {
             ownerAccountId === currentAccount?.id
               ? currentAccount
               : accounts.find((account) => account.id === ownerAccountId)
-          const request = mapApiRequest(result.data, {
+          const reason = await getRejectionReason(result.data)
+          const request = mapApiRequest({
+            ...result.data,
+            rejectionCommentText: reason,
+          }, {
             approverName: currentAccount?.approverProfileName ?? 'Approval queue',
             creatorName: ownerAccount?.name,
             ownerAccountId,
@@ -606,7 +705,12 @@ function App() {
       )
     }
 
-    const nextStatus = decisionResult === 'approved' ? 'Approved' : 'Rejected'
+    const nextStatus =
+      decisionResult === 'approved'
+        ? 'Approved'
+        : finalRejected
+          ? 'Rejected'
+          : 'For Revision'
 
     setRequestRecords((currentRequests) =>
       currentRequests.map((request) =>
@@ -615,14 +719,27 @@ function App() {
               ...request,
               status: nextStatus,
               reason: decisionResult === 'rejected' ? reason : request.reason,
-              finalRejected:
-                decisionResult === 'rejected' ? finalRejected : undefined,
+              finalRejected: undefined,
               updated: 'Just now',
             }
           : request,
       ),
     )
-    setDecision(decisionResult)
+    setDecision(
+      decisionResult === 'approved'
+        ? 'approved'
+        : finalRejected
+          ? 'rejected'
+          : 'returned',
+    )
+  }
+
+  if (screen === 'privacy') {
+    return (
+      <PrivacyPolicyView
+        onBack={() => navigate({ screen: currentAccount ? 'requests' : 'signup' })}
+      />
+    )
   }
 
   if (!currentAccount || screen === 'signin' || screen === 'signup') {
@@ -630,6 +747,7 @@ function App() {
       <AuthView
         mode={screen === 'signup' ? 'signup' : 'signin'}
         onModeChange={(nextMode) => navigate({ screen: nextMode })}
+        onPrivacyPolicy={() => navigate({ screen: 'privacy' })}
         onSuccess={completeAuth}
       />
     )
@@ -653,6 +771,7 @@ function App() {
         <RequestsList
           canCreateRequests={canCreateRequests}
           canReviewRequests={canReviewRequests}
+          currency={currentCurrency}
           filter={filter}
           filteredRequests={filteredRequests}
           onCreate={() => navigate({ screen: 'create' })}
@@ -697,6 +816,7 @@ function App() {
           <RequestsList
             canCreateRequests={canCreateRequests}
             canReviewRequests={canReviewRequests}
+            currency={currentCurrency}
             filter={filter}
             filteredRequests={filteredRequests}
             onCreate={() => navigate({ screen: 'create' })}
@@ -752,6 +872,7 @@ function App() {
             selectedRequest.ownerAccountId === currentAccount?.id
           }
           canReview={canReviewRequests}
+          currency={currentCurrency}
           request={selectedRequest}
           onApprove={() =>
             navigate({ screen: 'approval', requestId: selectedRequest.id })
@@ -766,6 +887,7 @@ function App() {
 
       {screen === 'approval' && canReviewRequests && (
         <ApprovalView
+          currency={currentCurrency}
           decision={decision}
           onBack={() => navigate({ screen: 'approval' })}
           onDecide={decideRequest}
@@ -781,6 +903,7 @@ function App() {
         <RequestsList
           canCreateRequests={canCreateRequests}
           canReviewRequests={canReviewRequests}
+          currency={currentCurrency}
           filter={filter}
           filteredRequests={filteredRequests}
           onCreate={() => navigate({ screen: 'create' })}
@@ -833,6 +956,7 @@ function App() {
         <RequestsList
           canCreateRequests={canCreateRequests}
           canReviewRequests={canReviewRequests}
+          currency={currentCurrency}
           filter={filter}
           filteredRequests={filteredRequests}
           onCreate={() => navigate({ screen: 'create' })}

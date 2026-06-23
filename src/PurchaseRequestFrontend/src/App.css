@@ -50,6 +50,12 @@
   color: var(--green);
 }
 
+.btn.revision {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
 .btn.danger {
   border-color: var(--danger);
   background: var(--danger-soft);
@@ -144,6 +150,11 @@
 .notice.success {
   background: var(--green-soft);
   color: var(--green);
+}
+
+.notice.revision {
+  background: var(--blue-soft);
+  color: var(--blue);
 }
 
 .money {

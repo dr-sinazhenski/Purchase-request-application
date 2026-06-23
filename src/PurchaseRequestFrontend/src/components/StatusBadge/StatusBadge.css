@@ -33,12 +33,12 @@
 }
 
 .status-resubmitted {
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: #eef2ff;
+  color: #1e3a8a;
 }
 
 .status-resubmitted::before {
-  background: var(--blue);
+  background: #1e3a8a;
 }
 
 .status-approved {
@@ -48,6 +48,15 @@
 
 .status-approved::before {
   background: var(--green);
+}
+
+.status-for-revision {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.status-for-revision::before {
+  background: var(--blue);
 }
 
 .status-rejected {

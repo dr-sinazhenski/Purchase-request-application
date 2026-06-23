@@ -12,6 +12,7 @@ using Application.BusinessLogic.RequestLogic.ApproveRequest;
 using Application.BusinessLogic.RequestLogic.RejectRequest;
 using Application.BusinessLogic.RequestLogic.GetRequestsFiltered;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace WebApi.Controllers
@@ -33,7 +34,14 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRequestDto dto)
         {
-            var result = await _mediator.Send(new CreateRequestCommand(dto));
+            var requesterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(requesterId, out var accountId))
+            {
+                _logger.LogError("Failed to create request because requester id is missing from token");
+                return Unauthorized();
+            }
+
+            var result = await _mediator.Send(new CreateRequestCommand(dto, accountId));
 
             if (!result.IsSuccess)
             {

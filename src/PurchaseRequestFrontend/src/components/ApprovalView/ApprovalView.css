@@ -216,6 +216,11 @@
   color: var(--danger);
 }
 
+.modal-icon.revision {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
 .modal h2 {
   margin: 0 0 10px;
   color: var(--ink);

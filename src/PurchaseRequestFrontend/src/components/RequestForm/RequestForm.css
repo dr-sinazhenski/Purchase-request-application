@@ -37,10 +37,36 @@
   font-size: 14px;
 }
 
+.request-form-status {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  max-width: 360px;
+  text-align: right;
+}
+
+.request-form-status-reason {
+  font-size: 13px;
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.panel-heading .request-form-status-reason.returned {
+  color: var(--blue);
+}
+
+.panel-heading .request-form-status-reason.final {
+  color: var(--danger);
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.form-panel .section-title {
+  margin-top: 24px;
 }
 
 .items-list {
@@ -216,6 +242,10 @@
   .panel-heading {
     gap: 12px;
     margin-bottom: 16px;
+  }
+
+  .request-form-status {
+    max-width: 220px;
   }
 
   .form-panel h2,
