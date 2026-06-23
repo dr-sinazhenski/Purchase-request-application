@@ -52,9 +52,8 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                 Status = RequestStatus.Submited,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                RequesterId = requester.Id,
-                Requester = requester,
-                RequesterProducts = new List<RequesterProduct>()
+                RequesterProducts = new List<RequesterProduct>(),
+                RequesterId = command.dto.RequesterId
             };
 
 
@@ -96,7 +95,8 @@ namespace Application.BusinessLogic.RequestLogic.CreateRequest
                     Id = request.RequestType.Id,
                     Name = request.RequestType.Name,
                 },
-                Products = new List<ProductListItemDto>()
+                Products = new List<ProductListItemDto>(),
+                RequesterId = (Guid)request.RequesterId
             };
 
             var prices = _dbContext.Prices.Where(p => p.RegionId == new Guid("aaaaaaaa-bbbb-bbbb-bbbb-bbbbbbbbbbbb") && productsIds.Contains(p.Product.Id)).ToList();

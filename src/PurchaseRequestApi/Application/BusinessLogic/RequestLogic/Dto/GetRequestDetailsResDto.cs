@@ -17,6 +17,7 @@ namespace Application.BusinessLogic.RequestLogic.Dto
         public string? RejectionCommentText { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public Guid RequesterId { get; set; }
 
         public List<ProductListItemDto> Products { get; set; }
     }

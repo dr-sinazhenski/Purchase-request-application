@@ -64,6 +64,7 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestsFiltered
                     Status = r.Status.ToString(),
                     CreatedAt = r.CreatedAt,
                     UpdatedAt = r.UpdatedAt,
+                    RequesterId = (Guid)r.RequesterId,
                     TotalPrice = 0
                 };
 
