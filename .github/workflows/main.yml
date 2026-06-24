@@ -52,6 +52,7 @@ jobs:
 
           PIPELINE_FILES=(
             "src/PurchaseRequestApi/azure-pipelines.yml"
+            "src/PurchaseRequestFrontend/azure-pipelines.yml"
           )
           for f in "${PIPELINE_FILES[@]}"; do
             if [ -f "azure-repo/$f" ]; then
