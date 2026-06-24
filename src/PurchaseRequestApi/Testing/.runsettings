@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage"
+                     uri="datacollector://Microsoft/CodeCoverage/2.0">
+        <Configuration>
+          <CodeCoverage>
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*\\Application\.dll</ModulePath>
+                <ModulePath>.*\\Infrastructure\.dll</ModulePath>
+                <ModulePath>.*\\WebApi\.dll</ModulePath>
+                <ModulePath>.*\\Shared\.dll</ModulePath>
+              </Include>
+            </ModulePaths>
+            <Sources>
+              <Exclude>
+                <Source>.*\\Migrations\\.*</Source>
+                <Source>.*\\obj\\.*</Source>
+                <Source>.*\\ConfigureServices\.cs</Source>
+                <Source>.*\\ConfigureOptions\.cs</Source>
+                <Source>.*\\Middleware\\.*</Source>
+                <Source>.*\\Program\.cs</Source>
+              </Exclude>
+            </Sources>
+            <Attributes>
+              <Exclude>
+                <Attribute>^System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute$</Attribute>
+                <Attribute>^System.CodeDom.Compiler.GeneratedCodeAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

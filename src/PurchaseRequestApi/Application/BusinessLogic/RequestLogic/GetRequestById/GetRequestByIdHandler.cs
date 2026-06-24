@@ -15,9 +15,9 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestById
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetRequestByIdHandler> _logger;
-        private readonly CurrencyExchangeService _currencyExchangeService;
+        private readonly ICurrencyExchangeService _currencyExchangeService;
 
-        public GetRequestByIdHandler(AppDbContext dbContext, ILogger<GetRequestByIdHandler> logger, CurrencyExchangeService currencyExchangeService)
+        public GetRequestByIdHandler(AppDbContext dbContext, ILogger<GetRequestByIdHandler> logger, ICurrencyExchangeService currencyExchangeService)
         {
             _dbContext = dbContext;
             _logger = logger;
