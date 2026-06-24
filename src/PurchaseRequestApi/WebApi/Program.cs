@@ -57,6 +57,14 @@ builder.Services.AddDb(builder.Environment);
 builder.Services.AddCurrencyRatesService();
 builder.Services.AddMediatr();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+        policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [])
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
