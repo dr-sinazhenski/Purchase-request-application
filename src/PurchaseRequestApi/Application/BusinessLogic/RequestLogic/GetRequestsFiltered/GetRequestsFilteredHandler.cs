@@ -16,9 +16,9 @@ namespace Application.BusinessLogic.RequestLogic.GetRequestsFiltered
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetRequestsFilteredHandler> _logger;
-        private readonly CurrencyExchangeService _currencyExchangeService;
+        private readonly ICurrencyExchangeService _currencyExchangeService;
 
-        public GetRequestsFilteredHandler(AppDbContext dbContext, ILogger<GetRequestsFilteredHandler> logger, CurrencyExchangeService currencyExchangeService)
+        public GetRequestsFilteredHandler(AppDbContext dbContext, ILogger<GetRequestsFilteredHandler> logger, ICurrencyExchangeService currencyExchangeService)
         {
             _dbContext = dbContext;
             _logger = logger;

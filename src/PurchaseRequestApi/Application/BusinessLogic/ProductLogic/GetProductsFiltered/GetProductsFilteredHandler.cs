@@ -14,12 +14,12 @@ namespace Application.BusinessLogic.ProductLogic.GetProductsFiltered
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<GetProductsFilteredHandler> _logger;
-        private readonly CurrencyExchangeService _currencyExchangeService;
+        private readonly ICurrencyExchangeService _currencyExchangeService;
 
         public GetProductsFilteredHandler(
             AppDbContext dbContext,
             ILogger<GetProductsFilteredHandler> logger,
-            CurrencyExchangeService currencyExchangeService)
+            ICurrencyExchangeService currencyExchangeService)
         {
             _dbContext = dbContext;
             _logger = logger;

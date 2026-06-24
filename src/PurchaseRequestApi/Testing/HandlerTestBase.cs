@@ -1,4 +1,5 @@
 ﻿using Application.Metadata;
+using Infrastructure.CurrencyRatesService;
 using Infrastructure.Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,8 @@ namespace Testing
             services.AddLogging(b => b.AddConsole());
             services.AddDbContext<AppDbContext>(opt =>
                 opt.UseNpgsql(Tests.ConnectionString));
+
+            services.AddSingleton<ICurrencyExchangeService>(new FakeCurrencyExchangeService());
 
             var provider = services.BuildServiceProvider();
             Mediator = provider.GetRequiredService<IMediator>();

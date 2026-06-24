@@ -1,3 +1,4 @@
+using Infrastructure.CurrencyRatesService;
 using Infrastructure.Database;
 using Infrastructure.Database.Entities;
 using Microsoft.AspNetCore.Hosting;
@@ -5,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 using NUnit.Framework;
 using Respawn;
@@ -174,6 +177,11 @@ namespace Testing
                                 System.Text.Encoding.UTF8.GetBytes(TestJwtSecret))
                         };
                     });
+
+                services.RemoveAll<CurrencyExchangeService>();
+                services.RemoveAll<ICurrencyExchangeService>();
+                services.RemoveAll<IHostedService>();
+                services.AddSingleton<ICurrencyExchangeService>(new FakeCurrencyExchangeService());
             });
         }
     }

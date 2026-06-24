@@ -12,9 +12,9 @@ namespace Application.BusinessLogic.PriceLogic.GetPrice
     {
         private readonly ILogger<GetPriceHandler> _logger;
         private readonly AppDbContext _dbContext;
-        private readonly CurrencyExchangeService _currencyExchangeService;
+        private readonly ICurrencyExchangeService _currencyExchangeService;
 
-        public GetPriceHandler(AppDbContext dbContext, ILogger<GetPriceHandler> logger, CurrencyExchangeService currencyExchangeService)
+        public GetPriceHandler(AppDbContext dbContext, ILogger<GetPriceHandler> logger, ICurrencyExchangeService currencyExchangeService)
         {
             _logger = logger;
             _dbContext = dbContext;
